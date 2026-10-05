@@ -62,7 +62,7 @@ Phase numbers match `EXECUTION_PLAN.md`. Tick a phase only when it works. The pr
 If time runs short, protect the core in this order: working chatbot → dataset → PostgreSQL + pgvector → RAG → query translation → 3 tools → citations → conversation history → RAG visualisation → token/cost → logging → prompt injection → hybrid search → evaluation → MCP. Never sacrifice a working core project to finish MCP.
 
 - [x] 0 Project setup: folder structure, backend and frontend skeletons, environment variables
-- [ ] 1 Basic chatbot: `POST /api/chat` → LangChain → OpenRouter, chat UI with loading and error states, no RAG
+- [x] 1 Basic chatbot: `POST /api/chat` → LangChain → OpenRouter, chat UI with loading and error states, no RAG
 - [ ] 2 Dataset: choose a Hugging Face movie and review dataset, inspect it, select 5,000–10,000 English reviews
 - [ ] 3 Database: the schema below in local PostgreSQL, pgvector enabled and tested
 - [ ] 4 Ingestion: load, clean, normalise, store movies and reviews, build and chunk RAG documents

@@ -1,9 +1,12 @@
-# Phase 0: web skeleton only. LangChain, OpenRouter SDK, SQLAlchemy, psycopg and pgvector
-# are added in the phase that first uses them.
+# Dependencies are added in the phase that first uses them (SQLAlchemy, psycopg, pgvector next).
 fastapi>=0.115
 uvicorn[standard]>=0.30
 pydantic>=2.8
 pydantic-settings>=2.4
+
+# LLM (Phase 1): LangChain talking to OpenRouter through the OpenAI-compatible client
+langchain-core>=1.6
+langchain-openai>=1.6
 
 # Tests
 pytest>=8.3

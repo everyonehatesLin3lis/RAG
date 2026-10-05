@@ -4,13 +4,17 @@ Secrets live only here and are never returned by an endpoint or written to logs.
 """
 
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+# backend/.env, wherever the server is started from
+ENV_FILE = Path(__file__).resolve().parents[1] / ".env"
+
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    model_config = SettingsConfigDict(env_file=ENV_FILE, env_file_encoding="utf-8", extra="ignore")
 
     # LLM (Phase 1). The model name is configuration so cost tracking can read it.
     openrouter_api_key: SecretStr | None = None
