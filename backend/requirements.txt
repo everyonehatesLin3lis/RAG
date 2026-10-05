@@ -1,0 +1,10 @@
+# Phase 0: web skeleton only. LangChain, OpenRouter SDK, SQLAlchemy, psycopg and pgvector
+# are added in the phase that first uses them.
+fastapi>=0.115
+uvicorn[standard]>=0.30
+pydantic>=2.8
+pydantic-settings>=2.4
+
+# Tests
+pytest>=8.3
+httpx>=0.27
