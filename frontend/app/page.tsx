@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
@@ -78,18 +79,18 @@ export default function Home() {
           <p className="mt-8 text-center text-zinc-500">Try: &ldquo;Recommend me a slow-burning thriller.&rdquo;</p>
         )}
 
-        {messages.map((msg, i) => (
-          <div
-            key={i}
-            className={
-              msg.role === "user"
-                ? "max-w-[85%] self-end rounded-2xl bg-blue-600 px-4 py-2 text-white"
-                : "max-w-[85%] self-start whitespace-pre-wrap rounded-2xl bg-zinc-100 px-4 py-2 dark:bg-zinc-800"
-            }
-          >
-            {msg.content}
-          </div>
-        ))}
+        {messages.map((msg, i) =>
+          msg.role === "user" ? (
+            <div key={i} className="max-w-[85%] self-end whitespace-pre-wrap rounded-2xl bg-blue-600 px-4 py-2 text-white">
+              {msg.content}
+            </div>
+          ) : (
+            // react-markdown builds React elements and does not render raw HTML, so model output cannot inject markup.
+            <div key={i} className="markdown max-w-[85%] self-start rounded-2xl bg-zinc-100 px-4 py-2 dark:bg-zinc-800">
+              <ReactMarkdown>{msg.content}</ReactMarkdown>
+            </div>
+          ),
+        )}
 
         {loading && (
           <div className="self-start rounded-2xl bg-zinc-100 px-4 py-2 text-zinc-500 dark:bg-zinc-800">
