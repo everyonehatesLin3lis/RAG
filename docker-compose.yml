@@ -1,0 +1,23 @@
+# Local PostgreSQL + pgvector for development. Start: docker compose up -d
+# The password comes from POSTGRES_PASSWORD in the repo-root .env (git-ignored; see .env.example).
+# Port 5433 on the host so it does not clash with other local Postgres instances on 5432.
+services:
+  db:
+    image: pgvector/pgvector:0.8.7-pg17
+    container_name: movie-copilot-db
+    environment:
+      POSTGRES_DB: movie_copilot
+      POSTGRES_USER: movie_copilot
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U movie_copilot -d movie_copilot"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:
