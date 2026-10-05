@@ -45,7 +45,7 @@ Defaults for this layout. If scaffolding ends up different, correct this section
 - Backend tests: `cd backend && pytest` (database tests skip if the container is down)
 - Frontend dev server: `cd frontend && npm run dev`
 - Frontend type and build check: `cd frontend && npm run build`
-- Data scripts (repo root, backend venv active): `python scripts/download_datasets.py`, `python scripts/inspect_dataset.py`, `python scripts/select_subset.py`
+- Data scripts (repo root, backend venv active): `python scripts/download_datasets.py`, `python scripts/inspect_dataset.py`, `python scripts/select_subset.py`, `python scripts/ingest.py [--movies N]`
 
 ## How to work
 
@@ -68,7 +68,7 @@ If time runs short, protect the core in this order: working chatbot → dataset 
 - [x] 1 Basic chatbot: `POST /api/chat` → LangChain → OpenRouter, chat UI with loading and error states, no RAG
 - [x] 2 Dataset: choose a Hugging Face movie and review dataset, inspect it, select 5,000–10,000 English reviews
 - [x] 3 Database: the schema below in local PostgreSQL, pgvector enabled and tested
-- [ ] 4 Ingestion: load, clean, normalise, store movies and reviews, build and chunk RAG documents
+- [x] 4 Ingestion: load, clean, normalise, store movies and reviews, build and chunk RAG documents
 - [ ] 5 Embeddings: one model, every chunk embedded into `rag_chunks.embedding`, vector index
 - [ ] 6 Basic RAG: embed the query, vector search, grounded answer
 - [ ] 7 Query translation
@@ -123,7 +123,8 @@ messages       id, conversation_id, role, content, created_at
 - IDs: `movies.id` is the IMDb ID (`tt1392214`), `reviews.id` the Rotten Tomatoes review ID, `conversations.id` a UUID (the frontend already sends one). The SQLAlchemy attribute for each `metadata` column is `metadata_`.
 - Every chunk's metadata carries what a citation needs: movie, review ID, source, chunk ID.
 - Schema changes go through migration scripts, never by hand, so Phase 22 can replay them on Cloud SQL.
-- A RAG document is the movie title, year and genres followed by the review text. Long reviews and descriptions are split into chunks.
+- Two RAG document types (`backend/app/documents.py`): one **review** document per review (title, year, genres header + critic, score and text) and one **profile** document per movie (director, writers, cast, runtime, IMDb rating, overview, keywords). Only the body is chunked, with LangChain's `RecursiveCharacterTextSplitter` at 1,000 characters and 150 overlap; the header is repeated on every chunk. Reviews are at most ~360 characters so never split; long profiles are.
+- `scripts/ingest.py` is idempotent: rows upsert by ID, chunks by `metadata->>'chunk_key'` (`review:<id>:<n>`, `profile:<imdb id>:<n>`). A chunk whose content is unchanged keeps its embedding.
 
 ## API contract
 
@@ -186,7 +187,6 @@ These apply from the first line of code. Phase 16 is where they are tested, not 
 Ask before settling any of these:
 
 - Embedding model and provider.
-- Chunk size and overlap.
 
 ## Rules from retros
 

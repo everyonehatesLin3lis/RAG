@@ -18,6 +18,7 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     Identity,
+    Index,
     Numeric,
     SmallInteger,
     Text,
@@ -67,6 +68,11 @@ class Review(Base):
 
 class RagChunk(Base):
     __tablename__ = "rag_chunks"
+    __table_args__ = (
+        # metadata->>'chunk_key' ("review:122525:0") identifies a chunk across re-ingestion runs,
+        # so ingestion can upsert and keep embeddings of unchanged chunks.
+        Index("ux_rag_chunks_chunk_key", text("(metadata->>'chunk_key')"), unique=True),
+    )
 
     id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
     movie_id: Mapped[str] = mapped_column(ForeignKey("movies.id", ondelete="CASCADE"), index=True)

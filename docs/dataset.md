@@ -54,5 +54,7 @@ movies (Prisoners, Zodiac, Inception).
 
 ## Consequence for chunking (Phase 4)
 
-Because critic reviews are at most 363 characters, a single review never needs splitting. Chunk size and
-document shape are decided in Phase 4.
+Because critic reviews are at most 363 characters, a single review never needs splitting. Phase 4 therefore
+builds one document per review (so a retrieved chunk cites exactly one review) plus one profile document per
+movie from its metadata, and chunks bodies at 1,000 characters with 150 overlap. Result for the first subset:
+9,987 review chunks and 553 profile chunks; 53 long profiles (many keywords) split into two.
