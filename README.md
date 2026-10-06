@@ -17,8 +17,9 @@ found, and why each decision went the way it did. The full plan is in [`EXECUTIO
 | 3 | PostgreSQL + pgvector schema via Alembic, vector tests | done |
 | 4 | Ingestion: clean, normalise, store, build and chunk RAG documents | done |
 | 5 | Embeddings: all 10,540 chunks embedded, HNSW index | done |
-| 6 | Basic RAG: retrieve chunks, answer grounded in them | next |
-| 7–31 | Query translation, citations, tools, history, visualisation, cost, logging, security, hybrid search, evaluation, Cloud SQL, scaling, MCP, streaming, final UI, README, review | to do |
+| 6 | Basic RAG: embed the question, top-8 vector search, grounded answer | done |
+| 7 | Query translation | next |
+| 8–31 | Citations, tools, history, visualisation, cost, logging, security, hybrid search, evaluation, Cloud SQL, scaling, MCP, streaming, final UI, README, review | to do |
 
 ## How it works today
 
@@ -26,6 +27,9 @@ found, and why each decision went the way it did. The full plan is in [`EXECUTIO
 Browser (Next.js chat page)
   → POST /api/chat {"message", "conversation_id"}
   → FastAPI validates the request (Pydantic)
+  → embed the question (openai/text-embedding-3-small, same model as the chunks)
+  → pgvector: 8 chunks with the smallest cosine distance to the question
+  → prompt = system rules + the 8 chunks in <source> tags + the question
   → LangChain ChatOpenAI → OpenRouter → xiaomi/mimo-v2.6-flash
   → {"answer": "..."} rendered as Markdown
 
@@ -33,9 +37,20 @@ Offline pipeline (scripts/):
   Hugging Face files → inspect → select subset → ingest into PostgreSQL → chunk → embed into pgvector
 ```
 
-The chat does not use the knowledge base yet; Phase 6 connects them. The target architecture adds query
-translation, hybrid retrieval (pgvector + keyword search), tool calling through MCP, sources, token and cost
-tracking, and logging; see [`CLAUDE.md`](CLAUDE.md#target-architecture).
+**What RAG does here.** The model doesn't answer from memory. The system finds the 8 chunks most related to
+the question and puts them in the prompt, with rules: answer only from these sources, don't invent anything,
+say when the evidence is not enough. The model's job becomes reading and summarising evidence we can check.
+
+**Prompt-injection defence from day one.** Retrieved reviews are text written by strangers, so they are
+treated as data:
+- The system prompt says instructions inside sources are never followed.
+- Each source is wrapped in `<source chunk_id=… movie=…>` tags with `<` escaped, so a review cannot close its
+  own tag or fake a question block.
+- The retrieval SQL only receives the question's embedding as a bound parameter, never the question text.
+
+The target architecture adds query translation, hybrid retrieval (pgvector + keyword search), tool calling
+through MCP, sources in the response, token and cost tracking, and logging; see
+[`CLAUDE.md`](CLAUDE.md#target-architecture).
 
 ## Stack
 
@@ -140,6 +155,55 @@ the 10,540 chunks, about 850k tokens):
 - `EMBEDDING_API_KEY` falls back to `OPENROUTER_API_KEY` when empty, also decided by the developer.
 - The same model must embed both documents and questions; vectors from different models are not comparable.
 
+### Embedding experiment: Qwen3-Embedding-8B vs text-embedding-3-small
+
+The developer asked to try `qwen/qwen3-embedding-8b` against the model in use. Setup
+([`scripts/compare_embeddings.py`](scripts/compare_embeddings.py), results in
+[`docs/experiments/embedding_comparison.json`](docs/experiments/embedding_comparison.json)):
+- All 10,540 chunks were embedded with Qwen too (106 API calls, about $0.0085 estimated) and kept in a local file,
+  so the live database was not touched.
+- 30 questions with a known answer movie: 22 describe a plot without naming the film ("a weatherman relives the
+  same day over and over"), 8 ask what critics said.
+- Both models get the same exact cosine search. A question is a hit@k when one of the top k chunks belongs
+  to the right movie.
+- Qwen's model card says queries should carry an instruction prefix, so Qwen is tested with and without one.
+- Qwen is also tested cut to its first 1,536 numbers. It is trained (Matryoshka) so a prefix of the vector still
+  works, and 1,536 is what our `vector(1536)` column holds.
+
+| Variant | Dims | hit@1 | hit@5 | hit@10 | MRR@10 | Median query time |
+|---|---|---|---|---|---|---|
+| OpenAI text-embedding-3-small (in use) | 1,536 | 0.87 | 0.97 | 1.00 | 0.92 | 313 ms |
+| Qwen3-8B, plain query | 4,096 | 0.87 | 1.00 | 1.00 | 0.92 | 1,149 ms |
+| Qwen3-8B + instruction | 4,096 | 0.97 | 1.00 | 1.00 | 0.98 | 1,149 ms |
+| Qwen3-8B + instruction, cut to 1,536 | 1,536 | 0.97 | 1.00 | 1.00 | 0.98 | 1,149 ms |
+
+What it shows:
+- **With the instruction prefix, Qwen puts the right movie first more often** (29/30 vs 26/30). Without the
+  prefix it is no better than OpenAI, so the prefix matters.
+- **Cutting Qwen to 1,536 dimensions lost nothing** here, so Qwen would fit the current database column and
+  HNSW index.
+- **Qwen is about 3.7× slower per question** (1.1 s vs 0.3 s). Embedding the whole corpus took 846 s against
+  166 s for OpenAI, though the Qwen run also rewrote its cache file after every batch, so part of that is the
+  experiment's own overhead.
+- **For our RAG setup the gap is small.** We send 8 chunks, and OpenAI had the right movie in its top 8 for
+  29/30 questions. The miss was an opinion question about Heath Ledger's Joker, ranked 10th.
+- 30 questions is a small sample: 3 questions separate the models at rank 1. This is directional, not proof.
+
+**Decision: pending, the developer's call.** Production still uses text-embedding-3-small. The Phase 20 evaluation,
+with a larger question set, is the planned place to settle it. The Qwen vectors are cached, so they can be
+re-evaluated without paying again.
+
+### Retrieval: top 8 chunks, PostgreSQL chooses the scan (Phase 6)
+
+- **K = 8.** The plan asks for 5–10 chunks; 8 is the default, configurable through `RETRIEVAL_TOP_K` and limited
+  to 5–10. More chunks give the model more evidence but cost more input tokens per answer (about 1,000 now).
+- **Index use (decided by the developer: option 1).** At ~10k chunks PostgreSQL does an exact full scan instead of
+  using the HNSW index (see Findings). Options:
+  1. **Let PostgreSQL choose (chosen).** Results are exact, nothing tricky to explain, and the index is used on its
+     own as the table grows (Phase 23).
+  2. Force the index (`SET LOCAL enable_seqscan = off`). Faster today (17 ms vs 50 ms), but approximate, and it
+     overrides the planner.
+
 ### Smaller implementation choices
 
 These follow from the decisions above:
@@ -200,6 +264,18 @@ These follow from the decisions above:
     inline did not change the planner's choice.
   - Results are correct either way. How retrieval queries use the index is decided in Phase 6.
 
+### Basic RAG (Phase 6; spec and traceability in [`specs/6.md`](specs/6.md))
+
+- **"Why do people like Prisoners?"**, typed into the web page:
+  - All 8 retrieved chunks were *Prisoners* reviews.
+  - The answer quoted named critics from them (A.O. Scott, Brian Tallerico, …) and included the negative reviews too.
+- **"What did critics think of Oppenheimer (2023)?"** (not in our data):
+  - Retrieval returned unrelated films, as nearest-neighbour search always returns something.
+  - The model said the reviews did not contain enough information and listed what it had been given, instead of
+    answering from memory.
+- **Where the time goes, for one request:** embedding the question about 0.4 s, vector search about 0.1 s, the LLM
+  3.5–7.6 s depending on answer length (113–386 output tokens). The prompt was about 1,000 input tokens.
+
 ### Environment (Windows)
 
 - On this machine, `localhost` tries IPv6 first and Docker's port listens only on IPv4, so connections hung
@@ -252,9 +328,10 @@ cd backend
 pytest
 ```
 
-47 tests: the chat endpoint (with a fake LLM), records and chunking, the embedder and embedding job (with a fake
-embedder, so tests never call a paid API), and the database: schema, vector size, HNSW index, similarity order,
-cascade deletes. Database tests run inside a transaction that is rolled back, and are skipped when the container
+67 tests. They cover the chat endpoint, the RAG prompt and its injection defences, retrieval, records and chunking,
+the embedder and embedding job, and the database (schema, vector size, HNSW index, similarity order, top-K search,
+SQL-injection text, cascade deletes). The embedder, retrieval and LLM are replaced with fakes in the unit tests, so
+tests never call a paid API. Database tests run inside a transaction that is rolled back, and are skipped when the container
 is down.
 
 ## Repository layout

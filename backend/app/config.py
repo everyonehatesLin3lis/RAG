@@ -6,7 +6,7 @@ Secrets live only here and are never returned by an endpoint or written to logs.
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import SecretStr
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # backend/.env, wherever the server is started from
@@ -30,6 +30,9 @@ class Settings(BaseSettings):
     embedding_api_key: SecretStr | None = None
     embedding_model: str = "openai/text-embedding-3-small"
     embedding_dimensions: int = 1536
+
+    # Retrieval (Phase 6). Implements: specs/6.md#AC-002. The plan asks for the top 5–10 chunks.
+    retrieval_top_k: int = Field(default=8, ge=5, le=10)
 
     # Web
     cors_origins: list[str] = ["http://localhost:3000"]

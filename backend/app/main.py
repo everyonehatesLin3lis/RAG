@@ -1,11 +1,13 @@
 """FastAPI entrypoint. Run with: uvicorn app.main:app --reload --port 8000"""
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
-from app import llm
+from app import rag
 from app.config import get_settings
+from app.db import get_session
 from app.errors import register_error_handlers
 from app.schemas import ChatRequest, ChatResponse
 
@@ -32,7 +34,9 @@ def health() -> HealthResponse:
     return HealthResponse(status="ok")
 
 
+# A plain `def` (not async): embedding, database and LLM calls are blocking, and FastAPI runs sync
+# endpoints in a worker thread so they don't stall other requests.
 @app.post("/api/chat", response_model=ChatResponse)
-async def chat(request: ChatRequest) -> ChatResponse:
-    answer = await llm.generate_answer(request.message)
+def chat(request: ChatRequest, session: Session = Depends(get_session)) -> ChatResponse:
+    answer = rag.answer_question(request.message, session)
     return ChatResponse(answer=answer)

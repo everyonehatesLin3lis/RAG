@@ -45,8 +45,8 @@ def get_embedder() -> OpenAIEmbeddings:
 
 
 # Implements: specs/5.md#AC-006
-def _check(vectors: list[list[float]], expected_count: int) -> list[list[float]]:
-    dims = get_settings().embedding_dimensions
+def _check(vectors: list[list[float]], expected_count: int, dims: int | None = None) -> list[list[float]]:
+    dims = dims or get_settings().embedding_dimensions
     if len(vectors) != expected_count:
         raise AppError(
             "EMBEDDING_FAILED", f"Expected {expected_count} embeddings, got {len(vectors)}.", 502
@@ -67,9 +67,15 @@ def _call(fn, *args):
 
 
 # Implements: specs/5.md#AC-001, #AC-006
-def embed_texts(texts: list[str]) -> list[list[float]]:
-    """Embed document chunks (one API call for the whole list)."""
-    return _check(_call(get_embedder().embed_documents, texts), len(texts))
+def embed_texts(
+    texts: list[str], embedder: OpenAIEmbeddings | None = None, dimensions: int | None = None
+) -> list[list[float]]:
+    """Embed document chunks (one API call for the whole list).
+
+    `embedder` and `dimensions` exist only so experiments (scripts/compare_embeddings.py) can try another
+    model through this same module; the application always uses the configured model.
+    """
+    return _check(_call((embedder or get_embedder()).embed_documents, texts), len(texts), dimensions)
 
 
 # Implements: specs/5.md#AC-001, #AC-006

@@ -71,7 +71,7 @@ If time runs short, protect the core in this order: working chatbot → dataset 
 - [x] 3 Database: the schema below in local PostgreSQL, pgvector enabled and tested
 - [x] 4 Ingestion: load, clean, normalise, store movies and reviews, build and chunk RAG documents
 - [x] 5 Embeddings: one model, every chunk embedded into `rag_chunks.embedding`, vector index
-- [ ] 6 Basic RAG: embed the query, vector search, grounded answer
+- [x] 6 Basic RAG: embed the query, vector search, grounded answer
 - [ ] 7 Query translation
 - [ ] 8 Source citations: `sources` in the response, shown under the answer
 - [ ] 9 Tools: `filter_movies`, `compare_movies`, `rating_summary`
@@ -162,7 +162,7 @@ Rules for every tool:
 ## Retrieval and generation
 
 - Answer from retrieved sources only. Do not invent information, and say so when the evidence is insufficient.
-- Retrieve the top 5–10 chunks.
+- Retrieve the top 5–10 chunks (`RETRIEVAL_TOP_K`, default 8). Pipeline: `app/rag.py` (prompt, system rules) → `app/retrieval.py` (embed question, pgvector search) → `app/llm.py` (send messages). Sources go to the model inside `<source chunk_id=… movie=…>` tags with `<` escaped, question in `<question>`. PostgreSQL picks the scan plan itself (developer's choice, `specs/6.md`).
 - Query translation turns the raw message into `{"semantic_query": "...", "keywords": [], "filters": {}}`. Vector search uses `semantic_query`; filters on year, genre and rating come later.
 - Keyword search is PostgreSQL lexical search over movie names, actors, directors, genres and keywords. Hybrid search runs both (for example top 10 each), then fuses the results with Reciprocal Rank Fusion or weighted scoring.
 
@@ -186,7 +186,9 @@ These apply from the first line of code. Phase 16 is where they are tested, not 
 
 ## Open decisions
 
-None open right now. When a phase raises a new choice, list it here and ask before settling it.
+When a phase raises a new choice, list it here and ask before settling it.
+
+- Embedding model: keep `openai/text-embedding-3-small` or switch to `qwen/qwen3-embedding-8b` (with the query instruction prefix, cut to 1,536 dims). Qwen ranked the right movie first more often in a 30-question experiment but is ~3.7× slower per query (README, `docs/experiments/embedding_comparison.json`). To settle with the Phase 20 evaluation; Qwen vectors are cached in `data/experiments/`.
 
 ## Rules from retros
 

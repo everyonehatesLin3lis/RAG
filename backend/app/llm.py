@@ -2,22 +2,17 @@
 
 OpenRouter exposes an OpenAI-compatible API, so LangChain's ChatOpenAI client works with it:
 we only point base_url at OpenRouter and pass an OpenRouter key and model name.
+The prompt itself is built elsewhere (app/rag.py); this module only sends messages and handles failures.
 """
 
 from functools import lru_cache
 
 import openai
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import BaseMessage
 from langchain_openai import ChatOpenAI
 
 from app.config import get_settings
 from app.errors import AppError
-
-SYSTEM_PROMPT = (
-    "You are Movie Research Copilot, an assistant that answers questions about movies. "
-    "Stay on the topic of movies, film reviews and recommendations; politely decline anything else. "
-    "Be concise. If you are not sure about a fact, say so instead of guessing."
-)
 
 
 @lru_cache
@@ -37,10 +32,9 @@ def get_chat_model() -> ChatOpenAI:
     )
 
 
-async def generate_answer(message: str) -> str:
-    messages = [SystemMessage(content=SYSTEM_PROMPT), HumanMessage(content=message)]
+def complete(messages: list[BaseMessage]) -> str:
     try:
-        response = await get_chat_model().ainvoke(messages)
+        response = get_chat_model().invoke(messages)
     except openai.APITimeoutError as exc:
         raise AppError("LLM_TIMEOUT", "The language model took too long to respond.", 504) from exc
     except openai.APIError as exc:
