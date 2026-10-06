@@ -10,7 +10,7 @@ from app.config import get_settings
 from app.db import get_session
 from app.errors import register_error_handlers
 from app.retrieval import RetrievedChunk
-from app.schemas import ChatRequest, ChatResponse, Source
+from app.schemas import ChatRequest, ChatResponse, Source, ToolCall
 
 settings = get_settings()
 
@@ -40,7 +40,11 @@ def health() -> HealthResponse:
 @app.post("/api/chat", response_model=ChatResponse)
 def chat(request: ChatRequest, session: Session = Depends(get_session)) -> ChatResponse:
     result = rag.answer_question(request.message, session)
-    return ChatResponse(answer=result.answer, sources=[to_source(chunk) for chunk in result.sources])
+    return ChatResponse(
+        answer=result.answer,
+        sources=[to_source(chunk) for chunk in result.sources],
+        tool_calls=[ToolCall(tool=c.tool, arguments=c.arguments, result=c.result) for c in result.tool_calls],
+    )
 
 
 def to_source(chunk: RetrievedChunk) -> Source:

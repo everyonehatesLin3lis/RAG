@@ -3,7 +3,7 @@
 import pytest
 from pydantic import ValidationError
 
-from app import llm, query_translation, rag, retrieval
+from app import llm, query_translation, rag, retrieval, tool_calling
 from app.config import get_settings
 from app.errors import AppError
 from app.query_translation import QueryFilters, TranslatedQuery, translate_query
@@ -107,7 +107,7 @@ def test_rag_retrieves_with_the_translation_but_answers_the_original_question(mo
         lambda query, session, k=None: searched.append(query)
         or [RetrievedChunk(1, "tt1392214", "Prisoners", 2013, "Movie: Prisoners\n\nTense.", 0.2)],
     )
-    monkeypatch.setattr(llm, "complete", lambda messages: prompts.append(messages) or "It is very tense.")
+    monkeypatch.setattr(tool_calling, "run_with_tools", lambda messages, tool_list: (prompts.append(messages) or "It is very tense.", []))
 
     answer = rag.answer_question(original, session=None).answer
 

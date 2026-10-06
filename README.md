@@ -21,8 +21,9 @@ found, and why each decision went the way it did. The full plan is in [`EXECUTIO
 | 7 | Query translation: casual question → clean search query, keywords, filters | done |
 | 8 | Source citations: `sources` in the response, a collapsible list under each answer | done |
 | 9 | Tools: `filter_movies`, `compare_movies`, `rating_summary`, tested on their own | done |
-| 10 | Tool calling: the LLM chooses a tool, arguments validated | next |
-| 11–31 | History, visualisation, cost, logging, security, hybrid search, evaluation, Cloud SQL, scaling, MCP, streaming, final UI, README, review | to do |
+| 10 | Tool calling: the model decides, our code validates and runs, results go back to the model | done |
+| 11 | Conversation history stored in PostgreSQL, used for follow-ups | next |
+| 12–31 | Visualisation, cost, logging, security, hybrid search, evaluation, Cloud SQL, scaling, MCP, streaming, final UI, README, review | to do |
 
 ## How it works today
 
@@ -34,8 +35,9 @@ Browser (Next.js chat page)
   → embed the semantic_query (openai/text-embedding-3-small, same model as the chunks)
   → pgvector: 8 chunks with the smallest cosine distance to the question
   → prompt = system rules + the 8 chunks in <source> tags + the user's original question
-  → LangChain ChatOpenAI → OpenRouter → xiaomi/mimo-v2.6-flash
-  → {"answer": "...", "sources": [...]}: the answer rendered as Markdown, the 8 sources in a list under it
+  → LangChain ChatOpenAI → OpenRouter → xiaomi/mimo-v2.6-flash, with the 3 tools attached
+      ↺ the model may ask for a tool → our code validates and runs it → the result goes back (max 3 rounds)
+  → {"answer", "sources", "tool_calls"}: the answer rendered as Markdown, the 8 sources in a list under it
 
 Offline pipeline (scripts/):
   Hugging Face files → inspect → select subset → ingest into PostgreSQL → chunk → embed into pgvector
@@ -333,6 +335,27 @@ Decisions, all made by the developer after the options were explained:
    they want it. The spread is still returned because the plan lists it, but the tool's description tells the model to
    lead with the average and mention the spread only when asked.
 
+### Tool calling: the model decides, our code executes (Phase 10; spec in [`specs/10.md`](specs/10.md))
+
+**How it works.** The model never runs anything. LangChain's `bind_tools` sends the tools' names, descriptions and
+argument schemas with each request. When the model thinks a tool would help, it replies with a *request* instead of
+an answer ("call `compare_movies` with movie_a = Zodiac, movie_b = Prisoners"). Our loop then:
+1. checks the tool exists (`UNKNOWN_TOOL` if not);
+2. lets the tool validate the arguments (`INVALID_ARGUMENTS` if they do not fit, nothing runs);
+3. runs it and sends the result back, linked to the request by its call ID;
+4. asks the model again; once it replies without a request, that reply is the answer.
+
+So **who decides?** The model. **Who executes?** Our code, which treats the request like any untrusted input.
+
+Decisions (all confirmed by the developer):
+
+| Decision | Chosen | Alternative and why not |
+|---|---|---|
+| How a question reaches the tools | **No router.** Every question is retrieved as before, then the model gets sources *and* tools and decides itself | a first "router" LLM call that labels the question "tool" or "reviews": one more call to wait for and pay for, and it decides without seeing the reviews |
+| Loop limit | **At most 3 rounds**, then one last call with tools switched off | unlimited: a model that keeps asking for tools would keep the user waiting and keep costing |
+| Tool calls in the response | **Returned now** as `tool_calls: [{tool, arguments, result}]` (shown on the page in Phase 13) | hide until Phase 13: no way to check from outside which tool ran |
+| Retrieval for pure tool questions | **Always runs** | skip it: we cannot know beforehand, and the reviews let the model add context to a number |
+
 ### Smaller implementation choices
 
 These follow from the decisions above:
@@ -445,6 +468,23 @@ Run directly on the real data:
 - A test captures the SQL actually sent to PostgreSQL for the title `x'); DROP TABLE movies; --` and confirms the text
   only ever appears as a bound parameter, never in the SQL.
 
+### Tool calling (Phase 10)
+
+Real questions through the whole pipeline:
+
+| Question | What the model did | Answer | Time |
+|---|---|---|---|
+| Which is rated higher, Zodiac or Prisoners? | `compare_movies` | "Prisoners is rated higher: IMDb 8.2 vs. 7.7 for Zodiac" | 24.5 s |
+| Recommend me some thrillers since 2010 rated above 7.5 | `filter_movies`, asking for 15 | the right list, "28 matches total; top 15 shown" | 31.7 s |
+| What's the critics' average score for Beauty and the Beast? | `rating_summary` for 1991 *and* 2017, on its own | 1991: 8.48, 2017: 6.07, plus critic quotes on the gap | 19.7 s |
+| Why do people like Prisoners? | `rating_summary` (not required) + the reviews | reasons from named critics, plus the 7.19 average | 15.2 s |
+
+- The model sometimes sends numbers as text (`"rating_min": "7.5"`). The Pydantic schema converts them safely, which
+  is one reason validation sits in our code rather than trusting the model's formatting.
+- It repeated one call with identical arguments in the same round. That is harmless and cheap, but it will appear
+  twice once tool calls are shown on the page (Phase 13).
+- It uses tools even when reviews alone would answer, which adds facts rather than harming the answer.
+
 ### Environment (Windows)
 
 - On this machine, `localhost` tries IPv6 first and Docker's port listens only on IPv4, so connections hung
@@ -499,7 +539,7 @@ cd backend
 pytest
 ```
 
-110 tests. They cover the three tools (validation, title matching, SQL safety), the chat endpoint and its sources, query translation (validation and fallbacks), the RAG prompt and its
+124 tests. They cover the three tools (validation, title matching, SQL safety), the tool-calling loop (with a scripted fake model), the chat endpoint and its sources, query translation (validation and fallbacks), the RAG prompt and its
 injection defences, retrieval, records and chunking,
 the embedder and embedding job, and the database (schema, vector size, HNSW index, similarity order, top-K search,
 SQL-injection text, cascade deletes). The embedder, retrieval and LLM are replaced with fakes in the unit tests, and

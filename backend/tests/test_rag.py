@@ -4,7 +4,7 @@ import pytest
 from langchain_core.messages import HumanMessage, SystemMessage
 from pydantic import ValidationError
 
-from app import embeddings, llm, query_translation, rag, retrieval
+from app import embeddings, query_translation, rag, retrieval, tool_calling
 from app.config import Settings
 from app.errors import AppError
 from app.query_translation import TranslatedQuery
@@ -42,11 +42,11 @@ class FakeEmbedder:
 def fake_llm(monkeypatch):
     calls = []
 
-    def complete(messages):
+    def run_with_tools(messages, tool_list):
         calls.append(messages)
-        return "Critics praise its tension."
+        return "Critics praise its tension.", []
 
-    monkeypatch.setattr(llm, "complete", complete)
+    monkeypatch.setattr(tool_calling, "run_with_tools", run_with_tools)
     return calls
 
 

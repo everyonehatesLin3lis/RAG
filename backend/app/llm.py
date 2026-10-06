@@ -9,6 +9,7 @@ from functools import lru_cache
 
 import openai
 from langchain_core.messages import BaseMessage
+from langchain_core.tools import BaseTool
 from langchain_openai import ChatOpenAI
 from pydantic import BaseModel
 
@@ -55,7 +56,8 @@ def get_structured_model(reasoning: bool) -> ChatOpenAI:
     )
 
 
-def _invoke(runnable, messages):
+def invoke(runnable, messages):
+    """Call a model, turning provider failures into our standard errors."""
     try:
         return runnable.invoke(messages)
     except openai.APITimeoutError as exc:
@@ -64,12 +66,14 @@ def _invoke(runnable, messages):
         raise AppError("LLM_UNAVAILABLE", "The language model is unavailable right now.", 502) from exc
 
 
-def complete(messages: list[BaseMessage]) -> str:
-    return _invoke(get_chat_model(), messages).text
+def tool_model(tools: list[BaseTool], tool_choice: str | None = None):
+    """The chat model with the tools' schemas attached (Phase 10). LangChain's bind_tools sends each tool's
+    name, description and JSON schema with every request; tool_choice="none" forbids calling them."""
+    return get_chat_model().bind_tools(tools, tool_choice=tool_choice)
 
 
 def structured(messages: list[BaseMessage], schema: type[BaseModel], reasoning: bool = False) -> BaseModel | None:
     """Ask for output matching a Pydantic schema (JSON schema mode). Returns the parsed object, or None
     if the model gave nothing usable. Raises ValueError if the JSON does not validate against the schema."""
     model = get_structured_model(reasoning).with_structured_output(schema, method="json_schema")
-    return _invoke(model, messages)
+    return invoke(model, messages)

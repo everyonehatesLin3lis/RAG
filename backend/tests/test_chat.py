@@ -74,7 +74,7 @@ def test_no_results_means_no_sources(monkeypatch):
 
     body = client.post("/api/chat", json={"message": "Hi"}).json()
 
-    assert body == {"answer": rag.NO_RESULTS_ANSWER, "sources": []}
+    assert body == {"answer": rag.NO_RESULTS_ANSWER, "sources": [], "tool_calls": []}
 
 
 def test_chat_works_without_conversation_id(fake_rag):

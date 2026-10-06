@@ -1,0 +1,77 @@
+"""Tool calling (Phase 10): the model decides, our code executes.
+
+The model never runs anything. It is given the tools' names, descriptions and argument schemas, and when it
+thinks one would help it replies with a *request* ("call compare_movies with movie_a=Zodiac, movie_b=Prisoners")
+instead of an answer. This loop:
+
+1. sends the conversation to the model, bound to the tools;
+2. if the reply contains tool requests, runs each one through `app/tools.py` (which validates the arguments
+   first), and appends the result as a ToolMessage linked to the request by its call id;
+3. sends everything back, so the model now sees the real numbers, and repeats;
+4. stops when the model replies without a tool request: that reply is the answer.
+
+At most MAX_TOOL_ROUNDS rounds; after that the model is called once more with tools switched off and must answer
+with what it has. This caps both the wait and the cost if a model keeps asking for tools.
+"""
+
+import json
+from dataclasses import dataclass
+
+from langchain_core.messages import AIMessage, BaseMessage, ToolMessage
+from langchain_core.tools import BaseTool
+
+from app import llm
+
+# Implements: specs/10.md (proposal 2)
+MAX_TOOL_ROUNDS = 3
+
+
+@dataclass
+class ToolCallRecord:
+    """One executed (or rejected) tool call, for the API response (Phase 10) and the UI (Phase 13)."""
+
+    tool: str
+    arguments: dict
+    result: dict
+
+
+def _error(code: str, message: str) -> dict:
+    return {"error": {"code": code, "message": message}}
+
+
+# Implements: specs/10.md#AC-003, #AC-004
+def execute(call: dict, tools_by_name: dict[str, BaseTool]) -> dict:
+    """Run one requested call. Never raises: every problem becomes an error result the model can read."""
+    tool = tools_by_name.get(call["name"])
+    if tool is None:
+        return _error("UNKNOWN_TOOL", f"There is no tool named {call['name']!r}. Available: {', '.join(tools_by_name)}.")
+    try:
+        # The LangChain wrapper validates the arguments against the tool's Pydantic schema and returns
+        # INVALID_ARGUMENTS without running anything when they do not fit.
+        return json.loads(tool.invoke(call.get("args") or {}))
+    except Exception:  # an unexpected bug in a tool must not crash the chat
+        return _error("TOOL_FAILED", f"The {call['name']} tool failed unexpectedly.")
+
+
+# Implements: specs/10.md#AC-001, #AC-002
+def run_with_tools(messages: list[BaseMessage], tools: list[BaseTool]) -> tuple[str, list[ToolCallRecord]]:
+    """Run the model with tools until it answers. Returns the answer text and every tool call made."""
+    messages = list(messages)
+    tools_by_name = {tool.name: tool for tool in tools}
+    model = llm.tool_model(tools)
+    records: list[ToolCallRecord] = []
+
+    for _ in range(MAX_TOOL_ROUNDS):
+        reply: AIMessage = llm.invoke(model, messages)
+        if not reply.tool_calls:
+            return reply.text, records
+
+        messages.append(reply)
+        for call in reply.tool_calls:
+            result = execute(call, tools_by_name)
+            records.append(ToolCallRecord(tool=call["name"], arguments=call.get("args") or {}, result=result))
+            messages.append(ToolMessage(content=json.dumps(result, ensure_ascii=False), tool_call_id=call["id"]))
+
+    # Round limit reached: same tools in view (the history refers to them), but the model may not call any.
+    final: AIMessage = llm.invoke(llm.tool_model(tools, tool_choice="none"), messages)
+    return final.text, records

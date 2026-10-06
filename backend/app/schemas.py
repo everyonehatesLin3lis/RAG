@@ -26,9 +26,18 @@ class Source(BaseModel):
     excerpt: str
 
 
+class ToolCall(BaseModel):
+    """One tool call the model made (Phase 10), shown on the page in Phase 13."""
+
+    tool: str
+    arguments: dict
+    result: dict
+
+
 class ChatResponse(BaseModel):
     answer: str
     sources: list[Source] = []
+    tool_calls: list[ToolCall] = []
 
 
 class ErrorDetail(BaseModel):
