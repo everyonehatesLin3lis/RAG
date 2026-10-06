@@ -74,7 +74,7 @@ If time runs short, protect the core in this order: working chatbot → dataset 
 - [x] 6 Basic RAG: embed the query, vector search, grounded answer
 - [x] 7 Query translation
 - [x] 8 Source citations: `sources` in the response, shown under the answer
-- [ ] 9 Tools: `filter_movies`, `compare_movies`, `rating_summary`
+- [x] 9 Tools: `filter_movies`, `compare_movies`, `rating_summary`
 - [ ] 10 Tool calling: schemas registered with LangChain, the LLM chooses, arguments validated
 - [ ] 11 Conversation history: stored in PostgreSQL and used for follow-up questions
 - [ ] 12 RAG visualisation: debug object and expandable panel
@@ -159,6 +159,7 @@ Rules for every tool:
 - A question with a deterministic answer ("Which is rated higher, Zodiac or Prisoners?") is answered by a tool call, never from the model's memory.
 - Each tool has a Pydantic input schema. Validate before executing, and return a structured error for a missing movie or a title that matches more than one.
 - Tools start as plain Python LangChain tools. Phase 24 moves them behind the MCP server; keep their names and schemas unchanged.
+- Implementation (`app/tools.py`, `specs/9.md`): functions take a session and return dicts; `langchain_tools(session)` wraps them (JSON output). Errors are returned, never raised: `INVALID_ARGUMENTS`, `MOVIE_NOT_FOUND` (+ suggestions), `AMBIGUOUS_TITLE` (+ candidates), `TOOL_FAILED`. Titles match case-insensitively; "Title (Year)" picks between duplicates (real case: Beauty and the Beast 1991/2017). `filter_movies` needs ≥1 filter, returns the best 10 by IMDb rating (limit 1–25) plus `total_matches`. "Rating" = IMDb rating for filter/compare, critic scores (0–10) for `rating_summary`, whose description tells the model to lead with the average. Genres come from `app/genres.py`.
 
 ## Retrieval and generation
 

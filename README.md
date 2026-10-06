@@ -20,8 +20,9 @@ found, and why each decision went the way it did. The full plan is in [`EXECUTIO
 | 6 | Basic RAG: embed the question, top-8 vector search, grounded answer | done |
 | 7 | Query translation: casual question → clean search query, keywords, filters | done |
 | 8 | Source citations: `sources` in the response, a collapsible list under each answer | done |
-| 9 | Tools: `filter_movies`, `compare_movies`, `rating_summary` | next |
-| 10–31 | Tool calling, history, visualisation, cost, logging, security, hybrid search, evaluation, Cloud SQL, scaling, MCP, streaming, final UI, README, review | to do |
+| 9 | Tools: `filter_movies`, `compare_movies`, `rating_summary`, tested on their own | done |
+| 10 | Tool calling: the LLM chooses a tool, arguments validated | next |
+| 11–31 | History, visualisation, cost, logging, security, hybrid search, evaluation, Cloud SQL, scaling, MCP, streaming, final UI, README, review | to do |
 
 ## How it works today
 
@@ -298,6 +299,40 @@ fields (`movie`, `review_id`, `chunk_id`) are kept as is; `critic`, `publication
 `source` were added for display (the API contract allows adding fields, never renaming). Review links come from the
 review rows, and only http(s) links are rendered.
 
+### Tools: exact answers from the database (Phase 9; spec in [`specs/9.md`](specs/9.md))
+
+**Why tools at all.** "Which is rated higher, Zodiac or Prisoners?" has one correct answer, sitting in a table.
+Retrieval would hand the model a few reviews and hope it infers ratings; the model's memory might simply be wrong.
+A tool looks the number up. In Phase 10 the model decides *when* to call a tool and *with which arguments*, but our
+code runs it, so the arguments are treated like any untrusted input: validated by a Pydantic schema first, and only
+ever used as bound SQL parameters in fixed query shapes.
+
+| Tool | Answers | Returns |
+|---|---|---|
+| `filter_movies(year_min, genre, rating_min)` | "thrillers since 2010 rated above 7.5" | the best 10 by IMDb rating, plus how many matched in total |
+| `compare_movies(movie_a, movie_b)` | "which is rated higher, Zodiac or Prisoners?" | year, IMDb rating, genres, review count for each, and which is higher |
+| `rating_summary(movie)` | "what do critics score it?" | average critic rating (0–10), number of reviews, spread across 2-point buckets |
+
+Decisions, all made by the developer after the options were explained:
+
+1. **Problems are returned, not raised.** A function can report a problem by throwing an error ("raising"), which
+   stops everything, or by handing back a normal result that describes the problem ("returning"). The tools return
+   `{"error": {"code", "message", ...}}`, so the model can read what went wrong and recover, for example by asking
+   "which *Beauty and the Beast*, 1991 or 2017?". Raising would crash the request and the model would never know why.
+2. **Title matching.** Case and extra spaces are ignored. Two films with one title (our data really has *Beauty and
+   the Beast* 1991 and 2017) give `AMBIGUOUS_TITLE` with both candidates, and "Beauty and the Beast (1991)" picks one.
+   A title with no match gives `MOVIE_NOT_FOUND` with up to 5 suggestions ("Dark Knight" → *The Dark Knight*,
+   *The Dark Knight Rises*).
+3. **Short lists.** `filter_movies` returns the best 10 (adjustable 1–25) and the total match count. The plan's example
+   matches 28 films; sending all of them would fill the model's input, cost more and get skimmed, while the total tells
+   the model there are more. At least one filter is required, and the genre must be one of the 17 in our data.
+4. **Which rating.** Our data has two: the IMDb rating (the public's single number per film) and the critics' scores
+   from each review. "Which is rated higher?" usually means the well-known number, so `filter_movies` and
+   `compare_movies` use IMDb; "what do critics think" is about reviews, so `rating_summary` uses critic scores.
+5. **Average first.** The developer's view: the average is the number that matters, and users will ask for detail if
+   they want it. The spread is still returned because the plan lists it, but the tool's description tells the model to
+   lead with the average and mention the spread only when asked.
+
 ### Smaller implementation choices
 
 These follow from the decisions above:
@@ -398,11 +433,25 @@ These follow from the decisions above:
   A small misquote by the model, which a reader can catch only because the source is shown, and the kind of
   unsupported detail the Phase 20 groundedness check should measure.
 
+### Tools (Phase 9)
+
+Run directly on the real data:
+- `compare_movies("Zodiac", "Prisoners")`: *Prisoners* 8.2 vs *Zodiac* 7.7 on IMDb, 20 reviews each.
+- `rating_summary("Prisoners")`: average critic rating 7.19 from 20 reviews (2 in 4–6, 10 in 6–8, 8 in 8–10).
+- `filter_movies(year_min=2010, genre="Thriller", rating_min=7.5)`: 28 matches; the top 10 start with *The Dark Knight
+  Rises* (8.4), *Joker*, *1917* and *Prisoners*.
+- *Beauty and the Beast* came back as ambiguous with 1991 and 2017. With "(1991)" added it gave 8.48 from 20 reviews.
+- "cyberpunk" was rejected before any query ran, with the list of valid genres.
+- A test captures the SQL actually sent to PostgreSQL for the title `x'); DROP TABLE movies; --` and confirms the text
+  only ever appears as a bound parameter, never in the SQL.
+
 ### Environment (Windows)
 
 - On this machine, `localhost` tries IPv6 first and Docker's port listens only on IPv4, so connections hung
   forever. `DATABASE_URL` uses `127.0.0.1`, and connections time out after 5 seconds instead of hanging.
 - Docker Desktop can hang at start because of a leftover socket file. Renaming `%LOCALAPPDATA%\Docker\run` fixes it.
+- The database container stopped by itself twice during development. `restart: unless-stopped` in
+  `docker-compose.yml` now brings it back whenever Docker is running.
 
 ## Running locally
 
@@ -450,7 +499,7 @@ cd backend
 pytest
 ```
 
-83 tests. They cover the chat endpoint and its sources, query translation (validation and fallbacks), the RAG prompt and its
+110 tests. They cover the three tools (validation, title matching, SQL safety), the chat endpoint and its sources, query translation (validation and fallbacks), the RAG prompt and its
 injection defences, retrieval, records and chunking,
 the embedder and embedding job, and the database (schema, vector size, HNSW index, similarity order, top-K search,
 SQL-injection text, cascade deletes). The embedder, retrieval and LLM are replaced with fakes in the unit tests, and

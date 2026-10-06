@@ -25,13 +25,8 @@ from pydantic import BaseModel, Field, field_validator
 from app import llm
 from app.config import get_settings
 from app.errors import AppError
+from app.genres import KNOWN_GENRES, normalise_genre
 
-# The genres present in our movie data (TMDB genre names).
-KNOWN_GENRES = [
-    "Action", "Adventure", "Animation", "Comedy", "Crime", "Drama", "Family", "Fantasy", "History",
-    "Horror", "Music", "Mystery", "Romance", "Science Fiction", "Thriller", "War", "Western",
-]
-_GENRE_LOOKUP = {g.lower(): g for g in KNOWN_GENRES} | {"sci-fi": "Science Fiction", "scifi": "Science Fiction"}
 MAX_KEYWORDS = 8
 
 
@@ -44,7 +39,7 @@ class QueryFilters(BaseModel):
     @field_validator("genres")
     @classmethod
     def _known_genres_only(cls, genres: list[str]) -> list[str]:
-        mapped = [_GENRE_LOOKUP.get(g.strip().lower()) for g in genres]
+        mapped = [normalise_genre(g) for g in genres]
         return list(dict.fromkeys(g for g in mapped if g))  # drop unknown, keep order, no duplicates
 
 
