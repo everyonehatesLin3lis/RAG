@@ -9,7 +9,8 @@ from app import rag
 from app.config import get_settings
 from app.db import get_session
 from app.errors import register_error_handlers
-from app.schemas import ChatRequest, ChatResponse
+from app.retrieval import RetrievedChunk
+from app.schemas import ChatRequest, ChatResponse, Source
 
 settings = get_settings()
 
@@ -38,5 +39,20 @@ def health() -> HealthResponse:
 # endpoints in a worker thread so they don't stall other requests.
 @app.post("/api/chat", response_model=ChatResponse)
 def chat(request: ChatRequest, session: Session = Depends(get_session)) -> ChatResponse:
-    answer = rag.answer_question(request.message, session)
-    return ChatResponse(answer=answer)
+    result = rag.answer_question(request.message, session)
+    return ChatResponse(answer=result.answer, sources=[to_source(chunk) for chunk in result.sources])
+
+
+def to_source(chunk: RetrievedChunk) -> Source:
+    review_id = chunk.metadata.get("review_id")
+    return Source(
+        movie=chunk.movie_title,
+        year=chunk.year,
+        review_id=str(review_id) if review_id is not None else None,
+        chunk_id=str(chunk.id),
+        source=chunk.metadata.get("source", "unknown"),
+        critic=chunk.metadata.get("critic"),
+        publication=chunk.metadata.get("publication"),
+        url=chunk.url,
+        excerpt=rag.excerpt(chunk),
+    )

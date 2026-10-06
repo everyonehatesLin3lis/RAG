@@ -73,7 +73,7 @@ If time runs short, protect the core in this order: working chatbot → dataset 
 - [x] 5 Embeddings: one model, every chunk embedded into `rag_chunks.embedding`, vector index
 - [x] 6 Basic RAG: embed the query, vector search, grounded answer
 - [x] 7 Query translation
-- [ ] 8 Source citations: `sources` in the response, shown under the answer
+- [x] 8 Source citations: `sources` in the response, shown under the answer
 - [ ] 9 Tools: `filter_movies`, `compare_movies`, `rating_summary`
 - [ ] 10 Tool calling: schemas registered with LangChain, the LLM chooses, arguments validated
 - [ ] 11 Conversation history: stored in PostgreSQL and used for follow-up questions
@@ -142,6 +142,7 @@ Frontend and backend exchange JSON, with a Pydantic model for every request and 
 }
 ```
 
+- `sources` (Phase 8) lists every chunk given to the model, in ranking order, as `Source` (`app/schemas.py`): the plan's `movie`, `review_id`, `chunk_id` (IDs as strings; `review_id` null for profile chunks) plus `year`, `source`, `critic`, `publication`, `url`, `excerpt`. The frontend shows them in a collapsible list under each answer (`frontend/app/SourceList.tsx`), linking only http(s) URLs.
 - Errors: `{"error": {"code": "RAG_RETRIEVAL_FAILED", "message": "Unable to retrieve movie information."}}`. Cover OpenRouter, database, embedding, tool and MCP failures, empty search results, invalid JSON, invalid input and timeouts.
 - Streaming (Phase 25) is SSE carrying JSON events: `{"type": "token", "content": "..."}` per token, then `{"type": "sources", "data": []}`, then `{"type": "done"}`.
 - Conversation endpoints (Phase 11, proposed): `POST /api/conversations`, `GET /api/conversations/{id}`, `POST /api/conversations/{id}/messages`.

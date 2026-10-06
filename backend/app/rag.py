@@ -11,6 +11,7 @@ Two defences live here:
    a <question> block. The user's question is escaped the same way.
 """
 
+from dataclasses import dataclass, field
 from html import escape
 
 from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
@@ -55,11 +56,33 @@ def build_messages(question: str, chunks: list[RetrievedChunk]) -> list[BaseMess
     return [SystemMessage(content=SYSTEM_PROMPT), HumanMessage(content=user)]
 
 
+@dataclass
+class RagAnswer:
+    answer: str
+    # Phase 8: every chunk the model was given, in ranking order. These are exactly the texts the answer
+    # had to come from, so showing all of them is an honest record of what it was based on.
+    sources: list[RetrievedChunk] = field(default_factory=list)
+
+
 # Implements: specs/6.md#AC-001, #AC-002, #AC-004, #AC-005
-def answer_question(question: str, session: Session) -> str:
+def answer_question(question: str, session: Session) -> RagAnswer:
     # Phase 7: search with the rewritten query, but answer the question the user actually asked.
     translation = query_translation.translate_query(question)
     chunks = retrieval.retrieve(translation.semantic_query, session)
     if not chunks:
-        return NO_RESULTS_ANSWER
-    return llm.complete(build_messages(question, chunks))
+        return RagAnswer(answer=NO_RESULTS_ANSWER)
+    return RagAnswer(answer=llm.complete(build_messages(question, chunks)), sources=chunks)
+
+
+EXCERPT_CHARS = 240
+
+
+def excerpt(chunk: RetrievedChunk) -> str:
+    """The chunk's own text for display: drop the movie header and, for reviews, the 'Review by ...:' line."""
+    body = chunk.content.split("\n\n", 1)[-1]
+    if chunk.metadata.get("doc_type") == "review" and body.startswith("Review by "):
+        body = body.split("\n", 1)[-1]
+    body = " ".join(body.split())
+    if len(body) <= EXCERPT_CHARS:
+        return body
+    return body[:EXCERPT_CHARS].rsplit(" ", 1)[0] + "…"

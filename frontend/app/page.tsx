@@ -3,6 +3,8 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 
+import SourceList, { type Source } from "./SourceList";
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
 type Role = "user" | "assistant";
@@ -10,12 +12,13 @@ type Role = "user" | "assistant";
 type Message = {
   role: Role;
   content: string;
+  sources?: Source[];
 };
 
-type ChatResponse = { answer: string };
+type ChatResponse = { answer: string; sources: Source[] };
 type ErrorResponse = { error: { code: string; message: string } };
 
-async function sendChat(message: string, conversationId: string): Promise<string> {
+async function sendChat(message: string, conversationId: string): Promise<ChatResponse> {
   let res: Response;
   try {
     res = await fetch(`${API_BASE_URL}/api/chat`, {
@@ -32,7 +35,7 @@ async function sendChat(message: string, conversationId: string): Promise<string
     const detail = body && "error" in body ? body.error.message : `Request failed (${res.status}).`;
     throw new Error(detail);
   }
-  return body.answer;
+  return body;
 }
 
 export default function Home() {
@@ -58,8 +61,8 @@ export default function Home() {
     setLoading(true);
 
     try {
-      const answer = await sendChat(text, conversationId);
-      setMessages((prev) => [...prev, { role: "assistant", content: answer }]);
+      const { answer, sources } = await sendChat(text, conversationId);
+      setMessages((prev) => [...prev, { role: "assistant", content: answer, sources }]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
@@ -85,9 +88,12 @@ export default function Home() {
               {msg.content}
             </div>
           ) : (
-            // react-markdown builds React elements and does not render raw HTML, so model output cannot inject markup.
-            <div key={i} className="markdown max-w-[85%] self-start rounded-2xl bg-zinc-100 px-4 py-2 dark:bg-zinc-800">
-              <ReactMarkdown>{msg.content}</ReactMarkdown>
+            <div key={i} className="flex flex-col">
+              {/* react-markdown builds React elements and does not render raw HTML, so model output cannot inject markup. */}
+              <div className="markdown max-w-[85%] self-start rounded-2xl bg-zinc-100 px-4 py-2 dark:bg-zinc-800">
+                <ReactMarkdown>{msg.content}</ReactMarkdown>
+              </div>
+              <SourceList sources={msg.sources ?? []} />
             </div>
           ),
         )}

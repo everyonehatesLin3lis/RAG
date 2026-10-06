@@ -109,7 +109,7 @@ def test_rag_retrieves_with_the_translation_but_answers_the_original_question(mo
     )
     monkeypatch.setattr(llm, "complete", lambda messages: prompts.append(messages) or "It is very tense.")
 
-    answer = rag.answer_question(original, session=None)
+    answer = rag.answer_question(original, session=None).answer
 
     assert answer == "It is very tense."
     assert searched == ["Prisoners (2013) kidnapping thriller with Hugh Jackman"]

@@ -140,12 +140,37 @@ def test_ac004_system_prompt_states_the_rules(rule):
 def test_ac004_the_llm_receives_the_built_messages(monkeypatch, fake_search, fake_llm):
     monkeypatch.setattr(embeddings, "get_embedder", FakeEmbedder)
 
-    answer = rag.answer_question("Why do people like Prisoners?", session=None)
+    answer = rag.answer_question("Why do people like Prisoners?", session=None).answer
 
     assert answer == "Critics praise its tension."
     system, user = fake_llm[0]
     assert system.content == rag.SYSTEM_PROMPT
     assert "<question>\nWhy do people like Prisoners?\n</question>" in user.content
+
+
+# --- Phase 8: the answer carries the chunks it was based on ------------------------------------------
+
+
+def test_answer_returns_the_retrieved_chunks_as_sources(monkeypatch, fake_search, fake_llm):
+    monkeypatch.setattr(embeddings, "get_embedder", FakeEmbedder)
+
+    result = rag.answer_question("Why do people like Prisoners?", session=None)
+
+    assert [c.id for c in result.sources] == [2281, 2282]
+
+
+def test_excerpt_drops_header_and_review_line():
+    review = RetrievedChunk(1, "tt1", "Prisoners", 2013,
+                            "Movie: Prisoners\nYear: 2013\n\nReview by X (Y), 3/4, fresh:\nTense   and\nbleak.", 0.1,
+                            {"doc_type": "review"})
+    assert rag.excerpt(review) == "Tense and bleak."
+
+
+def test_excerpt_is_cut_at_a_word_boundary():
+    long_text = "word " * 100
+    chunk = RetrievedChunk(1, "tt1", "X", None, f"Movie: X\n\n{long_text}", 0.1, {"doc_type": "profile"})
+    text = rag.excerpt(chunk)
+    assert len(text) <= rag.EXCERPT_CHARS + 1 and text.endswith("word…")
 
 
 # --- AC-005: nothing retrieved -> say so, no LLM call ----------------------------------------------
@@ -155,9 +180,10 @@ def test_ac005_no_chunks_means_no_llm_call(monkeypatch, fake_llm):
     monkeypatch.setattr(embeddings, "get_embedder", FakeEmbedder)
     monkeypatch.setattr(retrieval, "search_chunks", lambda session, query_vector, k: [])
 
-    answer = rag.answer_question("Anything?", session=None)
+    result = rag.answer_question("Anything?", session=None)
 
-    assert answer == rag.NO_RESULTS_ANSWER
+    assert result.answer == rag.NO_RESULTS_ANSWER
+    assert result.sources == []
     assert fake_llm == []
 
 

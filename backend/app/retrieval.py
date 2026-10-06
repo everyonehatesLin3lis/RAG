@@ -10,14 +10,14 @@ exact scan, and it will use the HNSW index on its own as the table grows (specs/
 
 from dataclasses import dataclass, field
 
-from sqlalchemy import select
+from sqlalchemy import BigInteger, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app import embeddings
 from app.config import get_settings
 from app.errors import AppError
-from app.models import RagChunk
+from app.models import RagChunk, Review
 
 
 @dataclass
@@ -29,13 +29,20 @@ class RetrievedChunk:
     content: str
     distance: float
     metadata: dict = field(default_factory=dict)
+    url: str | None = None  # link to the original review (Phase 8 citations); None for profile chunks
 
 
 # Implements: specs/6.md#AC-002, #AC-006, #AC-007
 def search_chunks(session: Session, query_vector: list[float], k: int) -> list[RetrievedChunk]:
     distance = RagChunk.embedding.cosine_distance(query_vector).label("distance")
+    # Review chunks point at their review by metadata->>'review_id'; the review row holds the original URL.
+    review_id = RagChunk.metadata_["review_id"].astext.cast(BigInteger)
     statement = (
-        select(RagChunk.id, RagChunk.movie_id, RagChunk.content, RagChunk.metadata_, distance)
+        select(
+            RagChunk.id, RagChunk.movie_id, RagChunk.content, RagChunk.metadata_, distance,
+            Review.metadata_["url"].astext.label("url"),
+        )
+        .outerjoin(Review, Review.id == review_id)
         .where(RagChunk.embedding.is_not(None))
         .order_by(distance)
         .limit(k)
@@ -54,6 +61,7 @@ def search_chunks(session: Session, query_vector: list[float], k: int) -> list[R
             content=row.content,
             distance=float(row.distance),
             metadata=row.metadata_,
+            url=row.url,
         )
         for row in rows
     ]

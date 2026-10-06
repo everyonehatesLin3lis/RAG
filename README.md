@@ -19,8 +19,9 @@ found, and why each decision went the way it did. The full plan is in [`EXECUTIO
 | 5 | Embeddings: all 10,540 chunks embedded, HNSW index | done |
 | 6 | Basic RAG: embed the question, top-8 vector search, grounded answer | done |
 | 7 | Query translation: casual question → clean search query, keywords, filters | done |
-| 8 | Source citations in the response and under the answer | next |
-| 9–31 | Tools, history, visualisation, cost, logging, security, hybrid search, evaluation, Cloud SQL, scaling, MCP, streaming, final UI, README, review | to do |
+| 8 | Source citations: `sources` in the response, a collapsible list under each answer | done |
+| 9 | Tools: `filter_movies`, `compare_movies`, `rating_summary` | next |
+| 10–31 | Tool calling, history, visualisation, cost, logging, security, hybrid search, evaluation, Cloud SQL, scaling, MCP, streaming, final UI, README, review | to do |
 
 ## How it works today
 
@@ -33,7 +34,7 @@ Browser (Next.js chat page)
   → pgvector: 8 chunks with the smallest cosine distance to the question
   → prompt = system rules + the 8 chunks in <source> tags + the user's original question
   → LangChain ChatOpenAI → OpenRouter → xiaomi/mimo-v2.6-flash
-  → {"answer": "..."} rendered as Markdown
+  → {"answer": "...", "sources": [...]}: the answer rendered as Markdown, the 8 sources in a list under it
 
 Offline pipeline (scripts/):
   Hugging Face files → inspect → select subset → ingest into PostgreSQL → chunk → embed into pgvector
@@ -280,6 +281,23 @@ for later are the same idea applied to the answer step: a faster answer model (a
 measure, not assume), and streaming (Phase 25), which shows the answer as it is written so the user is not staring
 at a spinner.
 
+### Source citations: show every chunk the model was given (Phase 8)
+
+Each answer comes with `sources`, and the page shows them in a collapsible list under the answer: the film, critic
+and publication, a short excerpt, a link to the original review, and the chunk and review IDs.
+
+Which chunks count as sources? Options:
+
+| Option | How | Trade-off |
+|---|---|---|
+| **All retrieved chunks (chosen)** | list the 8 chunks the model received | honest record of what the answer was based on, simple, no extra model behaviour to trust; may include chunks the answer did not use |
+| Only chunks the answer cites | ask the model to tag claims with chunk IDs, keep the tagged ones | tighter list, but depends on the model tagging correctly, and a missing tag hides evidence |
+
+All retrieved chunks were chosen to keep the record complete and independent of the model. The plan's citation
+fields (`movie`, `review_id`, `chunk_id`) are kept as is; `critic`, `publication`, `year`, `url`, `excerpt` and
+`source` were added for display (the API contract allows adding fields, never renaming). Review links come from the
+review rows, and only http(s) links are rendered.
+
 ### Smaller implementation choices
 
 These follow from the decisions above:
@@ -372,6 +390,14 @@ These follow from the decisions above:
   answer. MiMo's speed through OpenRouter also varied a lot: translation medians of 3.6 s and 10.6 s within the same
   hour, and OpenRouter's lowest-latency routing did not help (one provider serves it).
 
+### Source citations (Phase 8)
+
+- "the one where bill murray keeps waking up on the same day, is it good?" answered with *Groundhog Day* and 8 sources,
+  all critic reviews of the film, each with a working link to the original review.
+- **Sources make mistakes visible.** The answer quoted Todd Camp calling Murray "a hoop"; the source says "a hoot".
+  A small misquote by the model, which a reader can catch only because the source is shown, and the kind of
+  unsupported detail the Phase 20 groundedness check should measure.
+
 ### Environment (Windows)
 
 - On this machine, `localhost` tries IPv6 first and Docker's port listens only on IPv4, so connections hung
@@ -424,7 +450,7 @@ cd backend
 pytest
 ```
 
-78 tests. They cover the chat endpoint, query translation (validation and fallbacks), the RAG prompt and its
+83 tests. They cover the chat endpoint and its sources, query translation (validation and fallbacks), the RAG prompt and its
 injection defences, retrieval, records and chunking,
 the embedder and embedding job, and the database (schema, vector size, HNSW index, similarity order, top-K search,
 SQL-injection text, cascade deletes). The embedder, retrieval and LLM are replaced with fakes in the unit tests, and

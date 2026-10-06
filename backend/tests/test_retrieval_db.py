@@ -3,7 +3,7 @@
 from sqlalchemy import text
 
 from app import embeddings, retrieval
-from app.models import Movie, RagChunk
+from app.models import Movie, RagChunk, Review
 
 DIMS = 1536
 
@@ -39,6 +39,29 @@ def test_ac002_returns_k_chunks_nearest_first(session):
     assert [r.content for r in results[:3]] == ["exact match", "close match", "weaker match"]
     assert results[0].distance < results[1].distance < results[2].distance <= results[3].distance
     assert results[0].movie_title == "Test Movie" and results[0].movie_id == "tt_test"
+
+
+# --- Phase 8: review chunks carry the original review's URL -----------------------------------------
+
+
+def test_review_chunk_gets_its_review_url_and_profile_chunk_none(session):
+    session.add(Movie(id="tt_test", title="Test Movie", year=2020))
+    session.add(Review(id=999_999_001, movie_id="tt_test", review_text="Great.", source="rotten_tomatoes",
+                       metadata_={"url": "https://example.com/r1"}))
+    session.add_all(
+        [
+            RagChunk(movie_id="tt_test", content="review chunk", embedding=toy_vector(1.0),
+                     metadata_={"movie_title": "Test Movie", "chunk_key": "t:r", "review_id": 999_999_001}),
+            RagChunk(movie_id="tt_test", content="profile chunk", embedding=toy_vector(0.99, 0.14),
+                     metadata_={"movie_title": "Test Movie", "chunk_key": "t:p", "review_id": None}),
+        ]
+    )
+    session.flush()
+
+    results = {r.content: r for r in retrieval.search_chunks(session, toy_vector(1.0), k=5)}
+
+    assert results["review chunk"].url == "https://example.com/r1"
+    assert results["profile chunk"].url is None
 
 
 # --- AC-007: the question never becomes SQL ---------------------------------------------------------
