@@ -34,6 +34,10 @@ class Settings(BaseSettings):
     # Retrieval (Phase 6). Implements: specs/6.md#AC-002. The plan asks for the top 5–10 chunks.
     retrieval_top_k: int = Field(default=8, ge=5, le=10)
 
+    # Conversation history (Phase 11): how much of the past is sent with each new question.
+    history_max_messages: int = Field(default=6, ge=0, le=20)  # 6 messages = the last 3 question/answer pairs
+    history_message_chars: int = Field(default=1500, ge=100, le=10000)
+
     # Query translation (Phase 7): an extra LLM call that rewrites the question before retrieval.
     query_translation_enabled: bool = True
     # Model for the rewrite step; empty = the chat model (OPENROUTER_MODEL). A small fast model can do this job.

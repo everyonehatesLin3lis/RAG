@@ -76,7 +76,7 @@ If time runs short, protect the core in this order: working chatbot → dataset 
 - [x] 8 Source citations: `sources` in the response, shown under the answer
 - [x] 9 Tools: `filter_movies`, `compare_movies`, `rating_summary`
 - [x] 10 Tool calling: schemas registered with LangChain, the LLM chooses, arguments validated
-- [ ] 11 Conversation history: stored in PostgreSQL and used for follow-up questions
+- [x] 11 Conversation history: stored in PostgreSQL and used for follow-up questions
 - [ ] 12 RAG visualisation: debug object and expandable panel
 - [ ] 13 Tool visualisation: tool, arguments, result
 - [ ] 14 Token usage and cost
@@ -145,7 +145,7 @@ Frontend and backend exchange JSON, with a Pydantic model for every request and 
 - `sources` (Phase 8) lists every chunk given to the model, in ranking order, as `Source` (`app/schemas.py`): the plan's `movie`, `review_id`, `chunk_id` (IDs as strings; `review_id` null for profile chunks) plus `year`, `source`, `critic`, `publication`, `url`, `excerpt`. The frontend shows them in a collapsible list under each answer (`frontend/app/SourceList.tsx`), linking only http(s) URLs.
 - Errors: `{"error": {"code": "RAG_RETRIEVAL_FAILED", "message": "Unable to retrieve movie information."}}`. Cover OpenRouter, database, embedding, tool and MCP failures, empty search results, invalid JSON, invalid input and timeouts.
 - Streaming (Phase 25) is SSE carrying JSON events: `{"type": "token", "content": "..."}` per token, then `{"type": "sources", "data": []}`, then `{"type": "done"}`.
-- Conversation endpoints (Phase 11, proposed): `POST /api/conversations`, `GET /api/conversations/{id}`, `POST /api/conversations/{id}/messages`.
+- Conversation history (Phase 11, `app/history.py`): `conversation_id` is a UUID (invalid → `INVALID_INPUT`; omitted → new conversation; unknown → created), returned in every chat response. Each successful exchange stores the question and answer together (nothing is stored when the pipeline fails). The last `HISTORY_MAX_MESSAGES` (6) messages, each cut to `HISTORY_MESSAGE_CHARS` (1,500), go to query translation (to resolve "it") and to the answer model between the system prompt and the current question; old sources and tool results are not resent. Endpoints: `POST /api/conversations`, `GET /api/conversations/{id}` (404 `CONVERSATION_NOT_FOUND`), `POST /api/conversations/{id}/messages`; `/api/chat` stays the main entry. Database errors anywhere map to `DATABASE_UNAVAILABLE` (503). The page keeps the id in `localStorage`, reloads history on start, and has a "New chat" button.
 
 ## Tools
 

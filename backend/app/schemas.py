@@ -1,5 +1,8 @@
 """Pydantic models for every request and response body. Add fields as phases land; never rename them."""
 
+from datetime import datetime
+from uuid import UUID
+
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -7,8 +10,16 @@ class ChatRequest(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
 
     message: str = Field(min_length=1, max_length=2000)
-    # Accepted now so the frontend contract is stable; used from Phase 11 (conversation history).
-    conversation_id: str | None = Field(default=None, max_length=100)
+    # Phase 11: the browser keeps one UUID per conversation. Omitted -> a new conversation is started.
+    conversation_id: UUID | None = None
+
+
+class MessageRequest(BaseModel):
+    """Body of POST /api/conversations/{id}/messages (the id is in the path)."""
+
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    message: str = Field(min_length=1, max_length=2000)
 
 
 class Source(BaseModel):
@@ -38,6 +49,21 @@ class ChatResponse(BaseModel):
     answer: str
     sources: list[Source] = []
     tool_calls: list[ToolCall] = []
+    conversation_id: str | None = None  # Phase 11
+
+
+class StoredMessage(BaseModel):
+    role: str
+    content: str
+    created_at: datetime
+
+
+class ConversationOut(BaseModel):
+    """GET /api/conversations/{id} and POST /api/conversations."""
+
+    id: str
+    created_at: datetime
+    messages: list[StoredMessage] = []
 
 
 class ErrorDetail(BaseModel):

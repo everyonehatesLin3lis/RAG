@@ -19,6 +19,39 @@ def no_paid_api_calls(monkeypatch):
     monkeypatch.setattr(embeddings, "get_embedder", blocked)
 
 
+class FakeSession:
+    """Stands in for a database session in API tests that fake the pipeline; only commit() is called."""
+
+    def commit(self):
+        pass
+
+
+@pytest.fixture
+def api_without_database(monkeypatch):
+    """A TestClient whose endpoints get a FakeSession and an in-memory conversation history."""
+    import uuid
+
+    from fastapi.testclient import TestClient
+
+    from app import history
+    from app.db import get_session
+    from app.main import app
+
+    saved = []
+    monkeypatch.setattr(
+        history, "get_or_create_conversation",
+        lambda session, conversation_id: type("Conv", (), {"id": conversation_id or uuid.uuid4()})(),
+    )
+    monkeypatch.setattr(history, "recent_turns", lambda session, conversation_id, limit=None: [])
+    monkeypatch.setattr(history, "save_exchange", lambda session, cid, q, a: saved.append((cid, q, a)))
+    fake = FakeSession()
+    app.dependency_overrides[get_session] = lambda: fake
+    client = TestClient(app)
+    client.fake_session, client.saved = fake, saved
+    yield client
+    app.dependency_overrides.clear()
+
+
 @pytest.fixture
 def session():
     """A session on the real local database inside a transaction that is always rolled back.

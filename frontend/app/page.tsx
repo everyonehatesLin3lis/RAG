@@ -38,8 +38,41 @@ async function sendChat(message: string, conversationId: string): Promise<ChatRe
   return body;
 }
 
+// Phase 11: the conversation id is remembered in this browser, so a reload continues the same conversation.
+// Storage can be unavailable (private windows, blocked site data): then each page load starts a new one.
+const CONVERSATION_KEY = "movie-copilot-conversation-id";
+
+function readStoredId(): string | null {
+  try {
+    return localStorage.getItem(CONVERSATION_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function storeId(id: string) {
+  try {
+    localStorage.setItem(CONVERSATION_KEY, id);
+  } catch {
+    // not fatal: the conversation still works until the page is reloaded
+  }
+}
+
+type StoredConversation = { messages: { role: Role; content: string }[] };
+
+async function loadConversation(id: string): Promise<Message[]> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/conversations/${id}`);
+    if (!res.ok) return []; // 404: nothing saved yet for this id
+    const body = (await res.json()) as StoredConversation;
+    return body.messages.map((m) => ({ role: m.role, content: m.content }));
+  } catch {
+    return [];
+  }
+}
+
 export default function Home() {
-  const [conversationId] = useState(() => crypto.randomUUID());
+  const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -50,10 +83,32 @@ export default function Home() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
 
+  // On first load: reuse the stored conversation id (or create one) and show its earlier messages.
+  useEffect(() => {
+    let id = readStoredId();
+    if (!id) {
+      id = crypto.randomUUID();
+      storeId(id);
+    }
+    const conversation = id;
+    loadConversation(conversation).then((earlier) => {
+      setConversationId(conversation);
+      setMessages(earlier);
+    });
+  }, []);
+
+  function startNewChat() {
+    const id = crypto.randomUUID();
+    storeId(id);
+    setConversationId(id);
+    setMessages([]);
+    setError(null);
+  }
+
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     const text = input.trim();
-    if (!text || loading) return;
+    if (!text || loading || !conversationId) return;
 
     setMessages((prev) => [...prev, { role: "user", content: text }]);
     setInput("");
@@ -72,9 +127,19 @@ export default function Home() {
 
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-4 py-6">
-      <header className="mb-4">
-        <h1 className="text-2xl font-semibold">Movie Research Copilot</h1>
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">Ask anything about movies.</p>
+      <header className="mb-4 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold">Movie Research Copilot</h1>
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">Ask anything about movies.</p>
+        </div>
+        <button
+          type="button"
+          onClick={startNewChat}
+          disabled={loading}
+          className="shrink-0 rounded-lg border border-zinc-300 px-3 py-1.5 text-sm disabled:opacity-50 dark:border-zinc-700"
+        >
+          New chat
+        </button>
       </header>
 
       <section className="flex flex-1 flex-col gap-3 overflow-y-auto pb-4" aria-live="polite">
@@ -128,7 +193,7 @@ export default function Home() {
         />
         <button
           type="submit"
-          disabled={loading || !input.trim()}
+          disabled={loading || !input.trim() || !conversationId}
           className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white disabled:opacity-50"
         >
           Send

@@ -22,22 +22,26 @@ found, and why each decision went the way it did. The full plan is in [`EXECUTIO
 | 8 | Source citations: `sources` in the response, a collapsible list under each answer | done |
 | 9 | Tools: `filter_movies`, `compare_movies`, `rating_summary`, tested on their own | done |
 | 10 | Tool calling: the model decides, our code validates and runs, results go back to the model | done |
-| 11 | Conversation history stored in PostgreSQL, used for follow-ups | next |
-| 12–31 | Visualisation, cost, logging, security, hybrid search, evaluation, Cloud SQL, scaling, MCP, streaming, final UI, README, review | to do |
+| 11 | Conversation history: stored in PostgreSQL, used for follow-ups, restored after a page reload | done |
+| 12 | RAG visualisation: debug object and expandable panel | next |
+| 13–31 | Tool visualisation, cost, logging, security, hybrid search, evaluation, Cloud SQL, scaling, MCP, streaming, final UI, README, review | to do |
 
 ## How it works today
 
 ```text
-Browser (Next.js chat page)
+Browser (Next.js chat page, conversation id kept in localStorage)
   → POST /api/chat {"message", "conversation_id"}
   → FastAPI validates the request (Pydantic)
-  → query translation: one LLM call rewrites it to {"semantic_query", "keywords", "filters"}
+  → load the last 6 messages of this conversation from PostgreSQL
+  → query translation: one LLM call rewrites it (using that history to resolve "it") to
+    {"semantic_query", "keywords", "filters"}
   → embed the semantic_query (openai/text-embedding-3-small, same model as the chunks)
   → pgvector: 8 chunks with the smallest cosine distance to the question
-  → prompt = system rules + the 8 chunks in <source> tags + the user's original question
+  → prompt = system rules + the earlier messages + the 8 chunks in <source> tags + the user's original question
   → LangChain ChatOpenAI → OpenRouter → xiaomi/mimo-v2.6-flash, with the 3 tools attached
       ↺ the model may ask for a tool → our code validates and runs it → the result goes back (max 3 rounds)
-  → {"answer", "sources", "tool_calls"}: the answer rendered as Markdown, the 8 sources in a list under it
+  → save the question and answer to PostgreSQL
+  → {"answer", "sources", "tool_calls", "conversation_id"}: the answer rendered as Markdown, the 8 sources under it
 
 Offline pipeline (scripts/):
   Hugging Face files → inspect → select subset → ingest into PostgreSQL → chunk → embed into pgvector
@@ -356,6 +360,26 @@ Decisions (all confirmed by the developer):
 | Tool calls in the response | **Returned now** as `tool_calls: [{tool, arguments, result}]` (shown on the page in Phase 13) | hide until Phase 13: no way to check from outside which tool ran |
 | Retrieval for pure tool questions | **Always runs** | skip it: we cannot know beforehand, and the reviews let the model add context to a number |
 
+### Conversation history: what is remembered and how much is sent (Phase 11)
+
+**Why it is needed.** A chat model has no memory between requests; every call starts blank. "Now compare it with
+Zodiac" means nothing unless the earlier messages are sent along. So every question and answer is saved in the
+`conversations` and `messages` tables, and the recent ones are added to the next request, in two places:
+1. **Query translation**, so "it" is resolved before searching. "Now compare it with Zodiac" became "Compare the film
+   Prisoners with the film Zodiac…" with history; without it, the best it could do was "Compare the previously
+   discussed film with Zodiac".
+2. **The answer model**, between the system rules and the new question, so the reply follows on.
+
+These are defaults set while building, and the developer can change any of them:
+
+| Choice | Default | Why, and the trade-off |
+|---|---|---|
+| How much history is sent | the last **6 messages** (3 questions and answers), each cut to **1,500 characters** (`HISTORY_MAX_MESSAGES`, `HISTORY_MESSAGE_CHARS`) | every message sent is paid for again as input on every later question; 3 exchanges cover "it" / "the first one" follow-ups without the prompt growing without limit |
+| What history contains | the **text** of earlier questions and answers only | resending old sources and tool results would multiply the prompt size; each new question retrieves fresh evidence anyway |
+| When a turn is saved | question and answer **together, after a successful answer** | a failed request leaves no half-turn behind, so history never contains a question without its answer |
+| Conversation id | a **UUID made by the browser**, kept in `localStorage` | a reload continues the same conversation; "New chat" makes a new id; an invalid id is rejected (`INVALID_INPUT`) |
+| Endpoints | `/api/chat` stays the main one; the plan's `POST /api/conversations`, `GET /api/conversations/{id}` and `POST /api/conversations/{id}/messages` are added | the page uses `GET` to restore history after a reload |
+
 ### Smaller implementation choices
 
 These follow from the decisions above:
@@ -485,6 +509,20 @@ Real questions through the whole pipeline:
   twice once tool calls are shown on the page (Phase 13).
 - It uses tools even when reviews alone would answer, which adds facts rather than harming the answer.
 
+### Conversation history (Phase 11)
+
+The plan's own follow-up example, through the API:
+
+| Turn | Tool calls | Answer |
+|---|---|---|
+| "Why do people like Prisoners?" | `rating_summary("Prisoners (2013)")` | critic reasons (Tallerico, A.O. Scott, …) and the 7.19 average (20.9 s) |
+| "Now compare it with Zodiac" | `compare_movies("Prisoners", "Zodiac")` | a side-by-side table, "Prisoners is rated higher (8.2 vs. 7.7)", plus what critics said about each (16.2 s) |
+
+- After a page reload the conversation came back from `GET /api/conversations/{id}`; "New chat" started a new one.
+- **Comparison questions retrieve one side.** For "compare Prisoners with Zodiac", all 8 retrieved chunks were *Zodiac*
+  reviews; the *Prisoners* side came from history and the tool. Vector search returns the 8 nearest chunks overall,
+  with no rule to cover each film mentioned. Something to measure when keyword and hybrid search arrive (Phases 17–18).
+
 ### Environment (Windows)
 
 - On this machine, `localhost` tries IPv6 first and Docker's port listens only on IPv4, so connections hung
@@ -539,7 +577,7 @@ cd backend
 pytest
 ```
 
-124 tests. They cover the three tools (validation, title matching, SQL safety), the tool-calling loop (with a scripted fake model), the chat endpoint and its sources, query translation (validation and fallbacks), the RAG prompt and its
+133 tests. They cover conversation history (storage, limits, prompts, endpoints), the three tools (validation, title matching, SQL safety), the tool-calling loop (with a scripted fake model), the chat endpoint and its sources, query translation (validation and fallbacks), the RAG prompt and its
 injection defences, retrieval, records and chunking,
 the embedder and embedding job, and the database (schema, vector size, HNSW index, similarity order, top-K search,
 SQL-injection text, cascade deletes). The embedder, retrieval and LLM are replaced with fakes in the unit tests, and

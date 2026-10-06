@@ -18,6 +18,7 @@ from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 from sqlalchemy.orm import Session
 
 from app import query_translation, retrieval, tool_calling, tools
+from app.history import Turn, as_langchain_messages
 from app.retrieval import RetrievedChunk
 from app.tool_calling import ToolCallRecord
 
@@ -54,7 +55,9 @@ def _label(chunk: RetrievedChunk) -> str:
 
 
 # Implements: specs/6.md#AC-003
-def build_messages(question: str, chunks: list[RetrievedChunk]) -> list[BaseMessage]:
+def build_messages(question: str, chunks: list[RetrievedChunk], history: list[Turn] | None = None) -> list[BaseMessage]:
+    """System rules, then earlier turns of the conversation (Phase 11), then this question with its sources.
+    Earlier turns carry only the text of the questions and answers; their sources are not resent."""
     sources = "\n\n".join(
         f'<source chunk_id="{chunk.id}" movie="{escape(_label(chunk))}">\n'
         f"{escape(chunk.content, quote=False)}\n"
@@ -62,7 +65,7 @@ def build_messages(question: str, chunks: list[RetrievedChunk]) -> list[BaseMess
         for chunk in chunks
     )
     user = f"Sources:\n\n{sources}\n\n<question>\n{escape(question, quote=False)}\n</question>"
-    return [SystemMessage(content=SYSTEM_PROMPT), HumanMessage(content=user)]
+    return [SystemMessage(content=SYSTEM_PROMPT), *as_langchain_messages(history or []), HumanMessage(content=user)]
 
 
 @dataclass
@@ -76,14 +79,16 @@ class RagAnswer:
 
 
 # Implements: specs/6.md#AC-001, #AC-002, #AC-004, #AC-005, specs/10.md#AC-002, #AC-006
-def answer_question(question: str, session: Session) -> RagAnswer:
+def answer_question(question: str, session: Session, history: list[Turn] | None = None) -> RagAnswer:
     # Phase 7: search with the rewritten query, but answer the question the user actually asked.
-    translation = query_translation.translate_query(question)
+    # Phase 11: the translator sees recent history, so "compare it with Zodiac" becomes a stand-alone search.
+    translation = query_translation.translate_query(question, history)
     chunks = retrieval.retrieve(translation.semantic_query, session)
     if not chunks:
         return RagAnswer(answer=NO_RESULTS_ANSWER)
     # Phase 10: the model gets the sources and the tools together and decides itself whether to call one.
-    answer, tool_calls = tool_calling.run_with_tools(build_messages(question, chunks), tools.langchain_tools(session))
+    messages = build_messages(question, chunks, history)
+    answer, tool_calls = tool_calling.run_with_tools(messages, tools.langchain_tools(session))
     return RagAnswer(answer=answer, sources=chunks, tool_calls=tool_calls)
 
 

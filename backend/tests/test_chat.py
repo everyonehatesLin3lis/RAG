@@ -1,22 +1,18 @@
 """Chat endpoint tests. The RAG pipeline and the database session are replaced with fakes: no API calls."""
 
 import pytest
-from fastapi.testclient import TestClient
 
 from app import rag
-from app.db import get_session
 from app.errors import AppError
-from app.main import app
 from app.retrieval import RetrievedChunk
 
-client = TestClient(app)
+CONVERSATION_ID = "5f0c1a52-8d2b-4c1e-9a77-0b6f4f5e2c11"
 
 
 @pytest.fixture(autouse=True)
-def no_database():
-    app.dependency_overrides[get_session] = lambda: "fake-session"
-    yield
-    app.dependency_overrides.clear()
+def client(api_without_database):
+    """TestClient with a fake session and in-memory history (conftest)."""
+    return api_without_database
 
 
 REVIEW_CHUNK = RetrievedChunk(
@@ -39,7 +35,7 @@ PROFILE_CHUNK = RetrievedChunk(
 def fake_rag(monkeypatch):
     received = []
 
-    def fake_answer_question(question, session):
+    def fake_answer_question(question, session, history=None):
         received.append((question, session))
         return rag.RagAnswer(answer="Try Prisoners (2013).", sources=[REVIEW_CHUNK, PROFILE_CHUNK])
 
@@ -47,13 +43,14 @@ def fake_rag(monkeypatch):
     return received
 
 
-def test_chat_returns_answer_and_sources(fake_rag):
-    response = client.post("/api/chat", json={"message": "Recommend me a thriller", "conversation_id": "123"})
+def test_chat_returns_answer_and_sources(client, fake_rag):
+    response = client.post("/api/chat", json={"message": "Recommend me a thriller", "conversation_id": CONVERSATION_ID})
 
     assert response.status_code == 200
     body = response.json()
     assert body["answer"] == "Try Prisoners (2013)."
-    assert fake_rag == [("Recommend me a thriller", "fake-session")]
+    assert body["conversation_id"] == CONVERSATION_ID
+    assert fake_rag == [("Recommend me a thriller", client.fake_session)]
     # Phase 8: the plan's citation fields, as strings, plus display fields
     assert body["sources"] == [
         {
@@ -69,22 +66,23 @@ def test_chat_returns_answer_and_sources(fake_rag):
     ]
 
 
-def test_no_results_means_no_sources(monkeypatch):
-    monkeypatch.setattr(rag, "answer_question", lambda question, session: rag.RagAnswer(answer=rag.NO_RESULTS_ANSWER))
+def test_no_results_means_no_sources(client, monkeypatch):
+    monkeypatch.setattr(rag, "answer_question", lambda question, session, history=None: rag.RagAnswer(answer=rag.NO_RESULTS_ANSWER))
 
     body = client.post("/api/chat", json={"message": "Hi"}).json()
 
-    assert body == {"answer": rag.NO_RESULTS_ANSWER, "sources": [], "tool_calls": []}
+    assert body["answer"] == rag.NO_RESULTS_ANSWER
+    assert body["sources"] == [] and body["tool_calls"] == []
 
 
-def test_chat_works_without_conversation_id(fake_rag):
+def test_chat_works_without_conversation_id(client, fake_rag):
     response = client.post("/api/chat", json={"message": "Hi"})
 
     assert response.status_code == 200
 
 
 @pytest.mark.parametrize("message", ["", "   ", "x" * 2001])
-def test_chat_rejects_invalid_message(fake_rag, message):
+def test_chat_rejects_invalid_message(client, fake_rag, message):
     response = client.post("/api/chat", json={"message": message})
 
     assert response.status_code == 422
@@ -92,7 +90,7 @@ def test_chat_rejects_invalid_message(fake_rag, message):
     assert fake_rag == []
 
 
-def test_chat_rejects_invalid_json(fake_rag):
+def test_chat_rejects_invalid_json(client, fake_rag):
     response = client.post("/api/chat", content="{not json", headers={"Content-Type": "application/json"})
 
     assert response.status_code == 400
@@ -103,9 +101,9 @@ def test_chat_rejects_invalid_json(fake_rag):
     "code, status",
     [("LLM_UNAVAILABLE", 502), ("EMBEDDING_FAILED", 502), ("RAG_RETRIEVAL_FAILED", 503)],
 )
-def test_chat_reports_pipeline_failures_in_the_standard_shape(monkeypatch, code, status):
+def test_chat_reports_pipeline_failures_in_the_standard_shape(client, monkeypatch, code, status):
     # Implements: specs/6.md#AC-006 (endpoint level)
-    def failing(question, session):
+    def failing(question, session, history=None):
         raise AppError(code, "Something failed.", status)
 
     monkeypatch.setattr(rag, "answer_question", failing)

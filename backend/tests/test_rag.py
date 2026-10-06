@@ -16,7 +16,7 @@ DIMS = 1536
 @pytest.fixture(autouse=True)
 def no_translation(monkeypatch):
     """Spec 6 tests are about retrieval and generation; translation passes the question through unchanged."""
-    monkeypatch.setattr(query_translation, "translate_query", TranslatedQuery.passthrough)
+    monkeypatch.setattr(query_translation, "translate_query", lambda message, history=None: TranslatedQuery.passthrough(message))
 
 
 def chunk(chunk_id: int, title: str = "Prisoners", text: str = "Dark and tense.") -> RetrievedChunk:

@@ -98,7 +98,7 @@ def test_rag_retrieves_with_the_translation_but_answers_the_original_question(mo
     monkeypatch.setattr(
         query_translation,
         "translate_query",
-        lambda message: TranslatedQuery(semantic_query="Prisoners (2013) kidnapping thriller with Hugh Jackman"),
+        lambda message, history=None: TranslatedQuery(semantic_query="Prisoners (2013) kidnapping thriller with Hugh Jackman"),
     )
     searched, prompts = [], []
     monkeypatch.setattr(

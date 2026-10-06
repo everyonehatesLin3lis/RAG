@@ -190,7 +190,7 @@ def test_ac006_question_without_tools_keeps_sources_and_grounding(monkeypatch, f
     from app.query_translation import TranslatedQuery
 
     chunk = RetrievedChunk(1, "tt1392214", "Prisoners", 2013, "Movie: Prisoners\n\nTense.", 0.2, {"doc_type": "review"})
-    monkeypatch.setattr(query_translation, "translate_query", TranslatedQuery.passthrough)
+    monkeypatch.setattr(query_translation, "translate_query", lambda message, history=None: TranslatedQuery.passthrough(message))
     monkeypatch.setattr(retrieval, "retrieve", lambda q, session, k=None: [chunk])
     model = fake_model(AIMessage(content="Critics call it tense."))
 
@@ -207,20 +207,13 @@ def test_ac006_question_without_tools_keeps_sources_and_grounding(monkeypatch, f
 # --- Proposal 3: tool_calls in the API response ----------------------------------------------------------
 
 
-def test_tool_calls_are_returned_by_the_api(monkeypatch):
-    from fastapi.testclient import TestClient
-
-    from app.db import get_session
-    from app.main import app
+def test_tool_calls_are_returned_by_the_api(monkeypatch, api_without_database):
     from app.tool_calling import ToolCallRecord
 
     record = ToolCallRecord("compare_movies", {"movie_a": "Zodiac", "movie_b": "Prisoners"}, {"higher_imdb_rating": "Prisoners"})
-    monkeypatch.setattr(rag, "answer_question", lambda q, s: rag.RagAnswer("Prisoners.", [], [record]))
-    app.dependency_overrides[get_session] = lambda: None
-    try:
-        body = TestClient(app).post("/api/chat", json={"message": "Which is rated higher, Zodiac or Prisoners?"}).json()
-    finally:
-        app.dependency_overrides.clear()
+    monkeypatch.setattr(rag, "answer_question", lambda q, s, h=None: rag.RagAnswer("Prisoners.", [], [record]))
+
+    body = api_without_database.post("/api/chat", json={"message": "Which is rated higher, Zodiac or Prisoners?"}).json()
 
     assert body["tool_calls"] == [
         {"tool": "compare_movies", "arguments": {"movie_a": "Zodiac", "movie_b": "Prisoners"},
