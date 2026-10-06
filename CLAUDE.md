@@ -188,7 +188,7 @@ These apply from the first line of code. Phase 16 is where they are tested, not 
 
 When a phase raises a new choice, list it here and ask before settling it.
 
-- Query translation model: MiMo (current default, 16/16 but 10.6 s median, up to ~28 s) vs `google/gemini-3.1-flash-lite` (16/16, 1.6 s median) on 16 casual questions; see README and `docs/experiments/translation_model_latency.json`. Set with `QUERY_TRANSLATION_MODEL`.
+- None. (Decided 2026-10-06: query translation uses `google/gemini-3.1-flash-lite` via `QUERY_TRANSLATION_MODEL`; answers stay on MiMo. MiMo answer generation is now ~90% of latency (median ~22 s); revisit with streaming in Phase 25 or a measured model comparison.)
 
 ## Rules from retros
 

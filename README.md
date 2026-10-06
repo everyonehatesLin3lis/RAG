@@ -69,7 +69,8 @@ through MCP, sources in the response, token and cost tracking, and logging; see
 | Frontend | Next.js 16, TypeScript, Tailwind, `react-markdown` |
 | Backend | Python 3.11, FastAPI, Uvicorn, Pydantic |
 | LLM orchestration | LangChain (`langchain-openai`) |
-| Chat model | `xiaomi/mimo-v2.6-flash` through OpenRouter |
+| Chat model (answers) | `xiaomi/mimo-v2.6-flash` through OpenRouter |
+| Query translation model | `google/gemini-3.1-flash-lite` through OpenRouter |
 | Embeddings | `openai/text-embedding-3-small` through OpenRouter, 1,536 dimensions |
 | Database | PostgreSQL 17 + pgvector 0.8.7 in Docker, SQLAlchemy, psycopg, Alembic migrations |
 | Data | Hugging Face: Rotten Tomatoes critic reviews + TMDB/IMDb movie metadata |
@@ -222,8 +223,9 @@ Qwen's better first-place ranking would change little in practice. The Qwen vect
   of free text. The prompt includes the plan's own example.
 - **Reasoning off.** MiMo is a reasoning model. On 16 casual questions, reasoning on and off both put the right film
   first 16/16 times, but reasoning added time (median 5.9 s vs 3.6 s in that run), so it is off for this step.
-- **Which model translates: pending, the developer's call.** The rewrite is a small job, so a fast model may do it
-  as well. Measured on the same 16 questions, translation step only:
+- **Which model translates: `google/gemini-3.1-flash-lite`** (decided by the developer, 2026-10-06, set with
+  `QUERY_TRANSLATION_MODEL`). The rewrite is a small job, so a fast model can do it as well. Measured on the same
+  16 questions, translation step only:
 
   | Translation model | Right film #1 | in top 8 | Median | Slowest 10% |
   |---|---|---|---|---|
@@ -236,7 +238,47 @@ Qwen's better first-place ranking would change little in practice. The Qwen vect
 
   The smallest models were fast but no better than not translating. Gemini 3.1 Flash Lite matched MiMo's quality at
   about a sixth of the time, for roughly $0.0002 per question against $0.0001 (estimates from list prices).
-  `QUERY_TRANSLATION_MODEL` switches it without code changes.
+
+#### The concept: one model per job
+
+A RAG pipeline makes more than one LLM call, and the calls do different jobs:
+
+| Step | Job | What matters |
+|---|---|---|
+| Query translation | rewrite one sentence into small JSON | speed and reliable structured output |
+| Answer generation | read 8 sources, write a grounded, cited answer | reading comprehension, following the rules, writing quality |
+
+The rewrite runs before anything else, and the user waits for it, so a model that is slow for this job delays every
+answer. A small "lite" model is built for exactly this kind of short task. The answer is the part the user reads, so
+it gets the model chosen for quality.
+
+Trade-offs of using two models instead of one:
+
+| | One model for everything | A fast model for translation (chosen) |
+|---|---|---|
+| Speed | translation 3.6–28 s with MiMo | translation about 1.3 s |
+| Retrieval quality on our 16 questions | 16/16 | 16/16 |
+| Cost per question (estimate) | about $0.0001 for the rewrite | about $0.0002 for the rewrite |
+| Consistency | one provider's load swings hit both steps | the steps fail and slow down independently |
+| Moving parts | one model to configure and evaluate | two models, two vendors (Xiaomi, Google), and two sets of behaviour to test |
+| Risk | — | if the small model mis-rewrites, retrieval suffers; the fallback to the original words only covers errors, not bad rewrites |
+
+The quality check is what makes the switch safe: the faster model is only acceptable because it retrieved the right
+film as often as MiMo did on the same questions. A model that is fast but retrieves worse (Gemini 2.5 Flash Lite,
+13/16) would trade answer quality for speed.
+
+#### Where the time goes now
+
+Measured on 4 questions with Gemini translating and MiMo answering (median per step):
+
+| Translate | Embed question | Vector search | Generate answer (MiMo) | Total |
+|---|---|---|---|---|
+| 1.3 s | 0.4 s | 0.1 s | 21.7 s (8–36 s) | 24.0 s |
+
+The answer step is now about 90% of the wait, and its time swings widely from one request to the next. The options
+for later are the same idea applied to the answer step: a faster answer model (a quality-versus-speed trade-off to
+measure, not assume), and streaming (Phase 25), which shows the answer as it is written so the user is not staring
+at a spinner.
 
 ### Smaller implementation choices
 
