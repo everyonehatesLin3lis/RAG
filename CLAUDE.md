@@ -45,7 +45,7 @@ Defaults for this layout. If scaffolding ends up different, correct this section
 - Backend tests: `cd backend && pytest` (database tests skip if the container is down)
 - Frontend dev server: `cd frontend && npm run dev`
 - Frontend type and build check: `cd frontend && npm run build`
-- Data scripts (repo root, backend venv active): `python scripts/download_datasets.py`, `python scripts/inspect_dataset.py`, `python scripts/select_subset.py`, `python scripts/ingest.py [--movies N]`
+- Data scripts (repo root, backend venv active): `python scripts/download_datasets.py`, `python scripts/inspect_dataset.py`, `python scripts/select_subset.py`, `python scripts/ingest.py [--movies N]`, `python scripts/embed_chunks.py [--dry-run] [--limit N]` (costs money; dry-run first)
 
 ## How to work
 
@@ -69,7 +69,7 @@ If time runs short, protect the core in this order: working chatbot → dataset 
 - [x] 2 Dataset: choose a Hugging Face movie and review dataset, inspect it, select 5,000–10,000 English reviews
 - [x] 3 Database: the schema below in local PostgreSQL, pgvector enabled and tested
 - [x] 4 Ingestion: load, clean, normalise, store movies and reviews, build and chunk RAG documents
-- [ ] 5 Embeddings: one model, every chunk embedded into `rag_chunks.embedding`, vector index
+- [x] 5 Embeddings: one model, every chunk embedded into `rag_chunks.embedding`, vector index
 - [ ] 6 Basic RAG: embed the query, vector search, grounded answer
 - [ ] 7 Query translation
 - [ ] 8 Source citations: `sources` in the response, shown under the answer
@@ -119,7 +119,8 @@ messages       id, conversation_id, role, content, created_at
 ```
 
 - Structured movie fields are SQL columns, flexible extras go in JSONB `metadata`, and embeddings are pgvector `VECTOR` with a vector index (HNSW is the expected choice).
-- One embedding model for documents and queries. The `VECTOR` dimension must match it, and changing the model means re-embedding every chunk. Until Phase 5 picks the model, `rag_chunks.embedding` is dimensionless `vector`; Phase 5's migration fixes it to `vector(N)` and adds the HNSW index.
+- One embedding model for documents and queries: `openai/text-embedding-3-small` through OpenRouter (`EMBEDDING_MODEL`), 1,536 dimensions, called only from `backend/app/embeddings.py`. `rag_chunks.embedding` is `vector(1536)` with an HNSW cosine index (migration 0003). Changing the model means a migration to the new size and re-embedding every chunk. `EMBEDDING_API_KEY` falls back to `OPENROUTER_API_KEY` when empty.
+- At ~10k chunks the planner prefers an exact sequential scan over the HNSW index (vectors are TOASTed, so the scan looks cheap). Results are identical; see `specs/5.md`.
 - IDs: `movies.id` is the IMDb ID (`tt1392214`), `reviews.id` the Rotten Tomatoes review ID, `conversations.id` a UUID (the frontend already sends one). The SQLAlchemy attribute for each `metadata` column is `metadata_`.
 - Every chunk's metadata carries what a citation needs: movie, review ID, source, chunk ID.
 - Schema changes go through migration scripts, never by hand, so Phase 22 can replay them on Cloud SQL.
@@ -184,9 +185,7 @@ These apply from the first line of code. Phase 16 is where they are tested, not 
 
 ## Open decisions
 
-Ask before settling any of these:
-
-- Embedding model and provider.
+None open right now. When a phase raises a new choice, list it here and ask before settling it.
 
 ## Rules from retros
 

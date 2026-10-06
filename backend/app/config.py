@@ -24,8 +24,12 @@ class Settings(BaseSettings):
     # Database (Phase 3)
     database_url: str | None = None
 
-    # Embeddings (Phase 5)
+    # Embeddings (Phase 5). Implements: specs/5.md#AC-001, #AC-007
+    # One model for documents and queries; the dimension must match rag_chunks.embedding (vector(1536)).
+    # Served through OpenRouter, so the key falls back to OPENROUTER_API_KEY when EMBEDDING_API_KEY is empty.
     embedding_api_key: SecretStr | None = None
+    embedding_model: str = "openai/text-embedding-3-small"
+    embedding_dimensions: int = 1536
 
     # Web
     cors_origins: list[str] = ["http://localhost:3000"]

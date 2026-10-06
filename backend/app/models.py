@@ -72,14 +72,22 @@ class RagChunk(Base):
         # metadata->>'chunk_key' ("review:122525:0") identifies a chunk across re-ingestion runs,
         # so ingestion can upsert and keep embeddings of unchanged chunks.
         Index("ux_rag_chunks_chunk_key", text("(metadata->>'chunk_key')"), unique=True),
+        # Implements: specs/5.md#AC-003. HNSW: approximate nearest-neighbour graph index; vector_cosine_ops
+        # makes it serve ORDER BY embedding <=> query (cosine distance).
+        Index(
+            "ix_rag_chunks_embedding",
+            "embedding",
+            postgresql_using="hnsw",
+            postgresql_ops={"embedding": "vector_cosine_ops"},
+        ),
     )
 
     id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
     movie_id: Mapped[str] = mapped_column(ForeignKey("movies.id", ondelete="CASCADE"), index=True)
     content: Mapped[str] = mapped_column(Text)
-    # Dimension left open until the embedding model is chosen (Phase 5). A later migration fixes
-    # it to vector(N) and adds the HNSW index, which needs a fixed dimension.
-    embedding: Mapped[list[float] | None] = mapped_column(Vector())
+    # Implements: specs/5.md#AC-002. 1536 = openai/text-embedding-3-small. Changing the model means a
+    # migration to the new size and re-embedding every chunk.
+    embedding: Mapped[list[float] | None] = mapped_column(Vector(1536))
     metadata_: Mapped[dict] = mapped_column("metadata", JSONB, server_default=text("'{}'::jsonb"))
 
 
