@@ -16,7 +16,7 @@ from html import escape
 from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 from sqlalchemy.orm import Session
 
-from app import llm, retrieval
+from app import llm, query_translation, retrieval
 from app.retrieval import RetrievedChunk
 
 # Implements: specs/6.md#AC-004
@@ -57,7 +57,9 @@ def build_messages(question: str, chunks: list[RetrievedChunk]) -> list[BaseMess
 
 # Implements: specs/6.md#AC-001, #AC-002, #AC-004, #AC-005
 def answer_question(question: str, session: Session) -> str:
-    chunks = retrieval.retrieve(question, session)
+    # Phase 7: search with the rewritten query, but answer the question the user actually asked.
+    translation = query_translation.translate_query(question)
+    chunks = retrieval.retrieve(translation.semantic_query, session)
     if not chunks:
         return NO_RESULTS_ANSWER
     return llm.complete(build_messages(question, chunks))

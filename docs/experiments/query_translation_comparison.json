@@ -1,0 +1,865 @@
+{
+  "k": 8,
+  "summary": [
+    {
+      "variant": "raw",
+      "hit_at_1": 0.812,
+      "hit_at_8": 0.938,
+      "translation_seconds_median": null
+    },
+    {
+      "variant": "translated",
+      "hit_at_1": 1.0,
+      "hit_at_8": 1.0,
+      "translation_seconds_median": 3.6
+    },
+    {
+      "variant": "translated+r",
+      "hit_at_1": 1.0,
+      "hit_at_8": 1.0,
+      "translation_seconds_median": 5.9
+    }
+  ],
+  "questions": [
+    {
+      "question": "that one where leo dicaprio steals ideas in dreams, worth it?",
+      "expected": "Inception",
+      "raw_rank": 1,
+      "translated": {
+        "translation": {
+          "semantic_query": "Inception, the film where Leonardo DiCaprio steals ideas in dreams, is it worth watching?",
+          "keywords": [
+            "Inception",
+            "Leonardo DiCaprio",
+            "dreams",
+            "heist",
+            "Christopher Nolan"
+          ],
+          "filters": {
+            "genres": [
+              "Science Fiction",
+              "Thriller",
+              "Action"
+            ],
+            "year_min": null,
+            "year_max": null,
+            "rating_min": null
+          }
+        },
+        "rank": 1,
+        "seconds": 3.0
+      },
+      "translated+r": {
+        "translation": {
+          "semantic_query": "Inception, a film starring Leonardo DiCaprio about stealing ideas from within dreams, and whether it is worth watching",
+          "keywords": [
+            "Inception",
+            "Leonardo DiCaprio",
+            "dreams",
+            "heist",
+            "Christopher Nolan",
+            "science fiction"
+          ],
+          "filters": {
+            "genres": [
+              "Science Fiction",
+              "Action",
+              "Thriller"
+            ],
+            "year_min": null,
+            "year_max": null,
+            "rating_min": null
+          }
+        },
+        "rank": 1,
+        "seconds": 7.5
+      }
+    },
+    {
+      "question": "ok so the movie where hugh jackman's kid gets kidnapped, any good?",
+      "expected": "Prisoners",
+      "raw_rank": 1,
+      "translated": {
+        "translation": {
+          "semantic_query": "Film in which Hugh Jackman's child is kidnapped, seeking reviews and recommendations",
+          "keywords": [
+            "Hugh Jackman",
+            "kidnapping",
+            "missing child",
+            "thriller"
+          ],
+          "filters": {
+            "genres": [
+              "Thriller"
+            ],
+            "year_min": null,
+            "year_max": null,
+            "rating_min": null
+          }
+        },
+        "rank": 1,
+        "seconds": 8.9
+      },
+      "translated+r": {
+        "translation": {
+          "semantic_query": "Prisoners (2013) directed by Denis Villeneuve, a thriller in which Hugh Jackman's daughter is kidnapped, with reviews assessing its quality",
+          "keywords": [
+            "Prisoners",
+            "Hugh Jackman",
+            "Denis Villeneuve",
+            "kidnapping",
+            "thriller",
+            "Jake Gyllenhaal",
+            "missing child"
+          ],
+          "filters": {
+            "genres": [
+              "Thriller"
+            ],
+            "year_min": 2013,
+            "year_max": 2013,
+            "rating_min": null
+          }
+        },
+        "rank": 1,
+        "seconds": 8.0
+      }
+    },
+    {
+      "question": "the fincher one about the san fran serial killer with the codes, is it long?",
+      "expected": "Zodiac",
+      "raw_rank": 1,
+      "translated": {
+        "translation": {
+          "semantic_query": "David Fincher film about a San Francisco serial killer who sends coded messages to police, and information about its runtime",
+          "keywords": [
+            "David Fincher",
+            "Zodiac",
+            "serial killer",
+            "San Francisco",
+            "codes",
+            "cryptography"
+          ],
+          "filters": {
+            "genres": [
+              "Crime",
+              "Mystery",
+              "Thriller"
+            ],
+            "year_min": null,
+            "year_max": null,
+            "rating_min": null
+          }
+        },
+        "rank": 1,
+        "seconds": 5.8
+      },
+      "translated+r": {
+        "translation": {
+          "semantic_query": "David Fincher's film Zodiac (2007), about the San Francisco Zodiac serial killer and his coded ciphers, with information on its running time and whether it is long",
+          "keywords": [
+            "Zodiac",
+            "David Fincher",
+            "serial killer",
+            "San Francisco",
+            "cipher codes",
+            "2007"
+          ],
+          "filters": {
+            "genres": [
+              "Crime"
+            ],
+            "year_min": 2007,
+            "year_max": 2007,
+            "rating_min": null
+          }
+        },
+        "rank": 1,
+        "seconds": 13.9
+      }
+    },
+    {
+      "question": "brad pitt soap guy fight movie, what do critics think",
+      "expected": "Fight Club",
+      "raw_rank": 6,
+      "translated": {
+        "translation": {
+          "semantic_query": "Brad Pitt plays a soap salesman who gets into underground fight clubs; what do critics think of Fight Club",
+          "keywords": [
+            "Brad Pitt",
+            "Fight Club",
+            "soap salesman",
+            "fight club",
+            "David Fincher",
+            "Edward Norton"
+          ],
+          "filters": {
+            "genres": [
+              "Drama",
+              "Thriller"
+            ],
+            "year_min": 1999,
+            "year_max": 1999,
+            "rating_min": null
+          }
+        },
+        "rank": 1,
+        "seconds": 6.0
+      },
+      "translated+r": {
+        "translation": {
+          "semantic_query": "Critical reception of Fight Club (1999), starring Brad Pitt as the soap-making fight-club founder",
+          "keywords": [
+            "Fight Club",
+            "Brad Pitt",
+            "soap",
+            "fight club",
+            "David Fincher"
+          ],
+          "filters": {
+            "genres": [
+              "Drama"
+            ],
+            "year_min": null,
+            "year_max": null,
+            "rating_min": null
+          }
+        },
+        "rank": 1,
+        "seconds": 17.7
+      }
+    },
+    {
+      "question": "matt damon stuck on mars eating potatoes lol",
+      "expected": "The Martian",
+      "raw_rank": 1,
+      "translated": {
+        "translation": {
+          "semantic_query": "science fiction film about an astronaut stranded on Mars surviving by growing potatoes",
+          "keywords": [
+            "The Martian",
+            "Matt Damon",
+            "Mars",
+            "survival",
+            "potatoes",
+            "astronaut"
+          ],
+          "filters": {
+            "genres": [
+              "Science Fiction"
+            ],
+            "year_min": null,
+            "year_max": null,
+            "rating_min": null
+          }
+        },
+        "rank": 1,
+        "seconds": 2.0
+      },
+      "translated+r": {
+        "translation": {
+          "semantic_query": "The Martian, a science fiction film about astronaut Mark Watney stranded alone on Mars and surviving by growing potatoes",
+          "keywords": [
+            "The Martian",
+            "Matt Damon",
+            "Mars",
+            "potatoes",
+            "survival",
+            "astronaut",
+            "Ridley Scott"
+          ],
+          "filters": {
+            "genres": [
+              "Science Fiction",
+              "Drama",
+              "Adventure"
+            ],
+            "year_min": null,
+            "year_max": null,
+            "rating_min": null
+          }
+        },
+        "rank": 1,
+        "seconds": 6.4
+      }
+    },
+    {
+      "question": "that drummer movie with the psycho teacher, is it actually good",
+      "expected": "Whiplash",
+      "raw_rank": 1,
+      "translated": {
+        "translation": {
+          "semantic_query": "Whiplash (2014), a film about a young jazz drummer and his abusive, psychologically manipulative music teacher, and whether it is well regarded",
+          "keywords": [
+            "Whiplash",
+            "drummer",
+            "jazz",
+            "music teacher",
+            "abusive mentor"
+          ],
+          "filters": {
+            "genres": [
+              "Drama",
+              "Music"
+            ],
+            "year_min": 2014,
+            "year_max": 2014,
+            "rating_min": 7.0
+          }
+        },
+        "rank": 1,
+        "seconds": 14.5
+      },
+      "translated+r": {
+        "translation": {
+          "semantic_query": "Whiplash (2014), a film about a young drummer and an abusive, psychologically tormenting music teacher, with reviews assessing whether it is actually good",
+          "keywords": [
+            "Whiplash",
+            "drummer",
+            "music teacher",
+            "abusive mentor",
+            "jazz",
+            "Damien Chazelle"
+          ],
+          "filters": {
+            "genres": [
+              "Drama",
+              "Music"
+            ],
+            "year_min": null,
+            "year_max": null,
+            "rating_min": null
+          }
+        },
+        "rank": 1,
+        "seconds": 7.5
+      }
+    },
+    {
+      "question": "keanu killing everyone cause of his dog",
+      "expected": "John Wick",
+      "raw_rank": 2,
+      "translated": {
+        "translation": {
+          "semantic_query": "Action thriller about a former hitman seeking violent revenge against those who killed his dog, starring Keanu Reeves",
+          "keywords": [
+            "Keanu Reeves",
+            "John Wick",
+            "revenge",
+            "dog",
+            "hitman",
+            "action thriller"
+          ],
+          "filters": {
+            "genres": [
+              "Action",
+              "Thriller"
+            ],
+            "year_min": null,
+            "year_max": null,
+            "rating_min": null
+          }
+        },
+        "rank": 1,
+        "seconds": 11.1
+      },
+      "translated+r": {
+        "translation": {
+          "semantic_query": "John Wick, an action thriller about a retired hitman who goes on a killing spree to avenge the murder of his dog",
+          "keywords": [
+            "John Wick",
+            "Keanu Reeves",
+            "revenge",
+            "hitman",
+            "action"
+          ],
+          "filters": {
+            "genres": [
+              "Action",
+              "Thriller",
+              "Crime"
+            ],
+            "year_min": null,
+            "year_max": null,
+            "rating_min": null
+          }
+        },
+        "rank": 1,
+        "seconds": 4.1
+      }
+    },
+    {
+      "question": "the one where bill murray keeps waking up on the same day",
+      "expected": "Groundhog Day",
+      "raw_rank": 1,
+      "translated": {
+        "translation": {
+          "semantic_query": "film in which Bill Murray repeatedly wakes up and relives the same day",
+          "keywords": [
+            "Bill Murray",
+            "Groundhog Day",
+            "time loop",
+            "repeating day",
+            "comedy"
+          ],
+          "filters": {
+            "genres": [
+              "Comedy"
+            ],
+            "year_min": null,
+            "year_max": null,
+            "rating_min": null
+          }
+        },
+        "rank": 1,
+        "seconds": 1.5
+      },
+      "translated+r": {
+        "translation": {
+          "semantic_query": "Groundhog Day (1993), in which Bill Murray's character repeatedly relives the same day",
+          "keywords": [
+            "Groundhog Day",
+            "Bill Murray",
+            "time loop",
+            "repeating day",
+            "comedy"
+          ],
+          "filters": {
+            "genres": [
+              "Comedy"
+            ],
+            "year_min": 1993,
+            "year_max": 1993,
+            "rating_min": null
+          }
+        },
+        "rank": 1,
+        "seconds": 2.7
+      }
+    },
+    {
+      "question": "guy with no short term memory tattoos clues on himself",
+      "expected": "Memento",
+      "raw_rank": 1,
+      "translated": {
+        "translation": {
+          "semantic_query": "a man with short-term memory loss tattoos clues on his own body to solve a mystery",
+          "keywords": [
+            "Memento",
+            "short-term memory loss",
+            "tattoos",
+            "memory",
+            "mystery",
+            "Christopher Nolan"
+          ],
+          "filters": {
+            "genres": [
+              "Mystery",
+              "Thriller"
+            ],
+            "year_min": null,
+            "year_max": null,
+            "rating_min": null
+          }
+        },
+        "rank": 1,
+        "seconds": 37.2
+      },
+      "translated+r": {
+        "translation": {
+          "semantic_query": "a man with anterograde amnesia who cannot form short-term memories tattoos clues on his own body to solve a mystery",
+          "keywords": [
+            "Memento",
+            "amnesia",
+            "short-term memory",
+            "tattoos",
+            "clues",
+            "Christopher Nolan"
+          ],
+          "filters": {
+            "genres": [
+              "Mystery",
+              "Thriller"
+            ],
+            "year_min": 2000,
+            "year_max": 2000,
+            "rating_min": null
+          }
+        },
+        "rank": 1,
+        "seconds": 10.8
+      }
+    },
+    {
+      "question": "creepy movie where the girlfriend's parents hypnotize the black guy",
+      "expected": "Get Out",
+      "raw_rank": 1,
+      "translated": {
+        "translation": {
+          "semantic_query": "horror film in which a young Black man is hypnotized by his girlfriend's parents",
+          "keywords": [
+            "hypnosis",
+            "girlfriend's parents",
+            "Get Out",
+            "horror"
+          ],
+          "filters": {
+            "genres": [
+              "Horror"
+            ],
+            "year_min": null,
+            "year_max": null,
+            "rating_min": null
+          }
+        },
+        "rank": 1,
+        "seconds": 3.2
+      },
+      "translated+r": {
+        "translation": {
+          "semantic_query": "horror thriller about a Black man whose girlfriend's family uses hypnosis and mind control against him, likely Get Out (2017)",
+          "keywords": [
+            "Get Out",
+            "hypnosis",
+            "mind control",
+            "racism",
+            "horror thriller",
+            "girlfriend's family"
+          ],
+          "filters": {
+            "genres": [
+              "Horror",
+              "Thriller"
+            ],
+            "year_min": null,
+            "year_max": null,
+            "rating_min": null
+          }
+        },
+        "rank": 1,
+        "seconds": 5.3
+      }
+    },
+    {
+      "question": "rat that cooks in paris, would kids like it?",
+      "expected": "Ratatouille",
+      "raw_rank": 1,
+      "translated": {
+        "translation": {
+          "semantic_query": "Animated film about a rat who cooks in Paris, suitable and appealing for children",
+          "keywords": [
+            "Ratatouille",
+            "rat",
+            "cooking",
+            "Paris",
+            "animated",
+            "family",
+            "kids"
+          ],
+          "filters": {
+            "genres": [
+              "Animation",
+              "Family",
+              "Comedy"
+            ],
+            "year_min": null,
+            "year_max": null,
+            "rating_min": null
+          }
+        },
+        "rank": 1,
+        "seconds": 3.0
+      },
+      "translated+r": {
+        "translation": {
+          "semantic_query": "Ratatouille, an animated family film about a rat who cooks in Paris, suitable for children",
+          "keywords": [
+            "Ratatouille",
+            "rat",
+            "cooking",
+            "Paris",
+            "animated",
+            "family",
+            "kids"
+          ],
+          "filters": {
+            "genres": [
+              "Animation",
+              "Family",
+              "Comedy"
+            ],
+            "year_min": null,
+            "year_max": null,
+            "rating_min": null
+          }
+        },
+        "rank": 1,
+        "seconds": 4.3
+      }
+    },
+    {
+      "question": "old man ties balloons to his house and flies off",
+      "expected": "Up",
+      "raw_rank": 1,
+      "translated": {
+        "translation": {
+          "semantic_query": "an elderly man ties balloons to his house and flies away",
+          "keywords": [
+            "balloons",
+            "house",
+            "flying house",
+            "old man",
+            "Up"
+          ],
+          "filters": {
+            "genres": [
+              "Adventure",
+              "Animation",
+              "Family"
+            ],
+            "year_min": null,
+            "year_max": null,
+            "rating_min": null
+          }
+        },
+        "rank": 1,
+        "seconds": 2.6
+      },
+      "translated+r": {
+        "translation": {
+          "semantic_query": "an elderly man ties balloons to his house and flies away, the Pixar film Up",
+          "keywords": [
+            "Up",
+            "Pixar",
+            "balloons",
+            "flying house",
+            "elderly man",
+            "Adventure"
+          ],
+          "filters": {
+            "genres": [
+              "Animation",
+              "Adventure",
+              "Family"
+            ],
+            "year_min": null,
+            "year_max": null,
+            "rating_min": null
+          }
+        },
+        "rank": 1,
+        "seconds": 3.1
+      }
+    },
+    {
+      "question": "joker movie with heath ledger, why is everyone obsessed",
+      "expected": "The Dark Knight",
+      "raw_rank": null,
+      "translated": {
+        "translation": {
+          "semantic_query": "The Dark Knight (2008) featuring Heath Ledger's Joker performance and why it became so widely acclaimed and obsessed over",
+          "keywords": [
+            "The Dark Knight",
+            "Heath Ledger",
+            "Joker",
+            "Batman",
+            "Christopher Nolan"
+          ],
+          "filters": {
+            "genres": [
+              "Crime",
+              "Thriller",
+              "Action"
+            ],
+            "year_min": null,
+            "year_max": null,
+            "rating_min": null
+          }
+        },
+        "rank": 1,
+        "seconds": 3.4
+      },
+      "translated+r": {
+        "translation": {
+          "semantic_query": "The Dark Knight (2008) directed by Christopher Nolan featuring Heath Ledger's iconic performance as the Joker, and critical discussion of why that portrayal is so highly regarded",
+          "keywords": [
+            "The Dark Knight",
+            "Heath Ledger",
+            "Joker",
+            "Christopher Nolan",
+            "Batman",
+            "villain performance"
+          ],
+          "filters": {
+            "genres": [
+              "Action",
+              "Crime",
+              "Thriller"
+            ],
+            "year_min": 2008,
+            "year_max": 2008,
+            "rating_min": 7.5
+          }
+        },
+        "rank": 1,
+        "seconds": 3.7
+      }
+    },
+    {
+      "question": "that sam mendes ww1 film that looks like one long take",
+      "expected": "1917",
+      "raw_rank": 1,
+      "translated": {
+        "translation": {
+          "semantic_query": "Sam Mendes World War I film shot to appear as one continuous long take",
+          "keywords": [
+            "1917",
+            "Sam Mendes",
+            "World War I",
+            "continuous take",
+            "long take"
+          ],
+          "filters": {
+            "genres": [
+              "War"
+            ],
+            "year_min": null,
+            "year_max": null,
+            "rating_min": null
+          }
+        },
+        "rank": 1,
+        "seconds": 3.7
+      },
+      "translated+r": {
+        "translation": {
+          "semantic_query": "Sam Mendes World War I film 1917 shot to appear as one continuous long take",
+          "keywords": [
+            "1917",
+            "Sam Mendes",
+            "World War I",
+            "one continuous take",
+            "trench warfare"
+          ],
+          "filters": {
+            "genres": [
+              "War",
+              "Drama"
+            ],
+            "year_min": 2019,
+            "year_max": 2019,
+            "rating_min": null
+          }
+        },
+        "rank": 1,
+        "seconds": 2.0
+      }
+    },
+    {
+      "question": "natalie portman ballet dancer going crazy",
+      "expected": "Black Swan",
+      "raw_rank": 1,
+      "translated": {
+        "translation": {
+          "semantic_query": "psychological drama about a ballet dancer descending into madness, starring Natalie Portman",
+          "keywords": [
+            "Natalie Portman",
+            "ballet",
+            "Black Swan",
+            "psychological thriller",
+            "dancer",
+            "madness"
+          ],
+          "filters": {
+            "genres": [
+              "Drama",
+              "Thriller"
+            ],
+            "year_min": null,
+            "year_max": null,
+            "rating_min": null
+          }
+        },
+        "rank": 1,
+        "seconds": 1.6
+      },
+      "translated+r": {
+        "translation": {
+          "semantic_query": "Natalie Portman plays a ballet dancer descending into madness in the psychological thriller Black Swan",
+          "keywords": [
+            "Black Swan",
+            "Natalie Portman",
+            "ballet",
+            "psychological thriller",
+            "dancer",
+            "madness"
+          ],
+          "filters": {
+            "genres": [
+              "Thriller",
+              "Drama"
+            ],
+            "year_min": null,
+            "year_max": null,
+            "rating_min": null
+          }
+        },
+        "rank": 1,
+        "seconds": 2.3
+      }
+    },
+    {
+      "question": "leo on an island with a mental hospital, big twist ending",
+      "expected": "Shutter Island",
+      "raw_rank": 1,
+      "translated": {
+        "translation": {
+          "semantic_query": "thriller set on an island featuring Leonardo DiCaprio with a mental hospital and a major plot twist ending",
+          "keywords": [
+            "Leonardo DiCaprio",
+            "island",
+            "mental hospital",
+            "twist ending",
+            "thriller"
+          ],
+          "filters": {
+            "genres": [
+              "Thriller",
+              "Mystery"
+            ],
+            "year_min": null,
+            "year_max": null,
+            "rating_min": null
+          }
+        },
+        "rank": 1,
+        "seconds": 12.1
+      },
+      "translated+r": {
+        "translation": {
+          "semantic_query": "Shutter Island (2010), a psychological thriller starring Leonardo DiCaprio as a U.S. marshal investigating a mental hospital on a remote island, featuring a major twist ending",
+          "keywords": [
+            "Shutter Island",
+            "Leonardo DiCaprio",
+            "Martin Scorsese",
+            "psychological thriller",
+            "mental hospital",
+            "island",
+            "twist ending"
+          ],
+          "filters": {
+            "genres": [
+              "Thriller",
+              "Mystery"
+            ],
+            "year_min": null,
+            "year_max": null,
+            "rating_min": null
+          }
+        },
+        "rank": 1,
+        "seconds": 15.1
+      }
+    }
+  ]
+}
