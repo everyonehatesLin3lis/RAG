@@ -31,8 +31,9 @@ found, and why each decision went the way it did. The full plan is in [`EXECUTIO
 | 17 | Keyword search: PostgreSQL full-text search over chunks, shown in the RAG panel | done |
 | 18 | Hybrid search: vector + keyword results fused with Reciprocal Rank Fusion, now the default | done |
 | 19 | Evaluation dataset: 49 new questions, every expected answer read from the database | done |
-| 20 | RAG evaluation | next |
-| 21–31 | Strategy comparison, Cloud SQL, scaling, MCP, streaming, final UI, README, review | to do |
+| 20 | RAG evaluation: retrieval metrics, rule checks and an LLM judge on 49 questions | done |
+| 21 | Comparison of vector-only and hybrid search on the evaluation set | next |
+| 22–31 | Cloud SQL, scaling, MCP, streaming, final UI, README, review | to do |
 
 ## How it works today
 
@@ -565,6 +566,32 @@ How it was made, and why:
 - **Known limit:** `must_contain_any` is rough ("Inception" appears in any answer about Inception vs Interstellar, right or
   wrong), so Phase 20 judges correctness and groundedness separately.
 
+### RAG evaluation: how we know it works (Phase 20; spec in [`specs/20.md`](specs/20.md))
+
+`python evaluation/run_evaluation.py` sends every question of the dataset through the real system and measures what
+came back, in three layers:
+
+1. **Retrieval, no LLM needed.** For each question we know which films the answer needs. Did a chunk of the right film
+   reach the model (hit rate)? What share of the expected films is in the top 5 / 8 chunks (**Recall@5**, **@8**)? What
+   share of the top 5 chunks belongs to an expected film (**Precision@5**)?
+2. **Rule checks, no LLM.** Does the answer contain an expected word ("Christopher Nolan")? Did the model use the
+   expected tool?
+3. **An LLM judge** for what rules cannot check. It reads the question, the reference answer, the exact sources and tool
+   results the system's model saw, and the answer, and returns: **correctness** (correct / partially / incorrect),
+   **relevance**, and every factual claim marked **supported or unsupported** by those sources. **Groundedness** = share of
+   supported claims; an answer with any unsupported claim counts toward the **hallucination rate**.
+
+Decisions, all confirmed by the developer:
+
+| Decision | Chosen | Why |
+|---|---|---|
+| Judge model | **Claude Haiku 4.5** (`EVALUATION_JUDGE_MODEL`) | a different vendor from the models being graded (Xiaomi answers, Google translates); a model grading its own answers tends to favour them. About $0.23 per run, measured |
+| Judge calls | **one per question**, returning everything at once | the judge reads the sources once |
+| What the judge sees | exactly the sources and tool results the system's model saw | groundedness means "supported by *what the system had*", not "true in general" |
+| Rule checks | **next to the judge**, disagreements flagged for a human | cheap, deterministic, and a check on how far the judge can be trusted |
+| RAGAS | **not used for now** | the plan makes it optional; the custom evaluation answers the plan's questions without a heavy dependency |
+| Failures | a failed judgement is "not judged"; a pipeline error counts as an incorrect answer | a missing measurement is never reported as a score, and failures are not hidden |
+
 ### Smaller implementation choices
 
 These follow from the decisions above:
@@ -848,6 +875,52 @@ Vector search and keyword search on the questions earlier phases flagged (films 
 - **Measured, not assumed:** the obvious fix for noise, dropping generic keywords, made two-film coverage worse
   (`docs/experiments/hybrid_variants.json`), so it is not used.
 
+### RAG evaluation (Phase 20; [`evaluation/results/hybrid.json`](evaluation/results/hybrid.json))
+
+All 49 questions, hybrid retrieval (the default), MiMo answering, Claude Haiku 4.5 judging:
+
+| Metric | Result |
+|---|---|
+| A correct source reached the model (hit rate) | **1.00** (45 of 45 questions with an expected film) |
+| Recall@5 / Recall@8 / Precision@5 | 0.86 / 0.87 / 0.77 |
+| **Answer accuracy** | **0.93** |
+| **Groundedness** | **0.997** |
+| Hallucination rate | 0.04 (2 of 49 answers) |
+| Relevance | 0.96 |
+| Expected word present / expected tool used | 1.00 / 1.00 |
+| Average time / cost per answer | 14.0 s / $0.0008 |
+| Judge cost for the run | $0.23 |
+
+By question type:
+
+| Type | n | Accuracy | Groundedness | Recall@5 |
+|---|---|---|---|---|
+| Factual | 8 | 1.00 | 1.00 | 1.00 |
+| Rating | 7 | 1.00 | 1.00 | 0.93 |
+| Opinion | 8 | 1.00 | 1.00 | 1.00 |
+| Plot | 8 | 1.00 | 1.00 | 1.00 |
+| Recommendation | 5 | 0.90 | 0.98 | 0.38 |
+| Two-film comparison | 9 | **0.67** | 0.99 | 0.72 |
+| Not in the data | 4 | 1.00 | 1.00 | — |
+
+What the results show:
+- **Single-film questions are solid:** factual, rating, opinion, plot and not-in-the-data questions all scored 1.00. On
+  *The Shawshank Redemption*, *The Matrix*, *Oppenheimer* and *Parasite* the system said the film is not in the data and did
+  not answer from memory, even though the model knows them.
+- **Two-film comparisons are the weak spot, and the cause is retrieval.** In 6 of 9 the answer was only "partially
+  correct". For Heat vs Nightcrawler, Ex Machina vs Her, Dunkirk vs 1917 and Up vs Inside Out, the 8 chunks held no
+  review of one of the two films; the model said so honestly and used `compare_movies` for the facts, so the answers
+  stayed grounded but incomplete. This is the one-sided retrieval seen in Phases 11 and 18: hybrid search reduced it,
+  but retrieving the 8 nearest chunks overall still lets one film take most slots.
+- **The two unsupported claims are mild:** "Vikings is a TV series" (true, but in no source) and "Hereditary is the more
+  genuinely disturbing film" (the model's own conclusion, not a critic's). The judge flagged both, which is what it is for.
+- **The judge catches real mistakes:** for Up vs Inside Out it noticed the answer claimed there were no *Up* reviews when
+  one excerpt mentioned *Up*.
+- **Recommendation Recall@5 is low (0.38) by design:** those questions are answered by `filter_movies`, not by retrieved
+  chunks, and 11 acceptable films cannot fit in 5 chunks; their answer accuracy is 0.90.
+- **Rule checks and judge agreed everywhere** (nothing flagged for review), a first sign the judge can be trusted on
+  this set.
+
 ### Environment (Windows)
 
 - On this machine, `localhost` tries IPv6 first and Docker's port listens only on IPv4, so connections hung
@@ -902,7 +975,7 @@ cd backend
 pytest
 ```
 
-179 tests. They cover hybrid fusion and the strategy switch, keyword search (phrases, stems, ranking, safety), security (no secrets in errors, injected tags cannot escape), the request log and its summary, token and cost tracking, the debug object, conversation history (storage, limits, prompts, endpoints), the three tools (validation, title matching, SQL safety), the tool-calling loop (with a scripted fake model), the chat endpoint and its sources, query translation (validation and fallbacks), the RAG prompt and its
+194 tests. They cover the evaluation metrics and judge handling, hybrid fusion and the strategy switch, keyword search (phrases, stems, ranking, safety), security (no secrets in errors, injected tags cannot escape), the request log and its summary, token and cost tracking, the debug object, conversation history (storage, limits, prompts, endpoints), the three tools (validation, title matching, SQL safety), the tool-calling loop (with a scripted fake model), the chat endpoint and its sources, query translation (validation and fallbacks), the RAG prompt and its
 injection defences, retrieval, records and chunking,
 the embedder and embedding job, and the database (schema, vector size, HNSW index, similarity order, top-K search,
 SQL-injection text, cascade deletes). The embedder, retrieval and LLM are replaced with fakes in the unit tests, and

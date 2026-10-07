@@ -16,6 +16,7 @@ def no_paid_api_calls(monkeypatch):
 
     monkeypatch.setattr(llm, "get_chat_model", blocked)
     monkeypatch.setattr(llm, "get_structured_model", blocked)
+    monkeypatch.setattr(llm, "get_judge_model", blocked)
     monkeypatch.setattr(embeddings, "get_embedder", blocked)
 
 

@@ -85,7 +85,7 @@ If time runs short, protect the core in this order: working chatbot → dataset 
 - [x] 17 Keyword search
 - [x] 18 Hybrid search
 - [x] 19 Evaluation dataset
-- [ ] 20 RAG evaluation
+- [x] 20 RAG evaluation
 - [ ] 21 Comparison of vector-only and hybrid search
 - [ ] 22 PostgreSQL moved to Google Cloud SQL
 - [ ] 23 Dataset scaled: 10k → 50k → 100k+
@@ -191,6 +191,7 @@ These apply from the first line of code. Phase 16 is where they are tested, not 
 - `evaluation/evaluation_dataset.jsonl` holds 20–50 questions as `{"question": "...", "expected_answer": "...", "expected_movie": "..."}`, mixing factual and recommendation questions. Built by `python scripts/build_eval_dataset.py` (approved by the developer, 2026-10-07): 49 new questions (8 factual, 7 rating, 8 opinion, 8 plot, 5 recommendation, 9 two-film comparison, 4 not-in-data), none reused from the 54 tuning questions. Every expected answer is read from the database (the build fails if a fact cannot be verified). Extra fields: `id`, `type`, `expected_movies`, `must_contain_any` (rough correctness check), `expected_tool`, `acceptable_movies` + `criteria` (recommendations), `no_answer`. Never edit the JSONL by hand; change the script and rebuild.
 - Measure retrieval (did the correct source appear, `Recall@K`, `Precision@K`), answers (correctness, groundedness, relevance) and unsupported claims. Custom evaluation first; RAGAS is optional.
 - Save results as JSON per strategy with `strategy`, `retrieval_recall_at_5`, `answer_accuracy`, `groundedness`, `avg_latency_ms` and `avg_cost_usd`, and compare vector-only with hybrid.
+- Implemented (Phase 20, `specs/20.md`): `app/evaluation.py` + `python evaluation/run_evaluation.py [--strategy hybrid|vector] [--limit N] [--only F1,M3]` → `evaluation/results/<strategy>.json` (summary, by type, every question). Retrieval metrics and rule checks need no LLM; correctness, relevance and claim-level groundedness come from an LLM judge, `EVALUATION_JUDGE_MODEL` = `anthropic/claude-haiku-4.5` (a different vendor than MiMo and Gemini), which sees exactly the sources and tool results the system saw. Failed judgements are "not judged", pipeline errors count as incorrect, judge cost is reported separately. A full run costs ~$0.04 (answers) + ~$0.23 (judge) and takes ~12 min.
 - Every number in the README comes from a real run. Never write a metric that was not measured.
 
 ## Open decisions

@@ -55,6 +55,9 @@ class Settings(BaseSettings):
     # Web
     cors_origins: list[str] = ["http://localhost:3000"]
 
+    # Evaluation (Phase 20): the LLM judge, from a different vendor than the answer (MiMo) and translation (Gemini) models.
+    evaluation_judge_model: str = "anthropic/claude-haiku-4.5"
+
     # Logging (Phase 15): one JSON line per chat request. Relative paths are relative to the repo root.
     request_log_path: str = str(Path(__file__).resolve().parents[2] / "logs" / "requests.jsonl")
 

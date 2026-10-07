@@ -11,7 +11,7 @@ Each line:
   id, type, question, expected_answer, expected_movie (the plan's three fields), plus
   expected_movies   films that should be retrieved (Recall@K); [] for no-answer questions
   must_contain_any  an answer counts as correct if it contains at least one of these (case-insensitive)
-  expected_tool     the tool a correct answer should use, if any
+  expected_tool     tools a correct answer should use (any of them), or null when none is needed
   acceptable_movies for recommendations: every film that satisfies the request
   no_answer         true when the film is not in the data and the answer must say so
 
@@ -131,7 +131,7 @@ def critic_average(session: Session, m: Movie) -> float:
 
 
 def base(id_: str, type_: str, question: str, expected_answer: str, movies: list[Movie], must: list[str],
-         tool: str | None = None, **extra) -> dict:
+         tool: list[str] | None = None, **extra) -> dict:
     return {
         "id": id_, "type": type_, "question": question, "expected_answer": expected_answer,
         "expected_movie": label(movies[0]) if movies else None,
@@ -151,11 +151,12 @@ def build(session: Session) -> list[dict]:
         ms = [movie(session, t, y) for t, y in films]
         if kind == "imdb":
             r = f"{float(ms[0].rating):.1f}"
-            rows.append(base(id_, "rating", q, f"{label(ms[0])} has an IMDb rating of {r}.", ms, [r], "compare_movies or rating lookup"))
+            # No tool returns one film's IMDb rating (get_movie_metadata comes in Phase 24): it is in the profile chunk.
+            rows.append(base(id_, "rating", q, f"{label(ms[0])} has an IMDb rating of {r}.", ms, [r]))
         elif kind == "critics":
             avg = critic_average(session, ms[0])
             rows.append(base(id_, "rating", q, f"The critics' average for {label(ms[0])} is {avg} out of 10.", ms,
-                             [f"{avg:.2f}", f"{avg:.1f}"], "rating_summary"))
+                             [f"{avg:.2f}", f"{avg:.1f}"], ["rating_summary"]))
         else:
             a, b = ms
             ra, rb = float(a.rating), float(b.rating)
@@ -165,7 +166,7 @@ def build(session: Session) -> list[dict]:
                 hi, lo = (a, b) if ra > rb else (b, a)
                 answer, must = (f"{hi.title} is rated higher ({float(hi.rating):.1f} vs {float(lo.rating):.1f}).",
                                 [hi.title])
-            rows.append(base(id_, "rating", q, answer, ms, must, "compare_movies"))
+            rows.append(base(id_, "rating", q, answer, ms, must, ["compare_movies"]))
 
     for id_, q, title, year, aspect, words in OPINION:
         m = movie(session, title, year)
@@ -191,7 +192,7 @@ def build(session: Session) -> list[dict]:
             sys.exit(f"{id_}: no film satisfies the request")
         rows.append(base(id_, "recommendation", q,
                          f"Any of the {len(matches)} films that satisfy the request, e.g. {', '.join(label(m) for m in matches[:3])}.",
-                         [], [m.title for m in matches], "filter_movies",
+                         [], [m.title for m in matches], ["filter_movies"],
                          acceptable_movies=[label(m) for m in matches],
                          criteria={"genres": genres, "year_min": year_min, "rating_min": rating_min}))
 

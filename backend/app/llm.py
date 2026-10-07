@@ -72,6 +72,30 @@ def tool_model(tools: list[BaseTool], tool_choice: str | None = None):
     return get_chat_model().bind_tools(tools, tool_choice=tool_choice)
 
 
+@lru_cache
+def get_judge_model() -> ChatOpenAI:
+    """Evaluation judge (Phase 20): EVALUATION_JUDGE_MODEL, from a different vendor than the system's own models,
+    deterministic, with room for a list of claims."""
+    settings = get_settings()
+    if settings.openrouter_api_key is None:
+        raise AppError("LLM_NOT_CONFIGURED", "The language model is not configured.", 500)
+    return ChatOpenAI(
+        model=settings.evaluation_judge_model,
+        api_key=settings.openrouter_api_key,
+        base_url=settings.openrouter_base_url,
+        temperature=0,
+        timeout=90,
+        max_retries=2,
+        max_tokens=2500,
+        default_headers={"X-Title": "Movie Research Copilot (evaluation)"},
+    )
+
+
+def judge(messages: list[BaseMessage], schema: type[BaseModel]) -> BaseModel | None:
+    """Structured judgement from the judge model. Raises ValueError if the output does not fit the schema."""
+    return invoke(get_judge_model().with_structured_output(schema, method="json_schema"), messages)
+
+
 def structured(messages: list[BaseMessage], schema: type[BaseModel], reasoning: bool = False) -> BaseModel | None:
     """Ask for output matching a Pydantic schema (JSON schema mode). Returns the parsed object, or None
     if the model gave nothing usable. Raises ValueError if the JSON does not validate against the schema."""
