@@ -7,6 +7,7 @@ Costs money: about $0.04 for the system's answers and about $0.25 for the judge 
     python evaluation/run_evaluation.py                      # all 49, default strategy (hybrid)
     python evaluation/run_evaluation.py --strategy vector    # Phase 21 comparison
     python evaluation/run_evaluation.py --only F1,M3         # selected questions
+    python evaluation/run_evaluation.py --only M6 --tag r2   # a repeat run, saved as <strategy>-r2.json
 
 Run from the repo root with the backend venv active. Results: evaluation/results/<strategy>.json (rewritten after
 every question, so an interrupted run keeps what it finished).
@@ -36,6 +37,7 @@ def main() -> None:
     parser.add_argument("--strategy", choices=["hybrid", "vector"], default=None)
     parser.add_argument("--limit", type=int, help="only the first N questions (trial)")
     parser.add_argument("--only", help="comma-separated question ids")
+    parser.add_argument("--tag", help="save as <strategy>-<tag>.json (e.g. repeat runs) instead of <strategy>.json")
     args = parser.parse_args()
 
     settings = get_settings()
@@ -83,7 +85,8 @@ def main() -> None:
 
         summary = evaluation.summarise(strategy, rows, round(judge_cost, 6), settings.evaluation_judge_model)
         summary["started_at"] = started
-        path = evaluation.save_results(RESULTS_DIR, strategy, summary, rows)
+        name = f"{strategy}-{args.tag}" if args.tag else strategy
+        path = evaluation.save_results(RESULTS_DIR, name, summary, rows)
 
     keys = ["retrieval_hit_rate", "retrieval_recall_at_5", "retrieval_precision_at_5", "answer_accuracy", "groundedness",
             "hallucination_rate", "relevance", "rule_must_contain_rate", "expected_tool_used_rate", "avg_latency_ms",

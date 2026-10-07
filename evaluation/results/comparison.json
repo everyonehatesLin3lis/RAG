@@ -1,0 +1,577 @@
+{
+  "plan_fields": {
+    "vector": {
+      "strategy": "vector",
+      "retrieval_recall_at_5": 0.8156,
+      "answer_accuracy": 0.9388,
+      "groundedness": 1.0,
+      "avg_latency_ms": 16035,
+      "avg_cost_usd": 0.0007
+    },
+    "hybrid": {
+      "strategy": "hybrid",
+      "retrieval_recall_at_5": 0.8644,
+      "answer_accuracy": 0.9286,
+      "groundedness": 0.9967,
+      "avg_latency_ms": 13958,
+      "avg_cost_usd": 0.0008
+    }
+  },
+  "overall": {
+    "retrieval_hit_rate": {
+      "vector": 0.9778,
+      "hybrid": 1.0,
+      "change": 0.0222
+    },
+    "retrieval_recall_at_5": {
+      "vector": 0.8156,
+      "hybrid": 0.8644,
+      "change": 0.0488
+    },
+    "retrieval_recall_at_8": {
+      "vector": 0.8278,
+      "hybrid": 0.8741,
+      "change": 0.0463
+    },
+    "retrieval_precision_at_5": {
+      "vector": 0.9378,
+      "hybrid": 0.7733,
+      "change": -0.1645
+    },
+    "answer_accuracy": {
+      "vector": 0.9388,
+      "hybrid": 0.9286,
+      "change": -0.0102
+    },
+    "groundedness": {
+      "vector": 1.0,
+      "hybrid": 0.9967,
+      "change": -0.0033
+    },
+    "hallucination_rate": {
+      "vector": 0.0,
+      "hybrid": 0.0408,
+      "change": 0.0408
+    },
+    "relevance": {
+      "vector": 0.9592,
+      "hybrid": 0.9592,
+      "change": 0.0
+    },
+    "expected_tool_used_rate": {
+      "vector": 1.0,
+      "hybrid": 1.0,
+      "change": 0.0
+    },
+    "avg_latency_s": {
+      "vector": 16.0,
+      "hybrid": 14.0,
+      "change": -2.0
+    },
+    "median_latency_s": {
+      "vector": 13.2,
+      "hybrid": 9.8,
+      "change": -3.4
+    },
+    "avg_tokens": {
+      "vector": 4805,
+      "hybrid": 5229,
+      "change": 424
+    },
+    "avg_cost_usd": {
+      "vector": 0.000748,
+      "hybrid": 0.000763,
+      "change": 1.5e-05
+    }
+  },
+  "by_type": {
+    "comparison": {
+      "vector": {
+        "answer_accuracy": 0.7222,
+        "recall_at_5": 0.6111,
+        "groundedness": 1.0
+      },
+      "hybrid": {
+        "answer_accuracy": 0.6667,
+        "recall_at_5": 0.7222,
+        "groundedness": 0.9908
+      }
+    },
+    "factual": {
+      "vector": {
+        "answer_accuracy": 1.0,
+        "recall_at_5": 1.0,
+        "groundedness": 1.0
+      },
+      "hybrid": {
+        "answer_accuracy": 1.0,
+        "recall_at_5": 1.0,
+        "groundedness": 1.0
+      }
+    },
+    "no_answer": {
+      "vector": {
+        "answer_accuracy": 1.0,
+        "recall_at_5": null,
+        "groundedness": 1.0
+      },
+      "hybrid": {
+        "answer_accuracy": 1.0,
+        "recall_at_5": null,
+        "groundedness": 1.0
+      }
+    },
+    "opinion": {
+      "vector": {
+        "answer_accuracy": 1.0,
+        "recall_at_5": 1.0,
+        "groundedness": 1.0
+      },
+      "hybrid": {
+        "answer_accuracy": 1.0,
+        "recall_at_5": 1.0,
+        "groundedness": 1.0
+      }
+    },
+    "plot": {
+      "vector": {
+        "answer_accuracy": 1.0,
+        "recall_at_5": 1.0,
+        "groundedness": 1.0
+      },
+      "hybrid": {
+        "answer_accuracy": 1.0,
+        "recall_at_5": 1.0,
+        "groundedness": 1.0
+      }
+    },
+    "rating": {
+      "vector": {
+        "answer_accuracy": 1.0,
+        "recall_at_5": 0.7857,
+        "groundedness": 1.0
+      },
+      "hybrid": {
+        "answer_accuracy": 1.0,
+        "recall_at_5": 0.9286,
+        "groundedness": 1.0
+      }
+    },
+    "recommendation": {
+      "vector": {
+        "answer_accuracy": 0.9,
+        "recall_at_5": 0.34,
+        "groundedness": 1.0
+      },
+      "hybrid": {
+        "answer_accuracy": 0.9,
+        "recall_at_5": 0.38,
+        "groundedness": 0.9846
+      }
+    }
+  },
+  "changed_questions": [
+    {
+      "id": "R2",
+      "type": "rating",
+      "question": "Which is rated higher on IMDb, Inception or Interstellar?",
+      "vector": {
+        "correctness": 1.0,
+        "hit": true,
+        "recall_at_8": 0.5,
+        "hallucination": false
+      },
+      "hybrid": {
+        "correctness": 1.0,
+        "hit": true,
+        "recall_at_8": 1.0,
+        "hallucination": false
+      }
+    },
+    {
+      "id": "R6",
+      "type": "rating",
+      "question": "Is Heat rated higher than Joker on IMDb?",
+      "vector": {
+        "correctness": 1.0,
+        "hit": true,
+        "recall_at_8": 0.5,
+        "hallucination": false
+      },
+      "hybrid": {
+        "correctness": 1.0,
+        "hit": true,
+        "recall_at_8": 1.0,
+        "hallucination": false
+      }
+    },
+    {
+      "id": "C1",
+      "type": "recommendation",
+      "question": "Recommend some animated family films rated 8 or higher.",
+      "vector": {
+        "correctness": 0.5,
+        "hit": true,
+        "recall_at_8": 0.25,
+        "hallucination": false
+      },
+      "hybrid": {
+        "correctness": 0.5,
+        "hit": true,
+        "recall_at_8": 0.5,
+        "hallucination": false
+      }
+    },
+    {
+      "id": "C2",
+      "type": "recommendation",
+      "question": "Suggest war movies released since 2010.",
+      "vector": {
+        "correctness": 1.0,
+        "hit": true,
+        "recall_at_8": 0.25,
+        "hallucination": false
+      },
+      "hybrid": {
+        "correctness": 1.0,
+        "hit": true,
+        "recall_at_8": 0.25,
+        "hallucination": true
+      }
+    },
+    {
+      "id": "C5",
+      "type": "recommendation",
+      "question": "Recommend crime thrillers from 2010 or later rated 8 or higher.",
+      "vector": {
+        "correctness": 1.0,
+        "hit": false,
+        "recall_at_8": 0.0,
+        "hallucination": false
+      },
+      "hybrid": {
+        "correctness": 1.0,
+        "hit": true,
+        "recall_at_8": 0.333,
+        "hallucination": false
+      }
+    },
+    {
+      "id": "M4",
+      "type": "comparison",
+      "question": "Is Black Swan more disturbing than Hereditary?",
+      "vector": {
+        "correctness": 0.5,
+        "hit": true,
+        "recall_at_8": 0.5,
+        "hallucination": false
+      },
+      "hybrid": {
+        "correctness": 0.5,
+        "hit": true,
+        "recall_at_8": 1.0,
+        "hallucination": true
+      }
+    },
+    {
+      "id": "M6",
+      "type": "comparison",
+      "question": "Which do critics like more, Up or Inside Out?",
+      "vector": {
+        "correctness": 1.0,
+        "hit": true,
+        "recall_at_8": 0.5,
+        "hallucination": false
+      },
+      "hybrid": {
+        "correctness": 0.5,
+        "hit": true,
+        "recall_at_8": 0.5,
+        "hallucination": false
+      }
+    }
+  ],
+  "repeats": {
+    "questions": [
+      "C1",
+      "C2",
+      "C5",
+      "M4",
+      "M6",
+      "R2",
+      "R6"
+    ],
+    "totals": {
+      "vector": {
+        "runs": 3,
+        "mean_correctness": 0.881,
+        "hallucinations": "0/21",
+        "mean_recall_at_8": 0.357
+      },
+      "hybrid": {
+        "runs": 3,
+        "mean_correctness": 0.833,
+        "hallucinations": "3/21",
+        "mean_recall_at_8": 0.649
+      }
+    },
+    "per_question": {
+      "C1": {
+        "vector": {
+          "correctness": [
+            0.5,
+            0.5,
+            0.5
+          ],
+          "recall_at_8": [
+            0.25,
+            0.25,
+            0.375
+          ],
+          "hallucination": [
+            false,
+            false,
+            false
+          ]
+        },
+        "hybrid": {
+          "correctness": [
+            0.5,
+            1.0,
+            0.5
+          ],
+          "recall_at_8": [
+            0.5,
+            0.5,
+            0.375
+          ],
+          "hallucination": [
+            false,
+            false,
+            false
+          ]
+        }
+      },
+      "C2": {
+        "vector": {
+          "correctness": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "recall_at_8": [
+            0.25,
+            0.25,
+            0.125
+          ],
+          "hallucination": [
+            false,
+            false,
+            false
+          ]
+        },
+        "hybrid": {
+          "correctness": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "recall_at_8": [
+            0.25,
+            0.25,
+            0.25
+          ],
+          "hallucination": [
+            true,
+            false,
+            false
+          ]
+        }
+      },
+      "C5": {
+        "vector": {
+          "correctness": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "recall_at_8": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "hallucination": [
+            false,
+            false,
+            false
+          ]
+        },
+        "hybrid": {
+          "correctness": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "recall_at_8": [
+            0.333,
+            0.333,
+            0.333
+          ],
+          "hallucination": [
+            false,
+            false,
+            false
+          ]
+        }
+      },
+      "M4": {
+        "vector": {
+          "correctness": [
+            0.5,
+            1.0,
+            0.5
+          ],
+          "recall_at_8": [
+            0.5,
+            0.5,
+            0.5
+          ],
+          "hallucination": [
+            false,
+            false,
+            false
+          ]
+        },
+        "hybrid": {
+          "correctness": [
+            0.5,
+            0.5,
+            0.5
+          ],
+          "recall_at_8": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "hallucination": [
+            true,
+            false,
+            true
+          ]
+        }
+      },
+      "M6": {
+        "vector": {
+          "correctness": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "recall_at_8": [
+            0.5,
+            0.5,
+            0.5
+          ],
+          "hallucination": [
+            false,
+            false,
+            false
+          ]
+        },
+        "hybrid": {
+          "correctness": [
+            0.5,
+            0.5,
+            1.0
+          ],
+          "recall_at_8": [
+            0.5,
+            0.5,
+            0.5
+          ],
+          "hallucination": [
+            false,
+            false,
+            false
+          ]
+        }
+      },
+      "R2": {
+        "vector": {
+          "correctness": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "recall_at_8": [
+            0.5,
+            0.5,
+            0.5
+          ],
+          "hallucination": [
+            false,
+            false,
+            false
+          ]
+        },
+        "hybrid": {
+          "correctness": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "recall_at_8": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "hallucination": [
+            false,
+            false,
+            false
+          ]
+        }
+      },
+      "R6": {
+        "vector": {
+          "correctness": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "recall_at_8": [
+            0.5,
+            0.5,
+            0.5
+          ],
+          "hallucination": [
+            false,
+            false,
+            false
+          ]
+        },
+        "hybrid": {
+          "correctness": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "recall_at_8": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "hallucination": [
+            false,
+            false,
+            false
+          ]
+        }
+      }
+    }
+  },
+  "judge_cost_usd": {
+    "vector": 0.231759,
+    "hybrid": 0.232363
+  }
+}

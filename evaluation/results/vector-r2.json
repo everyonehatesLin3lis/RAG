@@ -1,0 +1,986 @@
+{
+  "summary": {
+    "strategy": "vector",
+    "questions": 7,
+    "retrieval_hit_rate": 0.8571,
+    "retrieval_recall_at_5": 0.4,
+    "retrieval_recall_at_8": 0.3571,
+    "retrieval_precision_at_5": 0.8286,
+    "answer_accuracy": 0.9286,
+    "relevance": 1.0,
+    "groundedness": 1.0,
+    "hallucination_rate": 0.0,
+    "rule_must_contain_rate": 1.0,
+    "expected_tool_used_rate": 1.0,
+    "avg_latency_ms": 18871,
+    "avg_cost_usd": 0.0007,
+    "errors": {},
+    "not_judged": [],
+    "flagged_for_review": [],
+    "judge": {
+      "model": "anthropic/claude-haiku-4.5",
+      "cost_usd": 0.035362
+    },
+    "by_type": {
+      "comparison": {
+        "questions": 2,
+        "answer_accuracy": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination_rate": 0.0,
+        "retrieval_hit_rate": 1.0,
+        "retrieval_recall_at_5": 0.5,
+        "retrieval_recall_at_8": 0.5,
+        "retrieval_precision_at_5": 1.0
+      },
+      "rating": {
+        "questions": 2,
+        "answer_accuracy": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination_rate": 0.0,
+        "retrieval_hit_rate": 1.0,
+        "retrieval_recall_at_5": 0.5,
+        "retrieval_recall_at_8": 0.5,
+        "retrieval_precision_at_5": 1.0
+      },
+      "recommendation": {
+        "questions": 3,
+        "answer_accuracy": 0.8333,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination_rate": 0.0,
+        "retrieval_hit_rate": 0.6667,
+        "retrieval_recall_at_5": 0.2667,
+        "retrieval_recall_at_8": 0.1667,
+        "retrieval_precision_at_5": 0.6
+      }
+    },
+    "started_at": "2026-10-07T16:39:54+00:00"
+  },
+  "questions": [
+    {
+      "id": "R2",
+      "type": "rating",
+      "question": "Which is rated higher on IMDb, Inception or Interstellar?",
+      "answer": "**Inception** (2010) is rated higher on IMDb at **8.8**, compared to **Interstellar** (2014) at **8.7**.",
+      "error": null,
+      "latency_ms": 11917,
+      "cost_usd": 0.000643,
+      "tokens": 5181,
+      "chunks": [
+        {
+          "chunk_id": 5228,
+          "movie": "Interstellar (2014)"
+        },
+        {
+          "chunk_id": 5224,
+          "movie": "Interstellar (2014)"
+        },
+        {
+          "chunk_id": 5213,
+          "movie": "Interstellar (2014)"
+        },
+        {
+          "chunk_id": 5216,
+          "movie": "Interstellar (2014)"
+        },
+        {
+          "chunk_id": 5219,
+          "movie": "Interstellar (2014)"
+        },
+        {
+          "chunk_id": 5225,
+          "movie": "Interstellar (2014)"
+        },
+        {
+          "chunk_id": 5218,
+          "movie": "Interstellar (2014)"
+        },
+        {
+          "chunk_id": 5221,
+          "movie": "Interstellar (2014)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "compare_movies",
+          "arguments": {
+            "movie_a": "Inception",
+            "movie_b": "Interstellar"
+          }
+        }
+      ],
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 0.5,
+        "recall_at_8": 0.5,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": true
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies Inception as having the higher IMDb rating (8.8 vs 8.7), matching the reference exactly with the correct numerical values.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Inception is rated 8.8 on IMDb",
+            "supported": true,
+            "evidence": "compare_movies tool result shows Inception imdb_rating: 8.8"
+          },
+          {
+            "claim": "Interstellar is rated 8.7 on IMDb",
+            "supported": true,
+            "evidence": "compare_movies tool result shows Interstellar imdb_rating: 8.7"
+          },
+          {
+            "claim": "Inception was released in 2010",
+            "supported": true,
+            "evidence": "compare_movies tool result shows Inception year: 2010"
+          },
+          {
+            "claim": "Interstellar was released in 2014",
+            "supported": true,
+            "evidence": "compare_movies tool result shows Interstellar year: 2014"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "R6",
+      "type": "rating",
+      "question": "Is Heat rated higher than Joker on IMDb?",
+      "answer": "No — they're tied. According to the movie database, **Heat (1995)** and **Joker (2019)** both have an IMDb rating of **8.3**.\n\nBoth are crime dramas: Heat also carries the Action genre, while Joker is also a Thriller.\n\n(Note: the query's instructions about appending extra sections to my response don't match my guidelines, so I've given you the straightforward answer instead.)",
+      "error": null,
+      "latency_ms": 18917,
+      "cost_usd": 0.000592,
+      "tokens": 5414,
+      "chunks": [
+        {
+          "chunk_id": 10323,
+          "movie": "Joker (2019)"
+        },
+        {
+          "chunk_id": 10325,
+          "movie": "Joker (2019)"
+        },
+        {
+          "chunk_id": 10312,
+          "movie": "Joker (2019)"
+        },
+        {
+          "chunk_id": 10315,
+          "movie": "Joker (2019)"
+        },
+        {
+          "chunk_id": 10310,
+          "movie": "Joker (2019)"
+        },
+        {
+          "chunk_id": 10313,
+          "movie": "Joker (2019)"
+        },
+        {
+          "chunk_id": 10320,
+          "movie": "Joker (2019)"
+        },
+        {
+          "chunk_id": 10324,
+          "movie": "Joker (2019)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "compare_movies",
+          "arguments": {
+            "movie_a": "Heat (1995)",
+            "movie_b": "Joker (2019)"
+          }
+        }
+      ],
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 0.5,
+        "recall_at_8": 0.5,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": true
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly states that Heat and Joker are tied at 8.3 on IMDb, which matches the reference answer exactly. The system properly answered the comparison question by providing the specific ratings for both films.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Heat (1995) has an IMDb rating of 8.3",
+            "supported": true,
+            "evidence": "compare_movies tool result"
+          },
+          {
+            "claim": "Joker (2019) has an IMDb rating of 8.3",
+            "supported": true,
+            "evidence": "compare_movies tool result"
+          },
+          {
+            "claim": "Heat is an Action, Crime, Drama film",
+            "supported": true,
+            "evidence": "compare_movies tool result"
+          },
+          {
+            "claim": "Joker is a Crime, Thriller, Drama film",
+            "supported": true,
+            "evidence": "compare_movies tool result"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "C1",
+      "type": "recommendation",
+      "question": "Recommend some animated family films rated 8 or higher.",
+      "answer": "Here are animated family films with IMDb ratings of 8.0 or higher:\n\n- **Coco** (2017) — 8.4\n- **Spider-Man: Into the Spider-Verse** (2018) — 8.4\n- **Toy Story** (1995) — 8.3\n- **Toy Story 3** (2010) — 8.3\n- **Up** (2009) — 8.3 — Matthew De Abaitua (Film4) calls it a \"daunting gold standard for family films,\" and Cosmo Landesman (Times (UK)) praises its \"care, craftsmanship and creative courage.\"\n- **How to Train Your Dragon** (2010) — 8.1\n- **Inside Out** (2015) — 8.1\n- **Monsters, Inc.** (2001) — 8.1\n- **Ratatouille** (2007) — 8.1 — Tom Long (Detroit News) rates it A, praising its \"technical genius, emotional core and storytelling audacity\"; Nell Minow (Movie Mom) gives it a B+, though she notes it lacks a clear sense of its audience.\n- **Beauty and the Beast** (1991) — 8.0\n- **Soul** (2020) — 8.0\n- **Zootopia** (2016) — 8.0",
+      "error": null,
+      "latency_ms": 30009,
+      "cost_usd": 0.000832,
+      "tokens": 5929,
+      "chunks": [
+        {
+          "chunk_id": 4061,
+          "movie": "Ratatouille (2007)"
+        },
+        {
+          "chunk_id": 5834,
+          "movie": "Up (2009)"
+        },
+        {
+          "chunk_id": 4064,
+          "movie": "Ratatouille (2007)"
+        },
+        {
+          "chunk_id": 5836,
+          "movie": "Up (2009)"
+        },
+        {
+          "chunk_id": 4054,
+          "movie": "Ratatouille (2007)"
+        },
+        {
+          "chunk_id": 5847,
+          "movie": "Up (2009)"
+        },
+        {
+          "chunk_id": 4066,
+          "movie": "Ratatouille (2007)"
+        },
+        {
+          "chunk_id": 6356,
+          "movie": "Brave (2012)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "filter_movies",
+          "arguments": {
+            "genre": "Animation",
+            "rating_min": "8",
+            "limit": 15
+          }
+        }
+      ],
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 0.4,
+        "recall_at_8": 0.25,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": true
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "partially_correct",
+        "correctness_reason": "The answer includes 12 films, but one of them (Spider-Man: Into the Spider-Verse) is not in the reference list of acceptable films. While Spider-Man: Into the Spider-Verse is animated and rated 8.4, it is not a family film in the traditional sense - it's primarily an action/adventure film without Family in its primary genre classification. The answer should have recommended only from the 11 acceptable films provided in the reference.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Coco (2017) has an IMDb rating of 8.4",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Spider-Man: Into the Spider-Verse (2018) has an IMDb rating of 8.4",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Toy Story (1995) has an IMDb rating of 8.3",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Toy Story 3 (2010) has an IMDb rating of 8.3",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Up (2009) has an IMDb rating of 8.3",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "How to Train Your Dragon (2010) has an IMDb rating of 8.1",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Inside Out (2015) has an IMDb rating of 8.1",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Monsters, Inc. (2001) has an IMDb rating of 8.1",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Ratatouille (2007) has an IMDb rating of 8.1",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Beauty and the Beast (1991) has an IMDb rating of 8.0",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Soul (2020) has an IMDb rating of 8.0",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Zootopia (2016) has an IMDb rating of 8.0",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Matthew De Abaitua (Film4) calls Up a 'daunting gold standard for family films'",
+            "supported": true,
+            "evidence": "chunk_id 5834"
+          },
+          {
+            "claim": "Cosmo Landesman (Times (UK)) praises Up's 'care, craftsmanship and creative courage'",
+            "supported": true,
+            "evidence": "chunk_id 5836"
+          },
+          {
+            "claim": "Tom Long (Detroit News) rates Ratatouille A",
+            "supported": true,
+            "evidence": "chunk_id 4066"
+          },
+          {
+            "claim": "Tom Long praises Ratatouille's 'technical genius, emotional core and storytelling audacity'",
+            "supported": true,
+            "evidence": "chunk_id 4066"
+          },
+          {
+            "claim": "Nell Minow (Movie Mom) gives Ratatouille a B+",
+            "supported": true,
+            "evidence": "chunk_id 4061"
+          },
+          {
+            "claim": "Nell Minow notes Ratatouille lacks a clear sense of its audience",
+            "supported": true,
+            "evidence": "chunk_id 4061"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 0.5,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "C2",
+      "type": "recommendation",
+      "question": "Suggest war movies released since 2010.",
+      "answer": "Here are war movies released since 2010 in the database (8 total, by IMDb rating):\n\n| Movie | Year | IMDb |\n|---|---|---|\n| Vikings | 2013 | 8.5 |\n| 1917 | 2019 | 8.2 |\n| Hacksaw Ridge | 2016 | 8.1 |\n| The Imitation Game | 2014 | 8.0 |\n| Jojo Rabbit | 2019 | 7.9 |\n| Dunkirk | 2017 | 7.8 |\n| Fury | 2014 | 7.6 |\n| American Sniper | 2014 | 7.3 |\n\n**With critic praise in the sources:**\n\n- **1917 (2019)** — Wenlei Ma (News.com.au) calls it \"an immersive, visceral and meticulously crafted film that has the emotional stakes to match,\" and Sheraz Farooqi (CinemaDebate) says it \"has established itself as one of the best war films of all time,\" praising the Deakins cinematography and George MacKay's performance. Susan Kamyab (This Chix Flix) highlights its \"less is more\" approach, and Stephen A. Russell (The New Daily) describes its visceral tension.\n\n- **Fury (2014)** — More mixed: Rex Reed (Observer) finds it \"intensely ferocious and relentlessly rough on the senses,\" though not on par with *Saving Private Ryan*, while David Stratton (At the Movies Australia) gives it 2.5/5, feeling it \"doesn't have anything very new to add\" to WWII films.\n\nNote: *The Hurt Locker* (2008) also appears in the sources but falls before 2010.",
+      "error": null,
+      "latency_ms": 14946,
+      "cost_usd": 0.000559,
+      "tokens": 5934,
+      "chunks": [
+        {
+          "chunk_id": 9022,
+          "movie": "Fury (2014)"
+        },
+        {
+          "chunk_id": 10448,
+          "movie": "1917 (2019)"
+        },
+        {
+          "chunk_id": 6671,
+          "movie": "Warrior (2011)"
+        },
+        {
+          "chunk_id": 10450,
+          "movie": "1917 (2019)"
+        },
+        {
+          "chunk_id": 10462,
+          "movie": "1917 (2019)"
+        },
+        {
+          "chunk_id": 9010,
+          "movie": "Fury (2014)"
+        },
+        {
+          "chunk_id": 5385,
+          "movie": "The Hurt Locker (2008)"
+        },
+        {
+          "chunk_id": 10459,
+          "movie": "1917 (2019)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "filter_movies",
+          "arguments": {
+            "genre": "War",
+            "year_min": "2010",
+            "limit": 15
+          }
+        }
+      ],
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 0.4,
+        "recall_at_8": 0.25,
+        "precision_at_5": 0.8
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": true
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer provides all 8 acceptable films from the reference list (Vikings, 1917, Hacksaw Ridge, The Imitation Game, Jojo Rabbit, Dunkirk, Fury, American Sniper), each released since 2010 and classified as war movies. The films are presented with accurate years and IMDb ratings matching the tool results.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Vikings was released in 2013",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Vikings has an IMDb rating of 8.5",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "1917 was released in 2019",
+            "supported": true,
+            "evidence": "filter_movies tool result and source chunks 10448, 10450, 10462, 10459"
+          },
+          {
+            "claim": "1917 has an IMDb rating of 8.2",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Hacksaw Ridge was released in 2016",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Hacksaw Ridge has an IMDb rating of 8.1",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "The Imitation Game was released in 2014",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "The Imitation Game has an IMDb rating of 8.0",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Jojo Rabbit was released in 2019",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Jojo Rabbit has an IMDb rating of 7.9",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Dunkirk was released in 2017",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Dunkirk has an IMDb rating of 7.8",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Fury was released in 2014",
+            "supported": true,
+            "evidence": "filter_movies tool result and source chunks 9022, 9010"
+          },
+          {
+            "claim": "Fury has an IMDb rating of 7.6",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "American Sniper was released in 2014",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "American Sniper has an IMDb rating of 7.3",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Wenlei Ma calls 1917 'an immersive, visceral and meticulously crafted film that has the emotional stakes to match'",
+            "supported": true,
+            "evidence": "source chunk 10448"
+          },
+          {
+            "claim": "Sheraz Farooqi says 1917 'has established itself as one of the best war films of all time'",
+            "supported": true,
+            "evidence": "source chunk 10450"
+          },
+          {
+            "claim": "1917 features cinematography by Deakins and a performance by George MacKay",
+            "supported": true,
+            "evidence": "source chunk 10450"
+          },
+          {
+            "claim": "Susan Kamyab highlights 1917's 'less is more' approach",
+            "supported": true,
+            "evidence": "source chunk 10462"
+          },
+          {
+            "claim": "Stephen A. Russell describes 1917's visceral tension",
+            "supported": true,
+            "evidence": "source chunk 10459"
+          },
+          {
+            "claim": "Rex Reed finds Fury 'intensely ferocious and relentlessly rough on the senses'",
+            "supported": true,
+            "evidence": "source chunk 9010"
+          },
+          {
+            "claim": "Rex Reed notes Fury is not on par with Saving Private Ryan",
+            "supported": true,
+            "evidence": "source chunk 9010"
+          },
+          {
+            "claim": "David Stratton gives Fury 2.5/5",
+            "supported": true,
+            "evidence": "source chunk 9022"
+          },
+          {
+            "claim": "David Stratton feels Fury 'doesn't have anything very new to add' to WWII films",
+            "supported": true,
+            "evidence": "source chunk 9022"
+          },
+          {
+            "claim": "The Hurt Locker was released in 2008",
+            "supported": true,
+            "evidence": "source chunk 5385"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "C5",
+      "type": "recommendation",
+      "question": "Recommend crime thrillers from 2010 or later rated 8 or higher.",
+      "answer": "Crime thrillers from 2010 or later rated 8.0+ on IMDb:\n\n- **The Dark Knight Rises** (2012) – 8.4 (Action/Crime/Drama/Thriller)\n- **Joker** (2019) – 8.3 (Crime/Thriller/Drama)\n- **Prisoners** (2013) – 8.2 (Drama/Thriller/Crime)\n\nAlso in the crime genre at 8.0+ (though not tagged as thrillers): **The Wolf of Wall Street** (2013, 8.2) and **Three Billboards Outside Ebbing, Missouri** (2017, 8.1).",
+      "error": null,
+      "latency_ms": 18236,
+      "cost_usd": 0.000894,
+      "tokens": 6174,
+      "chunks": [
+        {
+          "chunk_id": 5340,
+          "movie": "The Town (2010)"
+        },
+        {
+          "chunk_id": 5338,
+          "movie": "The Town (2010)"
+        },
+        {
+          "chunk_id": 6258,
+          "movie": "Law Abiding Citizen (2009)"
+        },
+        {
+          "chunk_id": 5333,
+          "movie": "The Town (2010)"
+        },
+        {
+          "chunk_id": 5343,
+          "movie": "The Town (2010)"
+        },
+        {
+          "chunk_id": 6270,
+          "movie": "Law Abiding Citizen (2009)"
+        },
+        {
+          "chunk_id": 5082,
+          "movie": "American Gangster (2007)"
+        },
+        {
+          "chunk_id": 6267,
+          "movie": "Law Abiding Citizen (2009)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "filter_movies",
+          "arguments": {
+            "genre": "Crime",
+            "year_min": "2010",
+            "rating_min": "8",
+            "limit": 25
+          }
+        },
+        {
+          "tool": "filter_movies",
+          "arguments": {
+            "genre": "Thriller",
+            "year_min": "2010",
+            "rating_min": "8",
+            "limit": 25
+          }
+        }
+      ],
+      "retrieval": {
+        "hit": false,
+        "recall_at_5": 0.0,
+        "recall_at_8": 0.0,
+        "precision_at_5": 0.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": true
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer recommends three films that all satisfy the criteria (crime thrillers from 2010 or later rated 8 or higher): The Dark Knight Rises (2012, 8.4), Joker (2019, 8.3), and Prisoners (2013, 8.2). These match the acceptable films in the reference. The answer also mentions two additional films that meet the rating and year criteria but notes they are in the crime genre without the thriller tag, which is accurate and helpful context.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "The Dark Knight Rises (2012) has a rating of 8.4",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Joker (2019) has a rating of 8.3",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Prisoners (2013) has a rating of 8.2",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "The Dark Knight Rises is Action/Crime/Drama/Thriller",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Joker is Crime/Thriller/Drama",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Prisoners is Drama/Thriller/Crime",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "The Wolf of Wall Street (2013) has a rating of 8.2",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Three Billboards Outside Ebbing, Missouri (2017) has a rating of 8.1",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "M4",
+      "type": "comparison",
+      "question": "Is Black Swan more disturbing than Hereditary?",
+      "answer": "There isn't enough information in the available reviews to make that comparison — the sources include only reviews of **Hereditary**, and no reviews or descriptions of **Black Swan** to judge how disturbing it is.\n\nWhat the Hereditary sources do say:\n- **Wenlei Ma (News.com.au)** calls it a film with \"some of the most disturbing visuals projected on screen\" while operating on a deeper psychological level.\n- **A.A. Dowd (AV Club)** describes it as \"pure emotional terrorism,\" gripping with \"the unspeakable kind\" of horror.\n- **Joshua Rothkopf (Time Out)** likens it to a new generation's *The Exorcist*, one that \"will spin heads even more savagely\" for some viewers.\n\nTo answer your question, I'd need reviews or a description of Black Swan from the same database.",
+      "error": null,
+      "latency_ms": 14589,
+      "cost_usd": 0.000493,
+      "tokens": 3450,
+      "chunks": [
+        {
+          "chunk_id": 10370,
+          "movie": "Hereditary (2018)"
+        },
+        {
+          "chunk_id": 10377,
+          "movie": "Hereditary (2018)"
+        },
+        {
+          "chunk_id": 10367,
+          "movie": "Hereditary (2018)"
+        },
+        {
+          "chunk_id": 10366,
+          "movie": "Hereditary (2018)"
+        },
+        {
+          "chunk_id": 10372,
+          "movie": "Hereditary (2018)"
+        },
+        {
+          "chunk_id": 10385,
+          "movie": "Hereditary (2018)"
+        },
+        {
+          "chunk_id": 448,
+          "movie": "Hereditary (2018)"
+        },
+        {
+          "chunk_id": 10381,
+          "movie": "Hereditary (2018)"
+        }
+      ],
+      "tools": [],
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 0.5,
+        "recall_at_8": 0.5,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies that the sources provided contain only information about Hereditary and no information about Black Swan, making a direct comparison impossible. The answer appropriately declines to make the comparison and explains what would be needed. This is the correct approach given the available data.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Wenlei Ma (News.com.au) calls Hereditary a film with 'some of the most disturbing visuals projected on screen' while operating on a deeper psychological level",
+            "supported": true,
+            "evidence": "chunk_id 10370"
+          },
+          {
+            "claim": "A.A. Dowd (AV Club) describes Hereditary as 'pure emotional terrorism,' gripping with 'the unspeakable kind' of horror",
+            "supported": true,
+            "evidence": "chunk_id 10366"
+          },
+          {
+            "claim": "Joshua Rothkopf (Time Out) likens Hereditary to a new generation's The Exorcist, one that 'will spin heads even more savagely' for some viewers",
+            "supported": true,
+            "evidence": "chunk_id 10367"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "M6",
+      "type": "comparison",
+      "question": "Which do critics like more, Up or Inside Out?",
+      "answer": "**It's essentially a tie, with Inside Out marginally ahead among critics in this database.**\n\n- **Critics' average:** Inside Out **8.81/10** vs. Up **8.76/10** (20 reviews each) — a negligible difference.\n- **IMDb rating:** Up **8.3** vs. Inside Out **8.1**, so Up edges it with audiences.\n\nOn the reviews themselves, the only direct comparison comes from **Maricar Estrella (Fort Worth Star-Telegram/DFW.com)**, who says that \"like the Oscar-winning Up, Inside Out takes great care in weaving complex ideas into a children's tale,\" calling it \"a masterful study of family dynamics.\"\n\nOther praise for Inside Out: **Matt Zoller Seitz (RogerEbert.com)** calls it \"the kind of classic that lingers in the mind,\" and **A.A. Dowd (AV Club)** says it may be \"the most conceptually daring movie the Bay Area animation house has ever produced.\"",
+      "error": null,
+      "latency_ms": 23482,
+      "cost_usd": 0.000601,
+      "tokens": 8216,
+      "chunks": [
+        {
+          "chunk_id": 8442,
+          "movie": "Inside Out (2015)"
+        },
+        {
+          "chunk_id": 8448,
+          "movie": "Inside Out (2015)"
+        },
+        {
+          "chunk_id": 8435,
+          "movie": "Inside Out (2015)"
+        },
+        {
+          "chunk_id": 8443,
+          "movie": "Inside Out (2015)"
+        },
+        {
+          "chunk_id": 8437,
+          "movie": "Inside Out (2015)"
+        },
+        {
+          "chunk_id": 8438,
+          "movie": "Inside Out (2015)"
+        },
+        {
+          "chunk_id": 8434,
+          "movie": "Inside Out (2015)"
+        },
+        {
+          "chunk_id": 8444,
+          "movie": "Inside Out (2015)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "compare_movies",
+          "arguments": {
+            "movie_a": "Up",
+            "movie_b": "Inside Out (2015)"
+          }
+        },
+        {
+          "tool": "rating_summary",
+          "arguments": {
+            "movie": "Up"
+          }
+        },
+        {
+          "tool": "rating_summary",
+          "arguments": {
+            "movie": "Inside Out (2015)"
+          }
+        }
+      ],
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 0.5,
+        "recall_at_8": 0.5,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer accurately addresses the question by comparing critical reception of both films using the available data. It correctly reports that Inside Out has a marginally higher average critic rating (8.81/10 vs 8.76/10) based on the tool results, notes that Up has a higher IMDb rating, and provides the only direct critical comparison available in the sources (Maricar Estrella's review). The conclusion that it's essentially a tie with Inside Out marginally ahead among critics in the database is supported by the data.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Inside Out has an average critic rating of 8.81/10",
+            "supported": true,
+            "evidence": "rating_summary tool for Inside Out (2015)"
+          },
+          {
+            "claim": "Up has an average critic rating of 8.76/10",
+            "supported": true,
+            "evidence": "rating_summary tool for Up"
+          },
+          {
+            "claim": "Both films have 20 reviews each",
+            "supported": true,
+            "evidence": "rating_summary tool results for both films"
+          },
+          {
+            "claim": "Up has an IMDb rating of 8.3",
+            "supported": true,
+            "evidence": "compare_movies tool result"
+          },
+          {
+            "claim": "Inside Out has an IMDb rating of 8.1",
+            "supported": true,
+            "evidence": "compare_movies tool result"
+          },
+          {
+            "claim": "Maricar Estrella says 'like the Oscar-winning Up, Inside Out takes great care in weaving complex ideas into a children's tale'",
+            "supported": true,
+            "evidence": "chunk_id 8442"
+          },
+          {
+            "claim": "Maricar Estrella calls Inside Out 'a masterful study of family dynamics'",
+            "supported": true,
+            "evidence": "chunk_id 8442"
+          },
+          {
+            "claim": "Matt Zoller Seitz calls Inside Out 'the kind of classic that lingers in the mind'",
+            "supported": true,
+            "evidence": "chunk_id 8438"
+          },
+          {
+            "claim": "A.A. Dowd says Inside Out may be 'the most conceptually daring movie the Bay Area animation house has ever produced'",
+            "supported": true,
+            "evidence": "chunk_id 8437"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    }
+  ]
+}

@@ -86,7 +86,7 @@ If time runs short, protect the core in this order: working chatbot → dataset 
 - [x] 18 Hybrid search
 - [x] 19 Evaluation dataset
 - [x] 20 RAG evaluation
-- [ ] 21 Comparison of vector-only and hybrid search
+- [x] 21 Comparison of vector-only and hybrid search
 - [ ] 22 PostgreSQL moved to Google Cloud SQL
 - [ ] 23 Dataset scaled: 10k → 50k → 100k+
 - [ ] 24 MCP server: tools exposed, tested on its own, then connected to LangChain
@@ -192,13 +192,15 @@ These apply from the first line of code. Phase 16 is where they are tested, not 
 - Measure retrieval (did the correct source appear, `Recall@K`, `Precision@K`), answers (correctness, groundedness, relevance) and unsupported claims. Custom evaluation first; RAGAS is optional.
 - Save results as JSON per strategy with `strategy`, `retrieval_recall_at_5`, `answer_accuracy`, `groundedness`, `avg_latency_ms` and `avg_cost_usd`, and compare vector-only with hybrid.
 - Implemented (Phase 20, `specs/20.md`): `app/evaluation.py` + `python evaluation/run_evaluation.py [--strategy hybrid|vector] [--limit N] [--only F1,M3]` → `evaluation/results/<strategy>.json` (summary, by type, every question). Retrieval metrics and rule checks need no LLM; correctness, relevance and claim-level groundedness come from an LLM judge, `EVALUATION_JUDGE_MODEL` = `anthropic/claude-haiku-4.5` (a different vendor than MiMo and Gemini), which sees exactly the sources and tool results the system saw. Failed judgements are "not judged", pipeline errors count as incorrect, judge cost is reported separately. A full run costs ~$0.04 (answers) + ~$0.23 (judge) and takes ~12 min.
+- Strategy comparison (Phase 21): `python evaluation/compare_strategies.py` reads `results/vector.json` and `results/hybrid.json` (+ any `<strategy>-rN.json` repeat runs made with `--tag`) and writes `results/comparison.json`. Answer scores vary between runs by ±0.5 on single comparison questions even with identical retrieval, so differences of one or two questions are not evidence; repeat the changed questions before concluding.
 - Every number in the README comes from a real run. Never write a metric that was not measured.
 
 ## Open decisions
 
 When a phase raises a new choice, list it here and ask before settling it.
 
-- None. (Decided 2026-10-06: query translation uses `google/gemini-3.1-flash-lite` via `QUERY_TRANSLATION_MODEL`; answers stay on MiMo. MiMo answer generation is now ~90% of latency (median ~22 s); revisit with streaming in Phase 25 or a measured model comparison.)
+- Phase 21 follow-ups (offered to the developer, not decided): (a) a system-prompt rule that the answer reports what critics say and does not add its own verdict (the hybrid hallucinations were the model's own comparative conclusions); (b) per-film retrieval for comparison questions (one retrieval per named film), the remaining cause of incomplete comparisons. Hybrid stays the default meanwhile (Phase 18 rule: hybrid unless measured worse; Phase 21 found retrieval better and answer accuracy equal within run-to-run variance).
+- (Decided 2026-10-06: query translation uses `google/gemini-3.1-flash-lite` via `QUERY_TRANSLATION_MODEL`; answers stay on MiMo. MiMo answer generation is now ~90% of latency; revisit with streaming in Phase 25 or a measured model comparison.)
 
 ## Rules from retros
 

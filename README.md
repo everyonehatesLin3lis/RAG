@@ -32,8 +32,9 @@ found, and why each decision went the way it did. The full plan is in [`EXECUTIO
 | 18 | Hybrid search: vector + keyword results fused with Reciprocal Rank Fusion, now the default | done |
 | 19 | Evaluation dataset: 49 new questions, every expected answer read from the database | done |
 | 20 | RAG evaluation: retrieval metrics, rule checks and an LLM judge on 49 questions | done |
-| 21 | Comparison of vector-only and hybrid search on the evaluation set | next |
-| 22–31 | Cloud SQL, scaling, MCP, streaming, final UI, README, review | to do |
+| 21 | Comparison of vector-only and hybrid search on the evaluation set, with repeat runs | done |
+| 22 | PostgreSQL moved to Google Cloud SQL | next (deferred by the developer for now) |
+| 23–31 | Scaling, MCP, streaming, final UI, error handling, testing, final evaluation, README, review | to do |
 
 ## How it works today
 
@@ -920,6 +921,52 @@ What the results show:
   chunks, and 11 acceptable films cannot fit in 5 chunks; their answer accuracy is 0.90.
 - **Rule checks and judge agreed everywhere** (nothing flagged for review), a first sign the judge can be trusted on
   this set.
+
+### Vector-only vs hybrid on the evaluation set (Phase 21; [`evaluation/results/comparison.json`](evaluation/results/comparison.json))
+
+The full evaluation (49 questions, Claude Haiku 4.5 judging) run once per strategy, results in the plan's format:
+
+| | Vector only | Hybrid | Change |
+|---|---|---|---|
+| Correct source reached the model | 0.98 | **1.00** | +0.02 |
+| Recall@5 | 0.82 | **0.86** | +0.05 |
+| Recall@8 | 0.83 | **0.87** | +0.05 |
+| Precision@5 | **0.94** | 0.77 | −0.16 |
+| Answer accuracy | 0.94 | 0.93 | −0.01 (one question) |
+| Groundedness | 1.000 | 0.997 | −0.003 |
+| Hallucination rate | 0.00 | 0.04 | +0.04 (two answers) |
+| Relevance | 0.96 | 0.96 | 0 |
+| Average / median latency | 16.0 s / 13.2 s | 14.0 s / 9.8 s | −2.0 s (see below) |
+| Tokens / cost per answer | 4,805 / $0.00075 | 5,229 / $0.00076 | +424 / +$0.000015 |
+
+By type, accuracy was identical for factual, rating, opinion, plot, recommendation and not-in-the-data questions; only
+comparisons differed (vector 0.72, hybrid 0.67), while hybrid's Recall@5 on comparisons was higher (0.61 → 0.72).
+
+**Is a one-question difference real?** Seven questions changed outcome between the two runs, so those seven were run twice
+more per strategy (`--tag r2`, `r3`; about $0.15):
+
+| On those 7 questions × 3 runs | Vector only | Hybrid |
+|---|---|---|
+| Mean correctness | 0.88 | 0.83 |
+| Answers with an unsupported claim | 0 of 21 | 3 of 21 |
+| Mean Recall@8 | 0.36 | **0.65** |
+
+What the comparison shows:
+- **Retrieval: hybrid is better, consistently.** Higher hit rate and recall, the same in every repeat (retrieval does not
+  vary between runs). The price is precision: more chunks of other films reach the model.
+- **Answer scores vary from run to run.** With identical retrieval, single comparison questions scored 0.5 in one run and
+  1.0 in another (e.g. Black Swan vs Hereditary with vector: 0.5, 1.0, 0.5). One run per strategy cannot separate a
+  one-question difference from that variation; on these 49 questions, overall answer accuracy is **equal within noise**.
+- **One pattern against hybrid holds up:** a few more unsupported claims (3 of 21 vs 0 of 21 on the repeated questions).
+  Two are on Black Swan vs Hereditary: once hybrid retrieves reviews of *both* films, the model adds its own verdict ("Hereditary
+  is the more genuinely disturbing film"), which no critic in the sources states. Better retrieval invited a conclusion the
+  sources do not support. Noise chunks from keyword search may also dilute the context (Up vs Inside Out leaned worse with
+  hybrid at the same recall).
+- **Latency and cost:** hybrid's 2 s faster average is MiMo's own speed varying (keyword search takes milliseconds); hybrid
+  sends about 400 more tokens per answer, a negligible cost difference.
+- **Decision:** hybrid stays the default (the Phase 18 rule: hybrid unless measured worse). Retrieval is better and answer
+  accuracy is equal within noise. Two follow-ups would address what the comparison found: a system-prompt rule against the
+  model's own verdicts, and retrieving reviews per named film for comparison questions. Both are offered to the developer.
 
 ### Environment (Windows)
 
