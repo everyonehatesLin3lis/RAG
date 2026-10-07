@@ -29,8 +29,9 @@ found, and why each decision went the way it did. The full plan is in [`EXECUTIO
 | 15 | Logging and monitoring: one JSON line per request, a summary script | done |
 | 16 | Prompt injection protection: 8 live attacks, all defended | done |
 | 17 | Keyword search: PostgreSQL full-text search over chunks, shown in the RAG panel | done |
-| 18 | Hybrid search: fuse vector and keyword results | next |
-| 19–31 | Evaluation, Cloud SQL, scaling, MCP, streaming, final UI, README, review | to do |
+| 18 | Hybrid search: vector + keyword results fused with Reciprocal Rank Fusion, now the default | done |
+| 19 | Evaluation dataset | next |
+| 20–31 | Evaluation, Cloud SQL, scaling, MCP, streaming, final UI, README, review | to do |
 
 ## How it works today
 
@@ -42,8 +43,9 @@ Browser (Next.js chat page, conversation id kept in localStorage)
   → query translation: one LLM call rewrites it (using that history to resolve "it") to
     {"semantic_query", "keywords", "filters"}
   → embed the semantic_query (openai/text-embedding-3-small, same model as the chunks)
-  → pgvector: 8 chunks with the smallest cosine distance to the question
-  → full-text keyword search for the translation's keywords (shown in the panel; fused with vector in Phase 18)
+  → pgvector: 10 chunks with the smallest cosine distance to the question
+  → full-text keyword search: 10 chunks containing the translation's keywords
+  → Reciprocal Rank Fusion of the two lists → the top 8 go to the model
   → prompt = system rules + the earlier messages + the 8 chunks in <source> tags + the user's original question
   → LangChain ChatOpenAI → OpenRouter → xiaomi/mimo-v2.6-flash, with the 3 tools attached
       ↺ the model may ask for a tool → our code validates and runs it → the result goes back (max 3 rounds)
@@ -513,6 +515,24 @@ Choices made while building (defaults the developer can change):
 | Ranking | `ts_rank_cd` (more and closer matches score higher), scaled to 0..1, top 10 | the plan's hybrid example uses "top 10 each" |
 | Use in answers | **shown in the RAG panel only** | the plan builds keyword search first and combines in Phase 18 |
 
+### Hybrid search: Reciprocal Rank Fusion (Phase 18; spec in [`specs/18.md`](specs/18.md))
+
+**What it does.** Both searches run (10 results each), their two ranked lists are merged into one, and the top 8 of
+the merged list go to the model. The merge is **Reciprocal Rank Fusion (RRF)**: each chunk scores `1 / (60 + rank)` in
+every list it appears in, and the scores are added. A chunk found high by *both* searches (meaning and exact words
+agree) beats one found by only one.
+
+Decisions, all confirmed by the developer; the last two were settled by measurement:
+
+| Decision | Chosen | Why |
+|---|---|---|
+| Merge method | **RRF**, not weighted scores | it uses only positions; cosine distance and full-text rank are on unrelated scales, so weighting them would first need rescaling and tuned weights |
+| Sizes | 10 from each search, **8 to the model** | the plan's "top 10 each"; 8 keeps the prompt, and so the cost, as before |
+| RRF constant | **k = 60** | the value from the original paper; the larger k is, the less rank 1 counts over rank 10 |
+| Keyword noise | **plain RRF, no keyword filter** | measured: leaving genre names and generic words out of keyword search *lowered* the two-film result from 0.75 to 0.50, so it was rejected |
+| Ties | **go to the better vector rank** | measured: better or equal to an arbitrary tie-break on every metric |
+| Default | **hybrid** (`RETRIEVAL_STRATEGY=vector` switches back) | it keeps every expected film in the context and doubles two-film coverage; the cost is a different film ranked first on 2 of 54 questions |
+
 ### Smaller implementation choices
 
 These follow from the decisions above:
@@ -772,6 +792,30 @@ Vector search and keyword search on the questions earlier phases flagged (films 
   at about 5 ms per query against 72 ms. Two tests that check exact ranking with artificial, mostly-zero vectors started
   failing, because HNSW can miss neighbours of such vectors; they now force an exact scan for that check.
 
+### Hybrid search (Phase 18; [`docs/experiments/hybrid_comparison.json`](docs/experiments/hybrid_comparison.json))
+
+54 questions with known answers, retrieval only, the same translation and searches for both strategies:
+- the 30 known-answer questions from the embedding experiment,
+- the 16 casual questions from the translation experiment,
+- 8 new two-film comparison questions ("Compare Prisoners with Zodiac", "How does Alien compare to Aliens?", …).
+
+| | Vector only | Hybrid |
+|---|---|---|
+| Expected film ranked first (hit@1) | 0.98 | 0.94 |
+| Expected film among the 8 sent to the model (hit@8) | 1.00 | **1.00** |
+| Two-film questions: both films among the 8 | 0.38 (3 of 8) | **0.75 (6 of 8)** |
+| Different films among the 8 | 2.0 | 3.6 |
+
+- **Hybrid fixes the one-sided comparisons** found in Phase 11. "Compare Prisoners with Zodiac" now gets a *Prisoners*
+  chunk (keyword rank 2) next to the *Zodiac* chunks; vector-only sent 8 *Zodiac* chunks.
+- **Its cost is noise.** More different films reach the context (3.6 vs 2.0), and on two kidnapping-themed questions the
+  keywords "kidnapping", "torture", "revenge" lifted *Man on Fire* and *Taken* above *Prisoners* (still in the 8). The browser
+  check showed the same: one *The Batman* chunk joined the context for the Prisoners/Zodiac question.
+- **Two two-film questions still fail**, both from series titles: the phrase "Toy Story" also matches *Toy Story 2*, and
+  "John Wick" matches the sequels, so they crowd out the second film.
+- **Measured, not assumed:** the obvious fix for noise, dropping generic keywords, made two-film coverage worse
+  (`docs/experiments/hybrid_variants.json`), so it is not used.
+
 ### Environment (Windows)
 
 - On this machine, `localhost` tries IPv6 first and Docker's port listens only on IPv4, so connections hung
@@ -826,7 +870,7 @@ cd backend
 pytest
 ```
 
-166 tests. They cover keyword search (phrases, stems, ranking, safety), security (no secrets in errors, injected tags cannot escape), the request log and its summary, token and cost tracking, the debug object, conversation history (storage, limits, prompts, endpoints), the three tools (validation, title matching, SQL safety), the tool-calling loop (with a scripted fake model), the chat endpoint and its sources, query translation (validation and fallbacks), the RAG prompt and its
+179 tests. They cover hybrid fusion and the strategy switch, keyword search (phrases, stems, ranking, safety), security (no secrets in errors, injected tags cannot escape), the request log and its summary, token and cost tracking, the debug object, conversation history (storage, limits, prompts, endpoints), the three tools (validation, title matching, SQL safety), the tool-calling loop (with a scripted fake model), the chat endpoint and its sources, query translation (validation and fallbacks), the RAG prompt and its
 injection defences, retrieval, records and chunking,
 the embedder and embedding job, and the database (schema, vector size, HNSW index, similarity order, top-K search,
 SQL-injection text, cascade deletes). The embedder, retrieval and LLM are replaced with fakes in the unit tests, and

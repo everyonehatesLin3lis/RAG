@@ -1,0 +1,130 @@
+{
+  "known-answer": {
+    "vector": {
+      "hit_at_1": 0.967,
+      "hit_at_8": 1.0,
+      "all_at_8": 1.0,
+      "films": 2.27
+    },
+    "hybrid": {
+      "hit_at_1": 0.9,
+      "hit_at_8": 1.0,
+      "all_at_8": 1.0,
+      "films": 4.33
+    },
+    "hybrid+specific": {
+      "hit_at_1": 0.933,
+      "hit_at_8": 1.0,
+      "all_at_8": 1.0,
+      "films": 4.37
+    },
+    "hybrid+vector-tiebreak": {
+      "hit_at_1": 0.9,
+      "hit_at_8": 1.0,
+      "all_at_8": 1.0,
+      "films": 3.97
+    },
+    "hybrid+both": {
+      "hit_at_1": 0.933,
+      "hit_at_8": 1.0,
+      "all_at_8": 1.0,
+      "films": 4.07
+    }
+  },
+  "casual": {
+    "vector": {
+      "hit_at_1": 1.0,
+      "hit_at_8": 1.0,
+      "all_at_8": 1.0,
+      "films": 1.81
+    },
+    "hybrid": {
+      "hit_at_1": 0.938,
+      "hit_at_8": 1.0,
+      "all_at_8": 1.0,
+      "films": 3.44
+    },
+    "hybrid+specific": {
+      "hit_at_1": 1.0,
+      "hit_at_8": 1.0,
+      "all_at_8": 1.0,
+      "films": 3.62
+    },
+    "hybrid+vector-tiebreak": {
+      "hit_at_1": 1.0,
+      "hit_at_8": 1.0,
+      "all_at_8": 1.0,
+      "films": 3.12
+    },
+    "hybrid+both": {
+      "hit_at_1": 1.0,
+      "hit_at_8": 1.0,
+      "all_at_8": 1.0,
+      "films": 3.25
+    }
+  },
+  "two-film": {
+    "vector": {
+      "hit_at_1": 1.0,
+      "hit_at_8": 1.0,
+      "all_at_8": 0.375,
+      "films": 1.62
+    },
+    "hybrid": {
+      "hit_at_1": 1.0,
+      "hit_at_8": 1.0,
+      "all_at_8": 0.75,
+      "films": 3.25
+    },
+    "hybrid+specific": {
+      "hit_at_1": 0.625,
+      "hit_at_8": 1.0,
+      "all_at_8": 0.5,
+      "films": 3.12
+    },
+    "hybrid+vector-tiebreak": {
+      "hit_at_1": 1.0,
+      "hit_at_8": 1.0,
+      "all_at_8": 0.75,
+      "films": 3.12
+    },
+    "hybrid+both": {
+      "hit_at_1": 1.0,
+      "hit_at_8": 1.0,
+      "all_at_8": 0.5,
+      "films": 3.12
+    }
+  },
+  "all": {
+    "vector": {
+      "hit_at_1": 0.981,
+      "hit_at_8": 1.0,
+      "all_at_8": 0.907,
+      "films": 2.04
+    },
+    "hybrid": {
+      "hit_at_1": 0.926,
+      "hit_at_8": 1.0,
+      "all_at_8": 0.963,
+      "films": 3.91
+    },
+    "hybrid+specific": {
+      "hit_at_1": 0.907,
+      "hit_at_8": 1.0,
+      "all_at_8": 0.926,
+      "films": 3.96
+    },
+    "hybrid+vector-tiebreak": {
+      "hit_at_1": 0.944,
+      "hit_at_8": 1.0,
+      "all_at_8": 0.963,
+      "films": 3.59
+    },
+    "hybrid+both": {
+      "hit_at_1": 0.963,
+      "hit_at_8": 1.0,
+      "all_at_8": 0.926,
+      "films": 3.69
+    }
+  }
+}

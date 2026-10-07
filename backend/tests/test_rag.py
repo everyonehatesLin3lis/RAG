@@ -5,7 +5,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from pydantic import ValidationError
 
 from app import embeddings, query_translation, rag, retrieval, tool_calling
-from app.config import Settings
+from app.config import Settings, get_settings
 from app.errors import AppError
 from app.query_translation import TranslatedQuery
 from app.retrieval import RetrievedChunk
@@ -89,6 +89,8 @@ def test_ac002_top_k_outside_5_to_10_is_rejected(k):
 
 
 def test_ac002_search_is_asked_for_top_k(monkeypatch, fake_search, fake_llm):
+    # Spec 6 describes vector-only RAG; hybrid (spec 18) asks each search for HYBRID_CANDIDATES instead.
+    monkeypatch.setattr(get_settings(), "retrieval_strategy", "vector")
     monkeypatch.setattr(embeddings, "get_embedder", FakeEmbedder)
     rag.answer_question("Why do people like Prisoners?", session=None)
     assert fake_search[0]["k"] == 8

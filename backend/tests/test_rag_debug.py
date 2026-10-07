@@ -44,7 +44,9 @@ def test_debug_records_what_each_step_did(pipeline):
     assert debug.translation is TRANSLATION
     assert debug.history_messages == 2
     assert [c.id for c in debug.vector_results] == [11, 12]
-    assert debug.selected_chunk_ids == [11, 12]
+    # Hybrid (default): 11 and the keyword-only 13 are both rank 1 in a list, 12 is rank 2 -> fused order 11, 13, 12
+    assert debug.selected_chunk_ids == [11, 13, 12]
+    assert debug.strategy == "hybrid"
     assert set(debug.timings_ms) == {"translation", "embedding_and_search", "keyword_search", "generation", "total"}
     assert [c.id for c in debug.keyword_results] == [13]
     assert all(isinstance(ms, int) and ms >= 0 for ms in debug.timings_ms.values())
@@ -72,7 +74,7 @@ def test_debug_is_mapped_for_the_api(pipeline):
     assert out["keywords"] == ["Prisoners", "Hugh Jackman"]
     assert out["filters"] == {"genres": ["Thriller"]}  # empty filters left out
     assert out["translation_origin"] == "model"
-    assert out["selected_chunks"] == ["11", "12"]
+    assert out["selected_chunks"] == ["11", "13", "12"]
     assert out["keyword_results"] == [{
         "rank": 1, "chunk_id": "13", "movie": "Prisoners", "year": 2013, "doc_type": "profile", "critic": None,
         "score": 0.23, "excerpt": "Cast: Hugh Jackman",

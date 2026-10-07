@@ -23,6 +23,19 @@ export type KeywordResult = {
   excerpt: string;
 };
 
+export type FusedResult = {
+  rank: number;
+  chunk_id: string;
+  movie: string;
+  year: number | null;
+  doc_type: string | null;
+  found_by: string[];
+  vector_rank: number | null;
+  keyword_rank: number | null;
+  fused_score: number;
+  selected: boolean;
+};
+
 export type RagDebug = {
   original_query: string;
   translated_query: string;
@@ -34,6 +47,8 @@ export type RagDebug = {
   history_messages: number;
   timings_ms: Record<string, number>;
   keyword_results: KeywordResult[];
+  strategy: string;
+  fused_results: FusedResult[];
 };
 
 const ORIGIN_LABEL: Record<string, string> = {
@@ -135,8 +150,10 @@ export default function RagPanel({ debug }: { debug: RagDebug | null | undefined
         <section>
           <h3 className="font-medium">4. Keyword search: {debug.keyword_results.length} full-text matches</h3>
           <p className="text-xs text-zinc-500">
-            PostgreSQL full-text search for the keywords above (each as a phrase, word stems matched). Shown for
-            comparison: the answer still uses the vector results until hybrid search combines both.
+            PostgreSQL full-text search for the keywords above (each as a phrase, word stems matched).
+            {debug.strategy === "hybrid"
+              ? " Merged with the vector results in step 5."
+              : " Not used: the retrieval strategy is vector-only."}
           </p>
           {debug.keyword_results.length === 0 ? (
             <p className="text-xs text-zinc-500">No keywords, or no chunk contains them.</p>
@@ -166,8 +183,39 @@ export default function RagPanel({ debug }: { debug: RagDebug | null | undefined
           )}
         </section>
 
+        {debug.strategy === "hybrid" && debug.fused_results.length > 0 && (
+          <section>
+            <h3 className="font-medium">5. Hybrid fusion: what the model received</h3>
+            <p className="text-xs text-zinc-500">
+              Reciprocal Rank Fusion: each chunk scores 1 / (60 + rank) in every list it appears in, added up. Found high
+              by both searches beats found by one. The top {debug.selected_chunks.length} were sent to the model.
+            </p>
+            <ol className="mt-1 flex flex-col gap-1">
+              {debug.fused_results.map((r) => (
+                <li key={r.chunk_id} className={`flex items-start gap-2 ${r.selected ? "" : "opacity-50"}`}>
+                  <span className="w-5 shrink-0 text-right text-xs text-zinc-500">{r.rank}</span>
+                  <span className="w-14 shrink-0 text-xs text-zinc-500">{r.fused_score.toFixed(4)}</span>
+                  <span className="min-w-0">
+                    <span className="font-medium">
+                      {r.movie}
+                      {r.year ? ` (${r.year})` : ""}
+                    </span>
+                    <span className="text-zinc-500">
+                      {" "}
+                      · {r.vector_rank ? `vector #${r.vector_rank}` : ""}
+                      {r.vector_rank && r.keyword_rank ? " + " : ""}
+                      {r.keyword_rank ? `keyword #${r.keyword_rank}` : ""}
+                      {r.selected ? " · sent to the model" : " · not sent"}
+                    </span>
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </section>
+        )}
+
         <section>
-          <h3 className="font-medium">5. Time</h3>
+          <h3 className="font-medium">{debug.strategy === "hybrid" ? "6" : "5"}. Time</h3>
           <ul className="text-xs text-zinc-600 dark:text-zinc-400">
             {Object.entries(debug.timings_ms).map(([step, ms]) => (
               <li key={step}>

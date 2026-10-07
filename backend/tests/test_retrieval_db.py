@@ -133,3 +133,24 @@ def test_keyword_text_is_a_bound_parameter(session):
     add_text_chunks(session)
     assert retrieval.keyword_search(session, ["x'); DROP TABLE movies; --"], k=10) == []
     assert session.execute(text("SELECT count(*) FROM movies WHERE id = 'tt_test'")).scalar() == 1
+
+
+# --- Phase 18: hybrid on the real database -------------------------------------------------------------------
+
+
+def test_hybrid_brings_in_a_chunk_only_keyword_search_finds(session):
+    from app import fusion
+
+    add_test_chunks(session)  # three vector-near chunks (exact scan, see add_test_chunks)
+    session.add(RagChunk(movie_id="tt_test", content="Movie: Testfilm Quokka\n\nCast: Hugo Brightwater",
+                         embedding=toy_vector(0.0, 0.0, 1.0),  # far from the query vector
+                         metadata_={"movie_title": "Test Movie", "year": 2020, "chunk_key": "t:kw"}))
+    session.flush()
+
+    vector = retrieval.search_chunks(session, toy_vector(1.0), k=10)
+    keyword = retrieval.keyword_search(session, ["Hugo Brightwater"], k=10)
+    selection = fusion.select(vector, keyword, strategy="hybrid", top_k=8)
+
+    keys = [c.metadata.get("chunk_key") for c in selection.chunks]
+    assert "t:kw" not in [c.metadata.get("chunk_key") for c in vector[:8]]  # vector alone misses it
+    assert "t:kw" in keys and keys[0] == "t:0"  # hybrid adds it; the best vector match stays first

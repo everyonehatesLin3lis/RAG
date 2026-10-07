@@ -1,0 +1,1576 @@
+{
+  "settings": {
+    "candidates": 10,
+    "top_k": 8,
+    "rrf_k": 60
+  },
+  "summary": {
+    "known-answer": {
+      "vector": {
+        "questions": 30,
+        "hit_at_1": 0.967,
+        "hit_at_8": 1.0,
+        "all_at_8": 1.0,
+        "distinct_films_in_8": 2.27
+      },
+      "hybrid": {
+        "questions": 30,
+        "hit_at_1": 0.9,
+        "hit_at_8": 1.0,
+        "all_at_8": 1.0,
+        "distinct_films_in_8": 3.97
+      }
+    },
+    "casual": {
+      "vector": {
+        "questions": 16,
+        "hit_at_1": 1.0,
+        "hit_at_8": 1.0,
+        "all_at_8": 1.0,
+        "distinct_films_in_8": 1.81
+      },
+      "hybrid": {
+        "questions": 16,
+        "hit_at_1": 1.0,
+        "hit_at_8": 1.0,
+        "all_at_8": 1.0,
+        "distinct_films_in_8": 3.12
+      }
+    },
+    "two-film": {
+      "vector": {
+        "questions": 8,
+        "hit_at_1": 1.0,
+        "hit_at_8": 1.0,
+        "all_at_8": 0.375,
+        "distinct_films_in_8": 1.62
+      },
+      "hybrid": {
+        "questions": 8,
+        "hit_at_1": 1.0,
+        "hit_at_8": 1.0,
+        "all_at_8": 0.75,
+        "distinct_films_in_8": 3.12
+      }
+    },
+    "all": {
+      "vector": {
+        "questions": 54,
+        "hit_at_1": 0.981,
+        "hit_at_8": 1.0,
+        "all_at_8": 0.907,
+        "distinct_films_in_8": 2.04
+      },
+      "hybrid": {
+        "questions": 54,
+        "hit_at_1": 0.944,
+        "hit_at_8": 1.0,
+        "all_at_8": 0.963,
+        "distinct_films_in_8": 3.59
+      }
+    }
+  },
+  "questions": [
+    {
+      "group": "known-answer",
+      "question": "a thief who plants an idea in someone's mind by entering their dreams",
+      "expected": [
+        "Inception (2010)"
+      ],
+      "keywords": [
+        "thief",
+        "dreams",
+        "inception",
+        "heist"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 2
+      }
+    },
+    {
+      "group": "known-answer",
+      "question": "a father kidnaps and tortures the man he believes took his daughter",
+      "expected": [
+        "Prisoners (2013)"
+      ],
+      "keywords": [
+        "kidnapping",
+        "torture",
+        "father",
+        "revenge",
+        "thriller"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 5
+      },
+      "hybrid": {
+        "hit_at_1": false,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 3,
+        "films": 7
+      }
+    },
+    {
+      "group": "known-answer",
+      "question": "a cartoonist becomes obsessed with a serial killer who sends coded letters to newspapers in San Francisco",
+      "expected": [
+        "Zodiac (2007)"
+      ],
+      "keywords": [
+        "Zodiac",
+        "serial killer",
+        "San Francisco",
+        "cartoonist",
+        "coded letters"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 3
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 4
+      }
+    },
+    {
+      "group": "known-answer",
+      "question": "an insomniac office worker starts an underground fighting club with a soap salesman",
+      "expected": [
+        "Fight Club (1999)"
+      ],
+      "keywords": [
+        "Fight Club",
+        "insomniac",
+        "underground fighting",
+        "soap salesman"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      }
+    },
+    {
+      "group": "known-answer",
+      "question": "astronauts travel through a wormhole to find a new home for humanity as crops fail on Earth",
+      "expected": [
+        "Interstellar (2014)"
+      ],
+      "keywords": [
+        "astronauts",
+        "wormhole",
+        "space travel",
+        "humanity",
+        "Earth",
+        "science fiction"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 7
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 7
+      }
+    },
+    {
+      "group": "known-answer",
+      "question": "a man with short-term memory loss uses tattoos and polaroid photos to hunt his wife's killer",
+      "expected": [
+        "Memento (2000)"
+      ],
+      "keywords": [
+        "Memento",
+        "memory loss",
+        "tattoos",
+        "polaroid",
+        "investigation",
+        "Christopher Nolan"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 4
+      }
+    },
+    {
+      "group": "known-answer",
+      "question": "a young jazz drummer is pushed to breaking point by an abusive music teacher",
+      "expected": [
+        "Whiplash (2014)"
+      ],
+      "keywords": [
+        "Whiplash",
+        "jazz",
+        "drummer",
+        "music teacher",
+        "obsession",
+        "drama"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 3
+      }
+    },
+    {
+      "group": "known-answer",
+      "question": "a botanist stranded alone on Mars grows potatoes to survive",
+      "expected": [
+        "The Martian (2015)"
+      ],
+      "keywords": [
+        "The Martian",
+        "botanist",
+        "Mars",
+        "survival",
+        "space"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 4
+      }
+    },
+    {
+      "group": "known-answer",
+      "question": "a husband becomes the prime suspect when his wife disappears on their anniversary",
+      "expected": [
+        "Gone Girl (2014)"
+      ],
+      "keywords": [
+        "husband",
+        "wife",
+        "disappearance",
+        "anniversary",
+        "suspect",
+        "mystery"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 4
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 7
+      }
+    },
+    {
+      "group": "known-answer",
+      "question": "a couple have their memories of each other erased after a painful breakup",
+      "expected": [
+        "Eternal Sunshine of the Spotless Mind (2004)"
+      ],
+      "keywords": [
+        "memory erasure",
+        "breakup",
+        "relationship",
+        "Eternal Sunshine of the Spotless Mind"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 3
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 5
+      }
+    },
+    {
+      "group": "known-answer",
+      "question": "a cynical weatherman relives the same day over and over",
+      "expected": [
+        "Groundhog Day (1993)"
+      ],
+      "keywords": [
+        "Groundhog Day",
+        "time loop",
+        "weatherman",
+        "cynical"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      }
+    },
+    {
+      "group": "known-answer",
+      "question": "a linguist tries to communicate with aliens whose language changes how she experiences time",
+      "expected": [
+        "Arrival (2016)"
+      ],
+      "keywords": [
+        "linguist",
+        "aliens",
+        "first contact",
+        "time perception",
+        "Arrival"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 4
+      }
+    },
+    {
+      "group": "known-answer",
+      "question": "a lonely hitman takes in a twelve-year-old girl whose family was murdered by a corrupt cop",
+      "expected": [
+        "Léon: The Professional (1994)"
+      ],
+      "keywords": [
+        "hitman",
+        "assassin",
+        "Leon: The Professional",
+        "revenge",
+        "protector"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 4
+      }
+    },
+    {
+      "group": "known-answer",
+      "question": "a retired assassin takes revenge on gangsters who killed the puppy his late wife gave him",
+      "expected": [
+        "John Wick (2014)"
+      ],
+      "keywords": [
+        "John Wick",
+        "assassin",
+        "revenge",
+        "gangsters",
+        "puppy"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 3
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 5
+      }
+    },
+    {
+      "group": "known-answer",
+      "question": "a Black man visits his white girlfriend's family and uncovers a horrifying secret",
+      "expected": [
+        "Get Out (2017)"
+      ],
+      "keywords": [
+        "Get Out",
+        "horror",
+        "social thriller",
+        "racism"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      }
+    },
+    {
+      "group": "known-answer",
+      "question": "a rat who dreams of becoming a chef in a Paris restaurant",
+      "expected": [
+        "Ratatouille (2007)"
+      ],
+      "keywords": [
+        "Ratatouille",
+        "rat",
+        "chef",
+        "Paris",
+        "cooking",
+        "animation"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 2
+      }
+    },
+    {
+      "group": "known-answer",
+      "question": "an old widower flies his house to South America tied to thousands of balloons",
+      "expected": [
+        "Up (2009)"
+      ],
+      "keywords": [
+        "Up",
+        "widower",
+        "balloons",
+        "South America",
+        "animation"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 4
+      }
+    },
+    {
+      "group": "known-answer",
+      "question": "a ballerina competing for the lead in Swan Lake slowly descends into madness",
+      "expected": [
+        "Black Swan (2010)"
+      ],
+      "keywords": [
+        "ballerina",
+        "Swan Lake",
+        "madness",
+        "psychological"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 4
+      }
+    },
+    {
+      "group": "known-answer",
+      "question": "a US marshal investigates a disappearance at an island hospital for the criminally insane",
+      "expected": [
+        "Shutter Island (2010)"
+      ],
+      "keywords": [
+        "Shutter Island",
+        "US marshal",
+        "criminally insane",
+        "investigation",
+        "island"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 4
+      }
+    },
+    {
+      "group": "known-answer",
+      "question": "a teenager accidentally travels back to 1955 in a time machine built from a car",
+      "expected": [
+        "Back to the Future (1985)"
+      ],
+      "keywords": [
+        "time travel",
+        "1955",
+        "teenager",
+        "car",
+        "Back to the Future"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 4
+      }
+    },
+    {
+      "group": "known-answer",
+      "question": "a Harvard student builds a social networking website and gets sued by his best friend",
+      "expected": [
+        "The Social Network (2010)"
+      ],
+      "keywords": [
+        "Harvard",
+        "social network",
+        "lawsuit",
+        "The Social Network"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      }
+    },
+    {
+      "group": "known-answer",
+      "question": "a killer with a cattle gun hunts a man who took drug money he found in the Texas desert",
+      "expected": [
+        "No Country for Old Men (2007)"
+      ],
+      "keywords": [
+        "No Country for Old Men",
+        "Texas",
+        "drug money",
+        "killer",
+        "cattle gun"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 6
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 6
+      }
+    },
+    {
+      "group": "known-answer",
+      "question": "critics call it a bleak, morally complex kidnapping thriller with stunning cinematography by Roger Deakins",
+      "expected": [
+        "Prisoners (2013)"
+      ],
+      "keywords": [
+        "kidnapping",
+        "Roger Deakins",
+        "thriller",
+        "bleak"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 5
+      },
+      "hybrid": {
+        "hit_at_1": false,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 2,
+        "films": 6
+      }
+    },
+    {
+      "group": "known-answer",
+      "question": "reviewers said Heath Ledger's Joker was a terrifying, career-defining performance",
+      "expected": [
+        "The Dark Knight (2008)"
+      ],
+      "keywords": [
+        "Heath Ledger",
+        "Joker",
+        "The Dark Knight",
+        "performance"
+      ],
+      "vector": {
+        "hit_at_1": false,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 2,
+        "films": 3
+      },
+      "hybrid": {
+        "hit_at_1": false,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 2,
+        "films": 3
+      }
+    },
+    {
+      "group": "known-answer",
+      "question": "critics called this relentless desert chase with practical stunts an action masterpiece",
+      "expected": [
+        "Mad Max: Fury Road (2015)"
+      ],
+      "keywords": [
+        "action",
+        "desert",
+        "chase",
+        "practical stunts",
+        "masterpiece"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 4
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 5
+      }
+    },
+    {
+      "group": "known-answer",
+      "question": "reviewers found this meticulous procedural about obsession with an unsolved murder case long but hypnotic",
+      "expected": [
+        "Zodiac (2007)"
+      ],
+      "keywords": [
+        "procedural",
+        "obsession",
+        "unsolved murder",
+        "hypnotic"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 3
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 6
+      }
+    },
+    {
+      "group": "known-answer",
+      "question": "praised as a fun, twisty modern take on an Agatha Christie whodunit with a wealthy family",
+      "expected": [
+        "Knives Out (2019)"
+      ],
+      "keywords": [
+        "whodunit",
+        "mystery",
+        "Agatha Christie",
+        "wealthy family",
+        "twisty"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 2
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 3
+      }
+    },
+    {
+      "group": "known-answer",
+      "question": "a gory, darkly funny Tarantino revenge western set in the slavery-era South",
+      "expected": [
+        "Django Unchained (2012)"
+      ],
+      "keywords": [
+        "Quentin Tarantino",
+        "Western",
+        "revenge",
+        "slavery",
+        "dark comedy",
+        "gory"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 4
+      }
+    },
+    {
+      "group": "known-answer",
+      "question": "reviewers loved the neon-soaked style and the silent, intense getaway driver",
+      "expected": [
+        "Drive (2011)"
+      ],
+      "keywords": [
+        "neon-soaked",
+        "getaway driver",
+        "intense",
+        "stylized"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 5
+      }
+    },
+    {
+      "group": "known-answer",
+      "question": "critics admired how the war film appears to be one continuous shot following two soldiers delivering a message",
+      "expected": [
+        "1917 (2019)"
+      ],
+      "keywords": [
+        "war film",
+        "continuous shot",
+        "soldiers",
+        "1917"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 3
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 3
+      }
+    },
+    {
+      "group": "casual",
+      "question": "that one where leo dicaprio steals ideas in dreams, worth it?",
+      "expected": [
+        "Inception (2010)"
+      ],
+      "keywords": [
+        "Inception",
+        "Leonardo DiCaprio",
+        "dreams",
+        "heist"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      }
+    },
+    {
+      "group": "casual",
+      "question": "ok so the movie where hugh jackman's kid gets kidnapped, any good?",
+      "expected": [
+        "Prisoners (2013)"
+      ],
+      "keywords": [
+        "Hugh Jackman",
+        "kidnapping",
+        "thriller"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 5
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 7
+      }
+    },
+    {
+      "group": "casual",
+      "question": "the fincher one about the san fran serial killer with the codes, is it long?",
+      "expected": [
+        "Zodiac (2007)"
+      ],
+      "keywords": [
+        "David Fincher",
+        "Zodiac",
+        "serial killer",
+        "San Francisco",
+        "codes"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 3
+      }
+    },
+    {
+      "group": "casual",
+      "question": "brad pitt soap guy fight movie, what do critics think",
+      "expected": [
+        "Fight Club (1999)"
+      ],
+      "keywords": [
+        "Fight Club",
+        "Brad Pitt",
+        "David Fincher",
+        "Tyler Durden"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      }
+    },
+    {
+      "group": "casual",
+      "question": "matt damon stuck on mars eating potatoes lol",
+      "expected": [
+        "The Martian (2015)"
+      ],
+      "keywords": [
+        "Matt Damon",
+        "Mars",
+        "astronaut",
+        "survival",
+        "The Martian"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      }
+    },
+    {
+      "group": "casual",
+      "question": "that drummer movie with the psycho teacher, is it actually good",
+      "expected": [
+        "Whiplash (2014)"
+      ],
+      "keywords": [
+        "Whiplash",
+        "drummer",
+        "jazz",
+        "music"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 4
+      }
+    },
+    {
+      "group": "casual",
+      "question": "keanu killing everyone cause of his dog",
+      "expected": [
+        "John Wick (2014)"
+      ],
+      "keywords": [
+        "Keanu Reeves",
+        "John Wick",
+        "revenge",
+        "action",
+        "dog"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 4
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 4
+      }
+    },
+    {
+      "group": "casual",
+      "question": "the one where bill murray keeps waking up on the same day",
+      "expected": [
+        "Groundhog Day (1993)"
+      ],
+      "keywords": [
+        "Bill Murray",
+        "Groundhog Day",
+        "time loop"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      }
+    },
+    {
+      "group": "casual",
+      "question": "guy with no short term memory tattoos clues on himself",
+      "expected": [
+        "Memento (2000)"
+      ],
+      "keywords": [
+        "Memento",
+        "short-term memory loss",
+        "tattoos",
+        "clues",
+        "mystery",
+        "Christopher Nolan"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 3
+      }
+    },
+    {
+      "group": "casual",
+      "question": "creepy movie where the girlfriend's parents hypnotize the black guy",
+      "expected": [
+        "Get Out (2017)"
+      ],
+      "keywords": [
+        "Get Out",
+        "hypnosis",
+        "horror",
+        "psychological"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 6
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 4
+      }
+    },
+    {
+      "group": "casual",
+      "question": "rat that cooks in paris, would kids like it?",
+      "expected": [
+        "Ratatouille (2007)"
+      ],
+      "keywords": [
+        "Ratatouille",
+        "rat",
+        "cooking",
+        "Paris",
+        "animation"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 2
+      }
+    },
+    {
+      "group": "casual",
+      "question": "old man ties balloons to his house and flies off",
+      "expected": [
+        "Up (2009)"
+      ],
+      "keywords": [
+        "Up",
+        "balloons",
+        "house",
+        "flying",
+        "adventure"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 5
+      }
+    },
+    {
+      "group": "casual",
+      "question": "joker movie with heath ledger, why is everyone obsessed",
+      "expected": [
+        "The Dark Knight (2008)"
+      ],
+      "keywords": [
+        "The Dark Knight",
+        "Heath Ledger",
+        "Joker",
+        "Christopher Nolan"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 2
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 2
+      }
+    },
+    {
+      "group": "casual",
+      "question": "that sam mendes ww1 film that looks like one long take",
+      "expected": [
+        "1917 (2019)"
+      ],
+      "keywords": [
+        "Sam Mendes",
+        "World War I",
+        "1917",
+        "long take",
+        "war"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 4
+      }
+    },
+    {
+      "group": "casual",
+      "question": "natalie portman ballet dancer going crazy",
+      "expected": [
+        "Black Swan (2010)"
+      ],
+      "keywords": [
+        "Natalie Portman",
+        "ballet",
+        "psychological thriller",
+        "dance"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 4
+      }
+    },
+    {
+      "group": "casual",
+      "question": "leo on an island with a mental hospital, big twist ending",
+      "expected": [
+        "Shutter Island (2010)"
+      ],
+      "keywords": [
+        "Leonardo DiCaprio",
+        "mental hospital",
+        "island",
+        "twist ending",
+        "psychological thriller"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 4
+      }
+    },
+    {
+      "group": "two-film",
+      "question": "Compare Prisoners with Zodiac",
+      "expected": [
+        "Prisoners (2013)",
+        "Zodiac (2007)"
+      ],
+      "keywords": [
+        "Prisoners",
+        "Zodiac",
+        "crime",
+        "thriller",
+        "investigation"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": false,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 3
+      }
+    },
+    {
+      "group": "two-film",
+      "question": "Which is better, Inception or Interstellar?",
+      "expected": [
+        "Inception (2010)",
+        "Interstellar (2014)"
+      ],
+      "keywords": [
+        "Inception",
+        "Interstellar",
+        "Christopher Nolan",
+        "Science Fiction"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 2
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 2
+      }
+    },
+    {
+      "group": "two-film",
+      "question": "Joker or The Dark Knight: which Joker performance do critics prefer?",
+      "expected": [
+        "Joker (2019)",
+        "The Dark Knight (2008)"
+      ],
+      "keywords": [
+        "Joker",
+        "The Dark Knight",
+        "Heath Ledger",
+        "Joaquin Phoenix",
+        "performance"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 3
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 3
+      }
+    },
+    {
+      "group": "two-film",
+      "question": "How does Alien compare to Aliens?",
+      "expected": [
+        "Alien (1979)",
+        "Aliens (1986)"
+      ],
+      "keywords": [
+        "Alien",
+        "Aliens",
+        "Ridley Scott",
+        "James Cameron",
+        "science fiction",
+        "horror"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 3
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 4
+      }
+    },
+    {
+      "group": "two-film",
+      "question": "Is Gone Girl darker than Shutter Island?",
+      "expected": [
+        "Gone Girl (2014)",
+        "Shutter Island (2010)"
+      ],
+      "keywords": [
+        "Gone Girl",
+        "Shutter Island",
+        "psychological thriller",
+        "dark"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": false,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 4
+      }
+    },
+    {
+      "group": "two-film",
+      "question": "Mad Max: Fury Road or John Wick for an action night?",
+      "expected": [
+        "Mad Max: Fury Road (2015)",
+        "John Wick (2014)"
+      ],
+      "keywords": [
+        "Mad Max: Fury Road",
+        "John Wick",
+        "action"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": false,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": false,
+        "first_rank": 1,
+        "films": 4
+      }
+    },
+    {
+      "group": "two-film",
+      "question": "Compare Toy Story and Toy Story 3",
+      "expected": [
+        "Toy Story (1995)",
+        "Toy Story 3 (2010)"
+      ],
+      "keywords": [
+        "Toy Story",
+        "Toy Story 3",
+        "Pixar",
+        "animation"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": false,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": false,
+        "first_rank": 1,
+        "films": 2
+      }
+    },
+    {
+      "group": "two-film",
+      "question": "The Godfather vs GoodFellas: which gangster film do critics rate higher?",
+      "expected": [
+        "The Godfather (1972)",
+        "GoodFellas (1990)"
+      ],
+      "keywords": [
+        "The Godfather",
+        "GoodFellas",
+        "gangster",
+        "crime",
+        "critics"
+      ],
+      "vector": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": false,
+        "first_rank": 1,
+        "films": 1
+      },
+      "hybrid": {
+        "hit_at_1": true,
+        "hit_at_8": true,
+        "all_at_8": true,
+        "first_rank": 1,
+        "films": 3
+      }
+    }
+  ]
+}

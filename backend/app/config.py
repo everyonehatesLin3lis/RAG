@@ -5,6 +5,7 @@ Secrets live only here and are never returned by an endpoint or written to logs.
 
 from functools import lru_cache
 from pathlib import Path
+from typing import Literal
 
 from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -35,6 +36,10 @@ class Settings(BaseSettings):
     retrieval_top_k: int = Field(default=8, ge=5, le=10)
     # Keyword search (Phase 17): how many full-text matches to fetch ("top 10 each" in the plan's hybrid example).
     keyword_top_k: int = Field(default=10, ge=1, le=50)
+    # Hybrid search (Phase 18). Implements: specs/18.md#AC-004. "vector" skips fusion, for comparison.
+    retrieval_strategy: Literal["hybrid", "vector"] = "hybrid"
+    hybrid_candidates: int = Field(default=10, ge=1, le=50)  # taken from each search before fusing
+    rrf_k: int = Field(default=60, ge=1, le=1000)
 
     # Conversation history (Phase 11): how much of the past is sent with each new question.
     history_max_messages: int = Field(default=6, ge=0, le=20)  # 6 messages = the last 3 question/answer pairs

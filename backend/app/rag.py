@@ -18,7 +18,9 @@ from time import perf_counter
 from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 from sqlalchemy.orm import Session
 
-from app import query_translation, retrieval, tool_calling, tools
+from app import fusion, query_translation, retrieval, tool_calling, tools
+from app.config import get_settings
+from app.fusion import FusedChunk
 from app.history import Turn, as_langchain_messages
 from app.query_translation import TranslatedQuery
 from app.retrieval import RetrievedChunk
@@ -76,9 +78,8 @@ def build_messages(question: str, chunks: list[RetrievedChunk], history: list[Tu
 class RagDebug:
     """What the pipeline did for one question (Phase 12), for the "RAG process" panel.
 
-    vector_results are the chunks vector search returned, nearest first; selected_chunk_ids are the ones
-    sent to the model. Today they are the same 8 chunks. From Phase 18, hybrid search merges vector and
-    keyword results, and the selected set can differ from what vector search alone found.
+    vector_results are the chunks vector search returned, nearest first; keyword_results the full-text matches
+    (Phase 17); fused the hybrid ranking of both (Phase 18); selected_chunk_ids the ones sent to the model.
     """
 
     original_query: str
@@ -87,9 +88,9 @@ class RagDebug:
     vector_results: list[RetrievedChunk]
     selected_chunk_ids: list[int]
     timings_ms: dict[str, int]
-    # Phase 17: full-text matches for the translation's keywords. Shown for comparison only; Phase 18 fuses
-    # them with the vector results to choose what the model sees.
     keyword_results: list[RetrievedChunk] = field(default_factory=list)
+    strategy: str = "vector"
+    fused: list[FusedChunk] = field(default_factory=list)
 
 
 @dataclass
@@ -129,28 +130,41 @@ def _answer(question: str, session: Session, history: list[Turn] | None) -> RagA
     translation = query_translation.translate_query(question, history)
     timings["translation"] = _ms_since(step)
 
+    # Phase 18: hybrid takes HYBRID_CANDIDATES (10) from each search and fuses them; vector takes the top K directly.
+    # Implements: specs/18.md#AC-001
+    settings = get_settings()
+    hybrid = settings.retrieval_strategy == "hybrid"
+    candidates = settings.hybrid_candidates if hybrid else settings.retrieval_top_k
+
     step = perf_counter()
-    chunks = retrieval.retrieve(translation.semantic_query, session)  # embeds the query, then pgvector search
+    vector_chunks = retrieval.retrieve(translation.semantic_query, session, k=candidates)  # embed, then pgvector
     timings["embedding_and_search"] = _ms_since(step)
 
     step = perf_counter()
-    keyword_chunks = retrieval.keyword_search(session, translation.keywords)  # Phase 17: shown, not used yet
+    keyword_chunks = retrieval.keyword_search(session, translation.keywords, k=candidates)
     timings["keyword_search"] = _ms_since(step)
 
-    def debug(selected: list[RetrievedChunk]) -> RagDebug:
+    selection = fusion.select(
+        vector_chunks, keyword_chunks, settings.retrieval_strategy, settings.retrieval_top_k, k=settings.rrf_k
+    )
+    chunks = selection.chunks  # what the model receives and what `sources` lists
+
+    def debug() -> RagDebug:
         timings["total"] = _ms_since(started)
         return RagDebug(
             original_query=question,
             translation=translation,
             history_messages=len(history or []),
-            vector_results=chunks,
-            selected_chunk_ids=[c.id for c in selected],
+            vector_results=vector_chunks,
+            selected_chunk_ids=[c.id for c in chunks],
             timings_ms=timings,
             keyword_results=keyword_chunks,
+            strategy=settings.retrieval_strategy,
+            fused=selection.fused,
         )
 
     if not chunks:
-        return RagAnswer(answer=NO_RESULTS_ANSWER, debug=debug([]))
+        return RagAnswer(answer=NO_RESULTS_ANSWER, debug=debug())
 
     # Phase 10: the model gets the sources and the tools together and decides itself whether to call one.
     step = perf_counter()
@@ -158,7 +172,7 @@ def _answer(question: str, session: Session, history: list[Turn] | None) -> RagA
     answer, tool_calls = tool_calling.run_with_tools(messages, tools.langchain_tools(session))
     timings["generation"] = _ms_since(step)  # includes any tool calls and the extra model rounds they cause
 
-    return RagAnswer(answer=answer, sources=chunks, tool_calls=tool_calls, debug=debug(chunks))
+    return RagAnswer(answer=answer, sources=chunks, tool_calls=tool_calls, debug=debug())
 
 
 EXCERPT_CHARS = 240

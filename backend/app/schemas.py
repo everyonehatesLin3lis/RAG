@@ -72,6 +72,21 @@ class KeywordResult(BaseModel):
     excerpt: str
 
 
+class FusedResult(BaseModel):
+    """One chunk of the hybrid ranking (Phase 18): where each search put it, and its Reciprocal Rank Fusion score."""
+
+    rank: int
+    chunk_id: str
+    movie: str
+    year: int | None = None
+    doc_type: str | None = None
+    found_by: list[str]  # "vector", "keyword" or both
+    vector_rank: int | None = None
+    keyword_rank: int | None = None
+    fused_score: float  # sum of 1 / (k + rank) over the lists the chunk appears in
+    selected: bool  # sent to the model
+
+
 class RagDebugOut(BaseModel):
     """What retrieval did for this answer (Phase 12). The first four fields are the plan's; the rest add detail."""
 
@@ -85,6 +100,8 @@ class RagDebugOut(BaseModel):
     history_messages: int = 0
     timings_ms: dict[str, int] = {}
     keyword_results: list[KeywordResult] = []  # Phase 17
+    strategy: str = "vector"  # Phase 18: "hybrid" or "vector"
+    fused_results: list[FusedResult] = []  # Phase 18: the hybrid ranking (empty for "vector")
 
 
 class ModelUsageOut(BaseModel):

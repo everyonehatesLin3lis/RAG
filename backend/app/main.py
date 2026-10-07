@@ -19,6 +19,7 @@ from app.schemas import (
     ChatRequest,
     ChatResponse,
     ConversationOut,
+    FusedResult,
     KeywordResult,
     MessageRequest,
     RagDebugOut,
@@ -147,6 +148,7 @@ def to_usage(models: list[ModelUsage]) -> Usage:
 
 def to_debug(debug: rag.RagDebug) -> RagDebugOut:
     filters = {k: v for k, v in debug.translation.filters.model_dump().items() if v not in (None, [])}
+    selected = set(debug.selected_chunk_ids)
     return RagDebugOut(
         original_query=debug.original_query,
         translated_query=debug.translation.semantic_query,
@@ -182,6 +184,22 @@ def to_debug(debug: rag.RagDebug) -> RagDebugOut:
                 excerpt=rag.excerpt(chunk),
             )
             for rank, chunk in enumerate(debug.keyword_results, start=1)
+        ],
+        strategy=debug.strategy,
+        fused_results=[
+            FusedResult(
+                rank=rank,
+                chunk_id=str(f.chunk.id),
+                movie=f.chunk.movie_title,
+                year=f.chunk.year,
+                doc_type=f.chunk.metadata.get("doc_type"),
+                found_by=list(f.ranks),
+                vector_rank=f.ranks.get("vector"),
+                keyword_rank=f.ranks.get("keyword"),
+                fused_score=round(f.score, 6),
+                selected=f.chunk.id in selected,
+            )
+            for rank, f in enumerate(debug.fused, start=1)
         ],
     )
 
