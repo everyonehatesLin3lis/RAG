@@ -24,8 +24,9 @@ found, and why each decision went the way it did. The full plan is in [`EXECUTIO
 | 10 | Tool calling: the model decides, our code validates and runs, results go back to the model | done |
 | 11 | Conversation history: stored in PostgreSQL, used for follow-ups, restored after a page reload | done |
 | 12 | RAG visualisation: `debug` in the response, a collapsible "RAG process" panel under each answer | done |
-| 13 | Tool visualisation: tool, arguments, result on the page | next |
-| 14–31 | Cost, logging, security, hybrid search, evaluation, Cloud SQL, scaling, MCP, streaming, final UI, README, review | to do |
+| 13 | Tool visualisation: a "Tool calls" panel with tool, arguments and a readable result | done |
+| 14 | Token usage and cost | next |
+| 15–31 | Logging, security, hybrid search, evaluation, Cloud SQL, scaling, MCP, streaming, final UI, README, review | to do |
 
 ## How it works today
 
@@ -43,7 +44,7 @@ Browser (Next.js chat page, conversation id kept in localStorage)
       ↺ the model may ask for a tool → our code validates and runs it → the result goes back (max 3 rounds)
   → save the question and answer to PostgreSQL
   → {"answer", "sources", "tool_calls", "conversation_id", "debug"}: the answer rendered as Markdown,
-    then "Sources (8)" and "RAG process" as collapsible panels under it
+    then "Tool calls", "Sources (8)" and "RAG process" as collapsible panels under it
 
 Offline pipeline (scripts/):
   Hugging Face files → inspect → select subset → ingest into PostgreSQL → chunk → embed into pgvector
@@ -402,6 +403,22 @@ Choices made while building (defaults the developer can change):
   search merges vector and keyword results, and what reaches the model will no longer be just the vector list.
 - Timings are measured inside the request. The answer step includes the extra model rounds caused by tool calls.
 
+### Tool visualisation: what the "Tool calls" panel shows (Phase 13)
+
+When the model used a tool, a collapsible **Tool calls** panel appears first under the answer, one card per call,
+in the plan's layout: **Tool used**, **Arguments**, **Result**. Choices made while building (defaults the developer
+can change):
+- **A readable view per tool:** `compare_movies` as a small table plus which is rated higher; `filter_movies` as the
+  ranked list with "N matches, showing the best M"; `rating_summary` as the average with a bar per score bucket.
+  Anything unexpected falls back to plain JSON, so nothing is hidden.
+- **Errors stand out:** an amber box with the code (`AMBIGUOUS_TITLE`, `MOVIE_NOT_FOUND`, `INVALID_ARGUMENTS`, …), the
+  message, and the candidates or suggestions. That is exactly what the model read before deciding what to do next.
+- **Raw JSON toggle** on every card: the arguments and result exactly as the model received them, for checking that
+  the readable view matches.
+- **Repeated calls are marked.** Phase 10 found the model sometimes repeats an identical call; the card says "same call
+  repeated by the model" instead of silently showing a duplicate.
+- **Panel order:** Tool calls, then Sources, then RAG process. Tools hold the exact facts the answer usually leads with.
+
 ### Smaller implementation choices
 
 These follow from the decisions above:
@@ -557,6 +574,18 @@ The plan's own follow-up example, through the API:
 The sequel crowding is the kind of thing the panel exists to show: profile documents of a film series look almost
 alike to an embedding, so they compete for the same slots. Together with the one-sided comparison result from
 Phase 11, it is worth measuring in the retrieval evaluation (Phases 19–21).
+
+### Tool visualisation (Phase 13)
+
+Checked in the browser:
+- "Which is rated higher, Zodiac or Prisoners?": one card, `compare_movies` with `movie_a: "Zodiac (2007)",
+  movie_b: "Prisoners"`, rendered as a table (Zodiac 7.7, Prisoners 8.2, 20 reviews each) and "Higher IMDb rating:
+  Prisoners".
+- "List thrillers since 2010 rated above 7.5, and what is the critics' average score for Beauty and the Beast?": two cards.
+  - `filter_movies`: 28 matches, the best 25 listed. The model chose the maximum `limit` and again sent numbers as text.
+  - `rating_summary("Beauty and the Beast")`: the amber `AMBIGUOUS_TITLE` box with the 1991 and 2017 candidates. This
+    time the model did not retry with a year, so the `rating_summary` success view has not yet been seen on a real
+    answer (it is built from the same result fields the Phase 9 tests check).
 
 ### Environment (Windows)
 

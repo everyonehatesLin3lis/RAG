@@ -78,7 +78,7 @@ If time runs short, protect the core in this order: working chatbot → dataset 
 - [x] 10 Tool calling: schemas registered with LangChain, the LLM chooses, arguments validated
 - [x] 11 Conversation history: stored in PostgreSQL and used for follow-up questions
 - [x] 12 RAG visualisation: debug object and expandable panel
-- [ ] 13 Tool visualisation: tool, arguments, result
+- [x] 13 Tool visualisation: tool, arguments, result
 - [ ] 14 Token usage and cost
 - [ ] 15 Logging and monitoring
 - [ ] 16 Prompt injection protection
@@ -161,7 +161,7 @@ Rules for every tool:
 - Each tool has a Pydantic input schema. Validate before executing, and return a structured error for a missing movie or a title that matches more than one.
 - Tools start as plain Python LangChain tools. Phase 24 moves them behind the MCP server; keep their names and schemas unchanged.
 - Implementation (`app/tools.py`, `specs/9.md`): functions take a session and return dicts; `langchain_tools(session)` wraps them (JSON output). Errors are returned, never raised: `INVALID_ARGUMENTS`, `MOVIE_NOT_FOUND` (+ suggestions), `AMBIGUOUS_TITLE` (+ candidates), `TOOL_FAILED`. Titles match case-insensitively; "Title (Year)" picks between duplicates (real case: Beauty and the Beast 1991/2017). `filter_movies` needs ≥1 filter, returns the best 10 by IMDb rating (limit 1–25) plus `total_matches`. "Rating" = IMDb rating for filter/compare, critic scores (0–10) for `rating_summary`, whose description tells the model to lead with the average. Genres come from `app/genres.py`.
-- Tool calling (`app/tool_calling.py`, `specs/10.md`): no router; every question is translated and retrieved, then MiMo gets the sources and the tools (`llm.tool_model` → `bind_tools`) and decides. Our loop executes requests (unknown name → `UNKNOWN_TOOL`, bad args → `INVALID_ARGUMENTS`, crash → `TOOL_FAILED`), feeds results back as ToolMessages, at most 3 rounds, then one last call with `tool_choice="none"`. `tool_calls: [{tool, arguments, result}]` is in the response; the page shows it in Phase 13.
+- Tool calling (`app/tool_calling.py`, `specs/10.md`): no router; every question is translated and retrieved, then MiMo gets the sources and the tools (`llm.tool_model` → `bind_tools`) and decides. Our loop executes requests (unknown name → `UNKNOWN_TOOL`, bad args → `INVALID_ARGUMENTS`, crash → `TOOL_FAILED`), feeds results back as ToolMessages, at most 3 rounds, then one last call with `tool_choice="none"`. `tool_calls: [{tool, arguments, result}]` is in the response. The page shows them in a collapsible "Tool calls" panel, first under the answer (`frontend/app/ToolCallList.tsx`): tool, arguments, a readable result per tool (comparison table, movie list, average + distribution, amber box for error codes with candidates/suggestions), repeated identical calls marked, and a raw-JSON toggle with exactly what the model received.
 
 ## Retrieval and generation
 

@@ -5,6 +5,7 @@ import ReactMarkdown from "react-markdown";
 
 import SourceList, { type Source } from "./SourceList";
 import RagPanel, { type RagDebug } from "./RagPanel";
+import ToolCallList, { type ToolCall } from "./ToolCallList";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
@@ -15,9 +16,10 @@ type Message = {
   content: string;
   sources?: Source[];
   debug?: RagDebug | null;
+  toolCalls?: ToolCall[];
 };
 
-type ChatResponse = { answer: string; sources: Source[]; debug: RagDebug | null };
+type ChatResponse = { answer: string; sources: Source[]; debug: RagDebug | null; tool_calls: ToolCall[] };
 type ErrorResponse = { error: { code: string; message: string } };
 
 async function sendChat(message: string, conversationId: string): Promise<ChatResponse> {
@@ -118,8 +120,8 @@ export default function Home() {
     setLoading(true);
 
     try {
-      const { answer, sources, debug } = await sendChat(text, conversationId);
-      setMessages((prev) => [...prev, { role: "assistant", content: answer, sources, debug }]);
+      const { answer, sources, debug, tool_calls } = await sendChat(text, conversationId);
+      setMessages((prev) => [...prev, { role: "assistant", content: answer, sources, debug, toolCalls: tool_calls }]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
@@ -160,6 +162,7 @@ export default function Home() {
               <div className="markdown max-w-[85%] self-start rounded-2xl bg-zinc-100 px-4 py-2 dark:bg-zinc-800">
                 <ReactMarkdown>{msg.content}</ReactMarkdown>
               </div>
+              <ToolCallList calls={msg.toolCalls ?? []} />
               <SourceList sources={msg.sources ?? []} />
               <RagPanel debug={msg.debug} />
             </div>
