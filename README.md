@@ -30,8 +30,9 @@ found, and why each decision went the way it did. The full plan is in [`EXECUTIO
 | 16 | Prompt injection protection: 8 live attacks, all defended | done |
 | 17 | Keyword search: PostgreSQL full-text search over chunks, shown in the RAG panel | done |
 | 18 | Hybrid search: vector + keyword results fused with Reciprocal Rank Fusion, now the default | done |
-| 19 | Evaluation dataset | next |
-| 20–31 | Evaluation, Cloud SQL, scaling, MCP, streaming, final UI, README, review | to do |
+| 19 | Evaluation dataset: 49 new questions, every expected answer read from the database | done |
+| 20 | RAG evaluation | next |
+| 21–31 | Strategy comparison, Cloud SQL, scaling, MCP, streaming, final UI, README, review | to do |
 
 ## How it works today
 
@@ -532,6 +533,37 @@ Decisions, all confirmed by the developer; the last two were settled by measurem
 | Keyword noise | **plain RRF, no keyword filter** | measured: leaving genre names and generic words out of keyword search *lowered* the two-film result from 0.75 to 0.50, so it was rejected |
 | Ties | **go to the better vector rank** | measured: better or equal to an arbitrary tie-break on every metric |
 | Default | **hybrid** (`RETRIEVAL_STRATEGY=vector` switches back) | it keeps every expected film in the context and doubles two-film coverage; the cost is a different film ranked first on 2 of 54 questions |
+
+### Evaluation dataset: 49 questions with answers from the database (Phase 19)
+
+[`evaluation/evaluation_dataset.jsonl`](evaluation/evaluation_dataset.jsonl), built by
+[`scripts/build_eval_dataset.py`](scripts/build_eval_dataset.py), approved by the developer, who also asked for more
+two-film questions.
+
+| Type | n | Example | Expected |
+|---|---|---|---|
+| Factual | 8 | "Who directed Hereditary?" | Ari Aster |
+| Rating | 7 | "Is Heat rated higher than Joker on IMDb?" | neither: tied at 8.3 |
+| Critic opinion | 8 | "What do critics say about Joaquin Phoenix in Joker?" | a grounded summary mentioning Phoenix |
+| Plot | 8 | "…a mute cleaning woman who falls in love with an amphibian creature…" | The Shape of Water |
+| Recommendation | 5 | "Animated family films rated 8 or higher" | any of the 11 films that qualify |
+| Two-film comparison | 9 | "Compare Dunkirk and 1917 as war films." | covers both films |
+| Not in the data | 4 | "Who directed The Shawshank Redemption?" | says it is not in the data, does not answer from memory |
+
+How it was made, and why:
+- **Every expected answer is read from the database, not typed from memory.** Directors, years, IMDb ratings, "which is
+  higher", critic averages and every acceptable film for a recommendation are queried by the build script. For opinion
+  questions it checks that the words a good answer should contain really appear in that film's reviews. If a fact cannot
+  be verified, the build stops. The dataset can only expect what the system can actually know.
+- **New questions only.** None of the 54 questions used to tune retrieval in Phases 5, 7 and 18 is reused, and no two-film
+  pair repeats; otherwise the evaluation would reward settings picked on its own questions.
+- **Built-in traps:** a tie (Heat vs Joker), a negative case (critics' average for Suicide Squad is 3.85/10), and four
+  well-known films the data does not contain (*The Shawshank Redemption*, *The Matrix*, *Oppenheimer*, *Parasite*), where the
+  model knows the answer from memory and must not use it.
+- **Fields:** the plan's `question`, `expected_answer`, `expected_movie`, plus `expected_movies` (for Recall@K),
+  `must_contain_any` (a quick correctness check), `expected_tool`, `acceptable_movies` for recommendations, and `no_answer`.
+- **Known limit:** `must_contain_any` is rough ("Inception" appears in any answer about Inception vs Interstellar, right or
+  wrong), so Phase 20 judges correctness and groundedness separately.
 
 ### Smaller implementation choices
 

@@ -84,7 +84,7 @@ If time runs short, protect the core in this order: working chatbot → dataset 
 - [x] 16 Prompt injection protection
 - [x] 17 Keyword search
 - [x] 18 Hybrid search
-- [ ] 19 Evaluation dataset
+- [x] 19 Evaluation dataset
 - [ ] 20 RAG evaluation
 - [ ] 21 Comparison of vector-only and hybrid search
 - [ ] 22 PostgreSQL moved to Google Cloud SQL
@@ -188,7 +188,7 @@ These apply from the first line of code. Phase 16 is where they are tested, not 
 ## Logging and evaluation
 
 - Logs are JSONL, one line per request: `timestamp`, `conversation_id`, `query`, `translated_query`, `retrieved_chunks`, `tools`, `tokens`, `cost`, `latency_ms`, `status`. Implemented in `app/request_log.py`, written by `main.answer_in_conversation` for every chat request that reaches the pipeline: `status` is `success`, `no_results` or `error` (+ `error_code`, incl. `DATABASE_UNAVAILABLE`, `INTERNAL_ERROR`); extras `tool_errors`, `translation_origin`, `models` (tokens/cost per model). File `logs/requests.jsonl` (git-ignored, `REQUEST_LOG_PATH`); a write failure never breaks the chat; tests log to a temp file (conftest). Never logged: keys, database URL, retrieved texts, answers. Monitoring: `python scripts/log_summary.py [--last N] [--json]` (requests by status, error codes, latency median/p95/max, cost and tokens per answer, tool use and errors, translation fallbacks, per-model usage).
-- `evaluation/evaluation_dataset.jsonl` holds 20–50 questions as `{"question": "...", "expected_answer": "...", "expected_movie": "..."}`, mixing factual and recommendation questions.
+- `evaluation/evaluation_dataset.jsonl` holds 20–50 questions as `{"question": "...", "expected_answer": "...", "expected_movie": "..."}`, mixing factual and recommendation questions. Built by `python scripts/build_eval_dataset.py` (approved by the developer, 2026-10-07): 49 new questions (8 factual, 7 rating, 8 opinion, 8 plot, 5 recommendation, 9 two-film comparison, 4 not-in-data), none reused from the 54 tuning questions. Every expected answer is read from the database (the build fails if a fact cannot be verified). Extra fields: `id`, `type`, `expected_movies`, `must_contain_any` (rough correctness check), `expected_tool`, `acceptable_movies` + `criteria` (recommendations), `no_answer`. Never edit the JSONL by hand; change the script and rebuild.
 - Measure retrieval (did the correct source appear, `Recall@K`, `Precision@K`), answers (correctness, groundedness, relevance) and unsupported claims. Custom evaluation first; RAGAS is optional.
 - Save results as JSON per strategy with `strategy`, `retrieval_recall_at_5`, `answer_accuracy`, `groundedness`, `avg_latency_ms` and `avg_cost_usd`, and compare vector-only with hybrid.
 - Every number in the README comes from a real run. Never write a metric that was not measured.

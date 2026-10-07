@@ -19,7 +19,7 @@ from collections.abc import Callable
 
 from langchain_core.tools import StructuredTool
 from pydantic import BaseModel, Field, ValidationError, field_validator, model_validator
-from sqlalchemy import func, select
+from sqlalchemy import any_, func, literal, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
@@ -158,7 +158,7 @@ def filter_movies(session: Session, **args) -> dict:
         if p.year_min is not None:
             conditions.append(Movie.year >= p.year_min)
         if p.genre is not None:
-            conditions.append(Movie.genres.any(p.genre))  # :genre = ANY(genres)
+            conditions.append(literal(p.genre) == any_(Movie.genres))  # :genre = ANY(genres)
         if p.rating_min is not None:
             conditions.append(Movie.rating >= p.rating_min)
 
