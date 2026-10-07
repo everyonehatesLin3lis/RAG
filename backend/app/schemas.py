@@ -45,11 +45,40 @@ class ToolCall(BaseModel):
     result: dict
 
 
+class VectorResult(BaseModel):
+    """One chunk returned by vector search, for the RAG process panel (Phase 12)."""
+
+    rank: int
+    chunk_id: str
+    movie: str
+    year: int | None = None
+    doc_type: str | None = None  # "review" or "profile"
+    critic: str | None = None
+    distance: float  # cosine distance: 0 = same direction as the question's embedding
+    similarity: float  # 1 - distance, easier to read: higher = closer
+    excerpt: str
+
+
+class RagDebugOut(BaseModel):
+    """What retrieval did for this answer (Phase 12). The first four fields are the plan's; the rest add detail."""
+
+    original_query: str
+    translated_query: str  # the semantic_query that was embedded
+    vector_results: list[VectorResult] = []
+    selected_chunks: list[str] = []  # chunk ids sent to the model
+    keywords: list[str] = []
+    filters: dict = {}
+    translation_origin: str  # "model", "fallback" (translation failed) or "disabled"
+    history_messages: int = 0
+    timings_ms: dict[str, int] = {}
+
+
 class ChatResponse(BaseModel):
     answer: str
     sources: list[Source] = []
     tool_calls: list[ToolCall] = []
     conversation_id: str | None = None  # Phase 11
+    debug: RagDebugOut | None = None  # Phase 12
 
 
 class StoredMessage(BaseModel):

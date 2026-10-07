@@ -13,12 +13,14 @@ Two defences live here:
 
 from dataclasses import dataclass, field
 from html import escape
+from time import perf_counter
 
 from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 from sqlalchemy.orm import Session
 
 from app import query_translation, retrieval, tool_calling, tools
 from app.history import Turn, as_langchain_messages
+from app.query_translation import TranslatedQuery
 from app.retrieval import RetrievedChunk
 from app.tool_calling import ToolCallRecord
 
@@ -69,6 +71,23 @@ def build_messages(question: str, chunks: list[RetrievedChunk], history: list[Tu
 
 
 @dataclass
+class RagDebug:
+    """What the pipeline did for one question (Phase 12), for the "RAG process" panel.
+
+    vector_results are the chunks vector search returned, nearest first; selected_chunk_ids are the ones
+    sent to the model. Today they are the same 8 chunks. From Phase 18, hybrid search merges vector and
+    keyword results, and the selected set can differ from what vector search alone found.
+    """
+
+    original_query: str
+    translation: TranslatedQuery
+    history_messages: int
+    vector_results: list[RetrievedChunk]
+    selected_chunk_ids: list[int]
+    timings_ms: dict[str, int]
+
+
+@dataclass
 class RagAnswer:
     answer: str
     # Phase 8: every chunk the model was given, in ranking order. These are exactly the texts the answer
@@ -76,20 +95,50 @@ class RagAnswer:
     sources: list[RetrievedChunk] = field(default_factory=list)
     # Phase 10: every tool call the model made, with arguments and result.
     tool_calls: list[ToolCallRecord] = field(default_factory=list)
+    # Phase 12: how the answer was produced.
+    debug: RagDebug | None = None
+
+
+def _ms_since(start: float) -> int:
+    return round((perf_counter() - start) * 1000)
 
 
 # Implements: specs/6.md#AC-001, #AC-002, #AC-004, #AC-005, specs/10.md#AC-002, #AC-006
 def answer_question(question: str, session: Session, history: list[Turn] | None = None) -> RagAnswer:
+    started = perf_counter()
+    timings: dict[str, int] = {}
+
     # Phase 7: search with the rewritten query, but answer the question the user actually asked.
     # Phase 11: the translator sees recent history, so "compare it with Zodiac" becomes a stand-alone search.
+    step = perf_counter()
     translation = query_translation.translate_query(question, history)
-    chunks = retrieval.retrieve(translation.semantic_query, session)
+    timings["translation"] = _ms_since(step)
+
+    step = perf_counter()
+    chunks = retrieval.retrieve(translation.semantic_query, session)  # embeds the query, then pgvector search
+    timings["embedding_and_search"] = _ms_since(step)
+
+    def debug(selected: list[RetrievedChunk]) -> RagDebug:
+        timings["total"] = _ms_since(started)
+        return RagDebug(
+            original_query=question,
+            translation=translation,
+            history_messages=len(history or []),
+            vector_results=chunks,
+            selected_chunk_ids=[c.id for c in selected],
+            timings_ms=timings,
+        )
+
     if not chunks:
-        return RagAnswer(answer=NO_RESULTS_ANSWER)
+        return RagAnswer(answer=NO_RESULTS_ANSWER, debug=debug([]))
+
     # Phase 10: the model gets the sources and the tools together and decides itself whether to call one.
+    step = perf_counter()
     messages = build_messages(question, chunks, history)
     answer, tool_calls = tool_calling.run_with_tools(messages, tools.langchain_tools(session))
-    return RagAnswer(answer=answer, sources=chunks, tool_calls=tool_calls)
+    timings["generation"] = _ms_since(step)  # includes any tool calls and the extra model rounds they cause
+
+    return RagAnswer(answer=answer, sources=chunks, tool_calls=tool_calls, debug=debug(chunks))
 
 
 EXCERPT_CHARS = 240

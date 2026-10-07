@@ -23,8 +23,9 @@ found, and why each decision went the way it did. The full plan is in [`EXECUTIO
 | 9 | Tools: `filter_movies`, `compare_movies`, `rating_summary`, tested on their own | done |
 | 10 | Tool calling: the model decides, our code validates and runs, results go back to the model | done |
 | 11 | Conversation history: stored in PostgreSQL, used for follow-ups, restored after a page reload | done |
-| 12 | RAG visualisation: debug object and expandable panel | next |
-| 13–31 | Tool visualisation, cost, logging, security, hybrid search, evaluation, Cloud SQL, scaling, MCP, streaming, final UI, README, review | to do |
+| 12 | RAG visualisation: `debug` in the response, a collapsible "RAG process" panel under each answer | done |
+| 13 | Tool visualisation: tool, arguments, result on the page | next |
+| 14–31 | Cost, logging, security, hybrid search, evaluation, Cloud SQL, scaling, MCP, streaming, final UI, README, review | to do |
 
 ## How it works today
 
@@ -41,7 +42,8 @@ Browser (Next.js chat page, conversation id kept in localStorage)
   → LangChain ChatOpenAI → OpenRouter → xiaomi/mimo-v2.6-flash, with the 3 tools attached
       ↺ the model may ask for a tool → our code validates and runs it → the result goes back (max 3 rounds)
   → save the question and answer to PostgreSQL
-  → {"answer", "sources", "tool_calls", "conversation_id"}: the answer rendered as Markdown, the 8 sources under it
+  → {"answer", "sources", "tool_calls", "conversation_id", "debug"}: the answer rendered as Markdown,
+    then "Sources (8)" and "RAG process" as collapsible panels under it
 
 Offline pipeline (scripts/):
   Hugging Face files → inspect → select subset → ingest into PostgreSQL → chunk → embed into pgvector
@@ -380,6 +382,26 @@ These are defaults set while building, and the developer can change any of them:
 | Conversation id | a **UUID made by the browser**, kept in `localStorage` | a reload continues the same conversation; "New chat" makes a new id; an invalid id is rejected (`INVALID_INPUT`) |
 | Endpoints | `/api/chat` stays the main one; the plan's `POST /api/conversations`, `GET /api/conversations/{id}` and `POST /api/conversations/{id}/messages` are added | the page uses `GET` to restore history after a reload |
 
+### RAG visualisation: what the panel shows (Phase 12)
+
+Each answer has a collapsible **RAG process** panel, built from the `debug` object in the response, that walks through
+the pipeline in order:
+1. **Your question**, and how many earlier messages from the conversation were included.
+2. **Search query**: what query translation turned it into, its keywords and suggested filters (marked "not applied
+   yet"), and whether the rewrite came from the model or fell back to the original words because translation failed.
+3. **Vector search**: the 8 closest chunks, each with a similarity bar (1 − cosine distance), the film, whether it is a
+   critic review or a movie profile, and whether it was sent to the model.
+4. **Time**: per step (translation, embedding + search, answer including tool calls) and in total.
+
+Choices made while building (defaults the developer can change):
+- The plan's four fields keep their names. `translated_query` is the embedded search sentence, so it stays a plain
+  string; keywords, filters and where the rewrite came from are separate added fields.
+- **Similarity, not distance, is shown** (1 − distance): "higher = closer" is easier to read. The raw distance is kept
+  in the data and in the bar's tooltip.
+- `vector_results` and `selected_chunks` are the same 8 chunks today. They are kept apart because from Phase 18 hybrid
+  search merges vector and keyword results, and what reaches the model will no longer be just the vector list.
+- Timings are measured inside the request. The answer step includes the extra model rounds caused by tool calls.
+
 ### Smaller implementation choices
 
 These follow from the decisions above:
@@ -523,6 +545,19 @@ The plan's own follow-up example, through the API:
   reviews; the *Prisoners* side came from history and the tool. Vector search returns the 8 nearest chunks overall,
   with no rule to cover each film mentioned. Something to measure when keyword and hybrid search arrive (Phases 17–18).
 
+### RAG visualisation (Phase 12)
+
+"keanu killing everyone cause of his dog, is it good?", typed into the page:
+- **Search query:** "John Wick starring Keanu Reeves where a man seeks vengeance for his dog", with keywords John Wick,
+  Keanu Reeves, action, revenge, and a suggested filter `genres: Action`.
+- **Vector search:** similarities 0.684 down to 0.613. 5 of the 8 chunks were *John Wick* (2014); **3 slots went to the
+  sequels' profile pages** (Chapter 2, 3 and 4), which share the title, director and cast.
+- **Time:** translation 1.5 s, embedding + search 1.3 s, answer 14.2 s, total 17.0 s.
+
+The sequel crowding is the kind of thing the panel exists to show: profile documents of a film series look almost
+alike to an embedding, so they compete for the same slots. Together with the one-sided comparison result from
+Phase 11, it is worth measuring in the retrieval evaluation (Phases 19–21).
+
 ### Environment (Windows)
 
 - On this machine, `localhost` tries IPv6 first and Docker's port listens only on IPv4, so connections hung
@@ -577,7 +612,7 @@ cd backend
 pytest
 ```
 
-133 tests. They cover conversation history (storage, limits, prompts, endpoints), the three tools (validation, title matching, SQL safety), the tool-calling loop (with a scripted fake model), the chat endpoint and its sources, query translation (validation and fallbacks), the RAG prompt and its
+138 tests. They cover the debug object, conversation history (storage, limits, prompts, endpoints), the three tools (validation, title matching, SQL safety), the tool-calling loop (with a scripted fake model), the chat endpoint and its sources, query translation (validation and fallbacks), the RAG prompt and its
 injection defences, retrieval, records and chunking,
 the embedder and embedding job, and the database (schema, vector size, HNSW index, similarity order, top-K search,
 SQL-injection text, cascade deletes). The embedder, retrieval and LLM are replaced with fakes in the unit tests, and

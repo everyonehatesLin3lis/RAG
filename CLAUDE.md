@@ -77,7 +77,7 @@ If time runs short, protect the core in this order: working chatbot → dataset 
 - [x] 9 Tools: `filter_movies`, `compare_movies`, `rating_summary`
 - [x] 10 Tool calling: schemas registered with LangChain, the LLM chooses, arguments validated
 - [x] 11 Conversation history: stored in PostgreSQL and used for follow-up questions
-- [ ] 12 RAG visualisation: debug object and expandable panel
+- [x] 12 RAG visualisation: debug object and expandable panel
 - [ ] 13 Tool visualisation: tool, arguments, result
 - [ ] 14 Token usage and cost
 - [ ] 15 Logging and monitoring
@@ -143,6 +143,7 @@ Frontend and backend exchange JSON, with a Pydantic model for every request and 
 ```
 
 - `sources` (Phase 8) lists every chunk given to the model, in ranking order, as `Source` (`app/schemas.py`): the plan's `movie`, `review_id`, `chunk_id` (IDs as strings; `review_id` null for profile chunks) plus `year`, `source`, `critic`, `publication`, `url`, `excerpt`. The frontend shows them in a collapsible list under each answer (`frontend/app/SourceList.tsx`), linking only http(s) URLs.
+- `debug` (Phase 12, `RagDebugOut` in `app/schemas.py`, built by `rag.RagDebug` → `main.to_debug`): the plan's `original_query`, `translated_query` (the embedded `semantic_query` string), `vector_results` (rank, chunk_id, movie, year, doc_type, critic, distance, similarity = 1 − distance, excerpt) and `selected_chunks` (ids sent to the model; same as vector results until hybrid search, Phase 18), plus `keywords`, `filters`, `translation_origin` (`model` / `fallback` / `disabled`, a private attribute on `TranslatedQuery`), `history_messages` and `timings_ms` (`translation`, `embedding_and_search`, `generation` incl. tool rounds, `total`). Shown in the collapsible "RAG process" panel (`frontend/app/RagPanel.tsx`).
 - Errors: `{"error": {"code": "RAG_RETRIEVAL_FAILED", "message": "Unable to retrieve movie information."}}`. Cover OpenRouter, database, embedding, tool and MCP failures, empty search results, invalid JSON, invalid input and timeouts.
 - Streaming (Phase 25) is SSE carrying JSON events: `{"type": "token", "content": "..."}` per token, then `{"type": "sources", "data": []}`, then `{"type": "done"}`.
 - Conversation history (Phase 11, `app/history.py`): `conversation_id` is a UUID (invalid → `INVALID_INPUT`; omitted → new conversation; unknown → created), returned in every chat response. Each successful exchange stores the question and answer together (nothing is stored when the pipeline fails). The last `HISTORY_MAX_MESSAGES` (6) messages, each cut to `HISTORY_MESSAGE_CHARS` (1,500), go to query translation (to resolve "it") and to the answer model between the system prompt and the current question; old sources and tool results are not resent. Endpoints: `POST /api/conversations`, `GET /api/conversations/{id}` (404 `CONVERSATION_NOT_FOUND`), `POST /api/conversations/{id}/messages`; `/api/chat` stays the main entry. Database errors anywhere map to `DATABASE_UNAVAILABLE` (503). The page keeps the id in `localStorage`, reloads history on start, and has a "New chat" button.

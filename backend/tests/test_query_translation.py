@@ -68,7 +68,8 @@ def test_any_failure_falls_back_to_the_original_message(monkeypatch, failure):
 
     result = translate_query("films like Zodiac")
 
-    assert result == TranslatedQuery(semantic_query="films like Zodiac")
+    assert result.semantic_query == "films like Zodiac"
+    assert result.origin == "fallback"
 
 
 def test_empty_model_output_falls_back(monkeypatch):

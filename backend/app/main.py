@@ -18,9 +18,11 @@ from app.schemas import (
     ChatResponse,
     ConversationOut,
     MessageRequest,
+    RagDebugOut,
     Source,
     StoredMessage,
     ToolCall,
+    VectorResult,
 )
 
 settings = get_settings()
@@ -93,6 +95,35 @@ def answer_in_conversation(session: Session, conversation_id: UUID | None, messa
         sources=[to_source(chunk) for chunk in result.sources],
         tool_calls=[ToolCall(tool=c.tool, arguments=c.arguments, result=c.result) for c in result.tool_calls],
         conversation_id=str(conversation.id),
+        debug=to_debug(result.debug) if result.debug else None,
+    )
+
+
+def to_debug(debug: rag.RagDebug) -> RagDebugOut:
+    filters = {k: v for k, v in debug.translation.filters.model_dump().items() if v not in (None, [])}
+    return RagDebugOut(
+        original_query=debug.original_query,
+        translated_query=debug.translation.semantic_query,
+        vector_results=[
+            VectorResult(
+                rank=rank,
+                chunk_id=str(chunk.id),
+                movie=chunk.movie_title,
+                year=chunk.year,
+                doc_type=chunk.metadata.get("doc_type"),
+                critic=chunk.metadata.get("critic"),
+                distance=round(chunk.distance, 4),
+                similarity=round(1 - chunk.distance, 4),
+                excerpt=rag.excerpt(chunk),
+            )
+            for rank, chunk in enumerate(debug.vector_results, start=1)
+        ],
+        selected_chunks=[str(i) for i in debug.selected_chunk_ids],
+        keywords=debug.translation.keywords,
+        filters=filters,
+        translation_origin=debug.translation.origin,
+        history_messages=debug.history_messages,
+        timings_ms=debug.timings_ms,
     )
 
 

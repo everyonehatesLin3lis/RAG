@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 
 import SourceList, { type Source } from "./SourceList";
+import RagPanel, { type RagDebug } from "./RagPanel";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
@@ -13,9 +14,10 @@ type Message = {
   role: Role;
   content: string;
   sources?: Source[];
+  debug?: RagDebug | null;
 };
 
-type ChatResponse = { answer: string; sources: Source[] };
+type ChatResponse = { answer: string; sources: Source[]; debug: RagDebug | null };
 type ErrorResponse = { error: { code: string; message: string } };
 
 async function sendChat(message: string, conversationId: string): Promise<ChatResponse> {
@@ -116,8 +118,8 @@ export default function Home() {
     setLoading(true);
 
     try {
-      const { answer, sources } = await sendChat(text, conversationId);
-      setMessages((prev) => [...prev, { role: "assistant", content: answer, sources }]);
+      const { answer, sources, debug } = await sendChat(text, conversationId);
+      setMessages((prev) => [...prev, { role: "assistant", content: answer, sources, debug }]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
@@ -159,6 +161,7 @@ export default function Home() {
                 <ReactMarkdown>{msg.content}</ReactMarkdown>
               </div>
               <SourceList sources={msg.sources ?? []} />
+              <RagPanel debug={msg.debug} />
             </div>
           ),
         )}

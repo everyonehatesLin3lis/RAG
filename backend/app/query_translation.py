@@ -20,7 +20,7 @@ dropped, numbers are range-checked, and any failure falls back to searching with
 from html import escape
 
 from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, PrivateAttr, field_validator
 
 from app import llm
 from app.config import get_settings
@@ -48,6 +48,9 @@ class TranslatedQuery(BaseModel):
     semantic_query: str = Field(min_length=1, max_length=500)
     keywords: list[str] = Field(default_factory=list)
     filters: QueryFilters = Field(default_factory=QueryFilters)
+    # Where this came from, for the debug panel (Phase 12): "model", "fallback" (translation failed) or
+    # "disabled". A private attribute, so it is not part of the JSON schema the model is asked to fill.
+    _origin: str = PrivateAttr(default="model")
 
     @field_validator("keywords")
     @classmethod
@@ -55,10 +58,16 @@ class TranslatedQuery(BaseModel):
         cleaned = [k.strip() for k in keywords if k and k.strip()]
         return list(dict.fromkeys(cleaned))[:MAX_KEYWORDS]
 
+    @property
+    def origin(self) -> str:
+        return self._origin
+
     @classmethod
-    def passthrough(cls, message: str) -> "TranslatedQuery":
+    def passthrough(cls, message: str, origin: str = "fallback") -> "TranslatedQuery":
         """No translation: search with the user's own words."""
-        return cls(semantic_query=message[:500])
+        query = cls(semantic_query=message[:500])
+        query._origin = origin
+        return query
 
 
 SYSTEM_PROMPT = f"""You turn a user's message about movies into a search request for a database of film critics'
@@ -98,7 +107,7 @@ def build_translation_messages(message: str, history: list[Turn] | None = None) 
 def translate_query(message: str, history: list[Turn] | None = None) -> TranslatedQuery:
     settings = get_settings()
     if not settings.query_translation_enabled:
-        return TranslatedQuery.passthrough(message)
+        return TranslatedQuery.passthrough(message, origin="disabled")
     try:
         result = llm.structured(
             build_translation_messages(message, history), TranslatedQuery, reasoning=settings.query_translation_reasoning
