@@ -17,6 +17,8 @@ def chunk(chunk_id: int, distance: float, doc_type: str = "review") -> Retrieved
 
 
 CHUNKS = [chunk(11, 0.21), chunk(12, 0.30, "profile")]
+KEYWORD_CHUNKS = [RetrievedChunk(13, "tt1392214", "Prisoners", 2013, "Movie: Prisoners\n\nCast: Hugh Jackman", None,
+                                 {"doc_type": "profile"}, keyword_score=0.23)]
 TRANSLATION = TranslatedQuery(
     semantic_query="Prisoners (2013) critical reception",
     keywords=["Prisoners", "Hugh Jackman"],
@@ -28,6 +30,7 @@ TRANSLATION = TranslatedQuery(
 def pipeline(monkeypatch):
     monkeypatch.setattr(query_translation, "translate_query", lambda message, history=None: TRANSLATION)
     monkeypatch.setattr(retrieval, "retrieve", lambda query, session, k=None: list(CHUNKS))
+    monkeypatch.setattr(retrieval, "keyword_search", lambda session, keywords, k=None: list(KEYWORD_CHUNKS))
     monkeypatch.setattr(tool_calling, "run_with_tools", lambda messages, tool_list: ("Very tense.", []))
 
 
@@ -42,13 +45,15 @@ def test_debug_records_what_each_step_did(pipeline):
     assert debug.history_messages == 2
     assert [c.id for c in debug.vector_results] == [11, 12]
     assert debug.selected_chunk_ids == [11, 12]
-    assert set(debug.timings_ms) == {"translation", "embedding_and_search", "generation", "total"}
+    assert set(debug.timings_ms) == {"translation", "embedding_and_search", "keyword_search", "generation", "total"}
+    assert [c.id for c in debug.keyword_results] == [13]
     assert all(isinstance(ms, int) and ms >= 0 for ms in debug.timings_ms.values())
 
 
 def test_no_results_still_explains_what_happened(monkeypatch):
     monkeypatch.setattr(query_translation, "translate_query", lambda message, history=None: TRANSLATION)
     monkeypatch.setattr(retrieval, "retrieve", lambda query, session, k=None: [])
+    monkeypatch.setattr(retrieval, "keyword_search", lambda session, keywords, k=None: [])
 
     result = rag.answer_question("anything?", session=None)
 
@@ -68,6 +73,10 @@ def test_debug_is_mapped_for_the_api(pipeline):
     assert out["filters"] == {"genres": ["Thriller"]}  # empty filters left out
     assert out["translation_origin"] == "model"
     assert out["selected_chunks"] == ["11", "12"]
+    assert out["keyword_results"] == [{
+        "rank": 1, "chunk_id": "13", "movie": "Prisoners", "year": 2013, "doc_type": "profile", "critic": None,
+        "score": 0.23, "excerpt": "Cast: Hugh Jackman",
+    }]
     first = out["vector_results"][0]
     assert first == {
         "rank": 1, "chunk_id": "11", "movie": "Prisoners", "year": 2013, "doc_type": "review",

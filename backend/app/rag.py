@@ -87,6 +87,9 @@ class RagDebug:
     vector_results: list[RetrievedChunk]
     selected_chunk_ids: list[int]
     timings_ms: dict[str, int]
+    # Phase 17: full-text matches for the translation's keywords. Shown for comparison only; Phase 18 fuses
+    # them with the vector results to choose what the model sees.
+    keyword_results: list[RetrievedChunk] = field(default_factory=list)
 
 
 @dataclass
@@ -130,6 +133,10 @@ def _answer(question: str, session: Session, history: list[Turn] | None) -> RagA
     chunks = retrieval.retrieve(translation.semantic_query, session)  # embeds the query, then pgvector search
     timings["embedding_and_search"] = _ms_since(step)
 
+    step = perf_counter()
+    keyword_chunks = retrieval.keyword_search(session, translation.keywords)  # Phase 17: shown, not used yet
+    timings["keyword_search"] = _ms_since(step)
+
     def debug(selected: list[RetrievedChunk]) -> RagDebug:
         timings["total"] = _ms_since(started)
         return RagDebug(
@@ -139,6 +146,7 @@ def _answer(question: str, session: Session, history: list[Turn] | None) -> RagA
             vector_results=chunks,
             selected_chunk_ids=[c.id for c in selected],
             timings_ms=timings,
+            keyword_results=keyword_chunks,
         )
 
     if not chunks:

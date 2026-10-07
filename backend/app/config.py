@@ -33,6 +33,8 @@ class Settings(BaseSettings):
 
     # Retrieval (Phase 6). Implements: specs/6.md#AC-002. The plan asks for the top 5–10 chunks.
     retrieval_top_k: int = Field(default=8, ge=5, le=10)
+    # Keyword search (Phase 17): how many full-text matches to fetch ("top 10 each" in the plan's hybrid example).
+    keyword_top_k: int = Field(default=10, ge=1, le=50)
 
     # Conversation history (Phase 11): how much of the past is sent with each new question.
     history_max_messages: int = Field(default=6, ge=0, le=20)  # 6 messages = the last 3 question/answer pairs

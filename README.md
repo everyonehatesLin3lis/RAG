@@ -28,8 +28,9 @@ found, and why each decision went the way it did. The full plan is in [`EXECUTIO
 | 14 | Token usage and cost: per model, real cost reported by OpenRouter, shown under each answer | done |
 | 15 | Logging and monitoring: one JSON line per request, a summary script | done |
 | 16 | Prompt injection protection: 8 live attacks, all defended | done |
-| 17 | Keyword search (PostgreSQL full-text) | next |
-| 18–31 | Hybrid search, evaluation, Cloud SQL, scaling, MCP, streaming, final UI, README, review | to do |
+| 17 | Keyword search: PostgreSQL full-text search over chunks, shown in the RAG panel | done |
+| 18 | Hybrid search: fuse vector and keyword results | next |
+| 19–31 | Evaluation, Cloud SQL, scaling, MCP, streaming, final UI, README, review | to do |
 
 ## How it works today
 
@@ -42,6 +43,7 @@ Browser (Next.js chat page, conversation id kept in localStorage)
     {"semantic_query", "keywords", "filters"}
   → embed the semantic_query (openai/text-embedding-3-small, same model as the chunks)
   → pgvector: 8 chunks with the smallest cosine distance to the question
+  → full-text keyword search for the translation's keywords (shown in the panel; fused with vector in Phase 18)
   → prompt = system rules + the earlier messages + the 8 chunks in <source> tags + the user's original question
   → LangChain ChatOpenAI → OpenRouter → xiaomi/mimo-v2.6-flash, with the 3 tools attached
       ↺ the model may ask for a tool → our code validates and runs it → the result goes back (max 3 rounds)
@@ -492,6 +494,25 @@ The defences, all in place since the phases that introduced each part:
 `tests/test_security.py` adds the paths a live model cannot trigger on demand: a provider error that echoes a key, a
 database error carrying the connection string, and four kinds of injected tags inside a review.
 
+### Keyword search: semantic vs lexical (Phase 17)
+
+**The difference.** *Semantic* (vector) search compares meanings: the question and each chunk become embeddings, and
+the nearest ones win, so "a heist inside dreams" finds *Inception* without naming it. *Keyword* (lexical) search
+compares words: a chunk matches if it contains the words, so "Hugh Jackman" finds every chunk listing him, but a
+paraphrase finds nothing. Each is strong where the other is weak; hybrid search (Phase 18) combines them.
+
+Choices made while building (defaults the developer can change):
+
+| Choice | Default | Why |
+|---|---|---|
+| Engine | **PostgreSQL's built-in full-text search** | no extra search engine to run (the stack rule says not to add one); the text already lives in PostgreSQL |
+| What is searched | **the chunk text**, the same units as vector search | profile chunks hold title, director, cast, genres and keywords; review chunks hold title, genres, critic and text. Same units means Phase 18 can merge the two lists directly |
+| Index | a **generated `tsvector` column** + **GIN index** (migration 0004) | PostgreSQL keeps it in sync with the text by itself; the GIN index maps each word to its chunks, so lookups take milliseconds |
+| Language rules | `english`: stems words, drops common words | "thrillers" finds "thriller"; the cost is over-matching (below) |
+| Query | the **keywords from query translation**, each as an exact **phrase**, joined with OR | "Hugh Jackman" must appear as those two words in order; any keyword can match |
+| Ranking | `ts_rank_cd` (more and closer matches score higher), scaled to 0..1, top 10 | the plan's hybrid example uses "top 10 each" |
+| Use in answers | **shown in the RAG panel only** | the plan builds keyword search first and combines in Phase 18 |
+
 ### Smaller implementation choices
 
 These follow from the decisions above:
@@ -726,6 +747,31 @@ What the runs showed:
   which is why the non-model layers (escaping, validation, fixed SQL, no secrets in the prompt) matter: they hold even
   if the model is fooled.
 
+### Keyword search (Phase 17)
+
+Vector search and keyword search on the questions earlier phases flagged (films found, with chunk counts):
+
+| Question | Vector search (8) | Keyword search (10) | Same chunks |
+|---|---|---|---|
+| Compare Prisoners with Zodiac | Zodiac ×8 | Zodiac ×2, **Prisoners**, plus 7 others matching "crime"/"thriller" | 0 |
+| movies starring Hugh Jackman | The Wolverine ×4, Logan ×3, Les Misérables | The Wolverine ×3, The Greatest Showman ×2, Logan, **Prisoners**, X-Men: Days of Future Past, Real Steel, Les Misérables | 3 |
+| What are Denis Villeneuve's best films? | Sicario ×4, Dune ×2, Arrival ×2 | Dune, **Prisoners**, Arrival, Sicario, plus 6 others matching "best films" | 0 |
+| keanu killing everyone cause of his dog | John Wick ×5, sequels ×3 | John Wick ×3, sequels ×5, Die Hard: With a Vengeance, I, Robot | 5 |
+| joker movie with heath ledger | The Dark Knight ×7, The Dark Knight Rises | The Dark Knight ×4, The Dark Knight Rises ×4, Suicide Squad, Inception | 2 |
+
+- **They complement each other.** For the comparison question vector search found only *Zodiac*; keyword search found
+  *Prisoners* too, which is exactly the one-sided result Phase 11 recorded. For people (Jackman, Villeneuve) keyword search
+  finds films that vector search misses.
+- **Keyword search's weakness is generic words.** Translation keywords like "crime", "thriller" or "best films" match
+  hundreds of chunks, and stemming turns the title *Prisoners* into "prison", so *Alien³* and *American History X*
+  (tagged "prison") ranked above the film itself. Fusion in Phase 18 has to keep that noise from pushing out good results.
+- **Speed:** under 50 ms per search, shown as 0.0 s in the panel.
+- **The planner switched to the HNSW index.** Adding the column rewrote the table, and PostgreSQL now uses the HNSW index
+  for the app's vector query instead of an exact scan (the developer's Phase 6 choice: let PostgreSQL decide). HNSW is
+  approximate, so it was measured: on 200 real chunk embeddings used as queries, **recall@8 against exact search was 1.000**,
+  at about 5 ms per query against 72 ms. Two tests that check exact ranking with artificial, mostly-zero vectors started
+  failing, because HNSW can miss neighbours of such vectors; they now force an exact scan for that check.
+
 ### Environment (Windows)
 
 - On this machine, `localhost` tries IPv6 first and Docker's port listens only on IPv4, so connections hung
@@ -780,7 +826,7 @@ cd backend
 pytest
 ```
 
-161 tests. They cover security (no secrets in errors, injected tags cannot escape), the request log and its summary, token and cost tracking, the debug object, conversation history (storage, limits, prompts, endpoints), the three tools (validation, title matching, SQL safety), the tool-calling loop (with a scripted fake model), the chat endpoint and its sources, query translation (validation and fallbacks), the RAG prompt and its
+166 tests. They cover keyword search (phrases, stems, ranking, safety), security (no secrets in errors, injected tags cannot escape), the request log and its summary, token and cost tracking, the debug object, conversation history (storage, limits, prompts, endpoints), the three tools (validation, title matching, SQL safety), the tool-calling loop (with a scripted fake model), the chat endpoint and its sources, query translation (validation and fallbacks), the RAG prompt and its
 injection defences, retrieval, records and chunking,
 the embedder and embedding job, and the database (schema, vector size, HNSW index, similarity order, top-K search,
 SQL-injection text, cascade deletes). The embedder, retrieval and LLM are replaced with fakes in the unit tests, and

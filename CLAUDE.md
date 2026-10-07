@@ -82,7 +82,7 @@ If time runs short, protect the core in this order: working chatbot → dataset 
 - [x] 14 Token usage and cost
 - [x] 15 Logging and monitoring
 - [x] 16 Prompt injection protection
-- [ ] 17 Keyword search
+- [x] 17 Keyword search
 - [ ] 18 Hybrid search
 - [ ] 19 Evaluation dataset
 - [ ] 20 RAG evaluation
@@ -121,7 +121,8 @@ messages       id, conversation_id, role, content, created_at
 
 - Structured movie fields are SQL columns, flexible extras go in JSONB `metadata`, and embeddings are pgvector `VECTOR` with a vector index (HNSW is the expected choice).
 - One embedding model for documents and queries: `openai/text-embedding-3-small` through OpenRouter (`EMBEDDING_MODEL`), 1,536 dimensions, called only from `backend/app/embeddings.py`. `rag_chunks.embedding` is `vector(1536)` with an HNSW cosine index (migration 0003). Changing the model means a migration to the new size and re-embedding every chunk. `EMBEDDING_API_KEY` falls back to `OPENROUTER_API_KEY` when empty.
-- At ~10k chunks the planner prefers an exact sequential scan over the HNSW index (vectors are TOASTed, so the scan looks cheap). Results are identical; see `specs/5.md`.
+- Index use: before migration 0004 the planner preferred an exact sequential scan (vectors are TOASTed, so the scan looked cheap; `specs/5.md`). Since 0004 rewrote the table, the app's query (bound parameters, join to reviews) uses the HNSW index: approximate, recall@8 vs exact 1.000 on 200 real queries, ~5 ms vs ~72 ms. Tests that check exact ranking with artificial vectors set `SET LOCAL enable_indexscan = off` (HNSW can miss neighbours of mostly-zero toy vectors).
+- Keyword search (Phase 17, migration 0004): `rag_chunks.search_vector` is a generated `tsvector` (`to_tsvector('english', content)`, stems + positions) with a GIN index. `retrieval.keyword_search(session, keywords)` ORs one `phraseto_tsquery('english', kw)` per translation keyword (max 8), ranks by `ts_rank_cd(..., 32)` (0..1), returns `KEYWORD_TOP_K` (10). No keywords → no results. Results are in `debug.keyword_results` and the RAG panel only; answers still use vector results until Phase 18.
 - IDs: `movies.id` is the IMDb ID (`tt1392214`), `reviews.id` the Rotten Tomatoes review ID, `conversations.id` a UUID (the frontend already sends one). The SQLAlchemy attribute for each `metadata` column is `metadata_`.
 - Every chunk's metadata carries what a citation needs: movie, review ID, source, chunk ID.
 - Schema changes go through migration scripts, never by hand, so Phase 22 can replay them on Cloud SQL.

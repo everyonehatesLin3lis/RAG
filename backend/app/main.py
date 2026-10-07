@@ -19,6 +19,7 @@ from app.schemas import (
     ChatRequest,
     ChatResponse,
     ConversationOut,
+    KeywordResult,
     MessageRequest,
     RagDebugOut,
     Source,
@@ -169,6 +170,19 @@ def to_debug(debug: rag.RagDebug) -> RagDebugOut:
         translation_origin=debug.translation.origin,
         history_messages=debug.history_messages,
         timings_ms=debug.timings_ms,
+        keyword_results=[
+            KeywordResult(
+                rank=rank,
+                chunk_id=str(chunk.id),
+                movie=chunk.movie_title,
+                year=chunk.year,
+                doc_type=chunk.metadata.get("doc_type"),
+                critic=chunk.metadata.get("critic"),
+                score=round(chunk.keyword_score or 0.0, 4),
+                excerpt=rag.excerpt(chunk),
+            )
+            for rank, chunk in enumerate(debug.keyword_results, start=1)
+        ],
     )
 
 

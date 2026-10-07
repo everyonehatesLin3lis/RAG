@@ -12,6 +12,17 @@ export type VectorResult = {
   excerpt: string;
 };
 
+export type KeywordResult = {
+  rank: number;
+  chunk_id: string;
+  movie: string;
+  year: number | null;
+  doc_type: string | null;
+  critic: string | null;
+  score: number;
+  excerpt: string;
+};
+
 export type RagDebug = {
   original_query: string;
   translated_query: string;
@@ -22,6 +33,7 @@ export type RagDebug = {
   translation_origin: string;
   history_messages: number;
   timings_ms: Record<string, number>;
+  keyword_results: KeywordResult[];
 };
 
 const ORIGIN_LABEL: Record<string, string> = {
@@ -33,6 +45,7 @@ const ORIGIN_LABEL: Record<string, string> = {
 const TIMING_LABEL: Record<string, string> = {
   translation: "Query translation",
   embedding_and_search: "Embedding + vector search",
+  keyword_search: "Keyword search",
   generation: "Answer (incl. tool calls)",
   total: "Total",
 };
@@ -50,7 +63,8 @@ function formatFilters(filters: Record<string, unknown>): string {
 export default function RagPanel({ debug }: { debug: RagDebug | null | undefined }) {
   if (!debug) return null;
   const selected = new Set(debug.selected_chunks);
-  const filters = formatFilters(debug.filters);
+  const vectorIds = new Set(debug.vector_results.map((r) => r.chunk_id));
+  const filters = formatFilters(debug.filters ?? {});
 
   return (
     <details className="mt-2 max-w-[85%] self-start text-sm">
@@ -119,7 +133,41 @@ export default function RagPanel({ debug }: { debug: RagDebug | null | undefined
         </section>
 
         <section>
-          <h3 className="font-medium">4. Time</h3>
+          <h3 className="font-medium">4. Keyword search: {debug.keyword_results.length} full-text matches</h3>
+          <p className="text-xs text-zinc-500">
+            PostgreSQL full-text search for the keywords above (each as a phrase, word stems matched). Shown for
+            comparison: the answer still uses the vector results until hybrid search combines both.
+          </p>
+          {debug.keyword_results.length === 0 ? (
+            <p className="text-xs text-zinc-500">No keywords, or no chunk contains them.</p>
+          ) : (
+            <ol className="mt-1 flex flex-col gap-1">
+              {debug.keyword_results.map((r) => (
+                <li key={r.chunk_id} className="flex items-start gap-2">
+                  <span className="w-5 shrink-0 text-right text-xs text-zinc-500">{r.rank}</span>
+                  <span className="w-12 shrink-0 text-xs text-zinc-500" title="ts_rank_cd, normalised 0..1">
+                    {r.score.toFixed(3)}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="font-medium">
+                      {r.movie}
+                      {r.year ? ` (${r.year})` : ""}
+                    </span>
+                    <span className="text-zinc-500">
+                      {" "}
+                      · {r.doc_type === "profile" ? "movie profile" : r.critic ?? "review"} · chunk {r.chunk_id}
+                      {vectorIds.has(r.chunk_id) ? " · also found by vector search" : ""}
+                    </span>
+                    <span className="block truncate text-xs text-zinc-600 dark:text-zinc-400">{r.excerpt}</span>
+                  </span>
+                </li>
+              ))}
+            </ol>
+          )}
+        </section>
+
+        <section>
+          <h3 className="font-medium">5. Time</h3>
           <ul className="text-xs text-zinc-600 dark:text-zinc-400">
             {Object.entries(debug.timings_ms).map(([step, ms]) => (
               <li key={step}>

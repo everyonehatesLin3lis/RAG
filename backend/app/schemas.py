@@ -59,6 +59,19 @@ class VectorResult(BaseModel):
     excerpt: str
 
 
+class KeywordResult(BaseModel):
+    """One chunk returned by full-text keyword search (Phase 17)."""
+
+    rank: int
+    chunk_id: str
+    movie: str
+    year: int | None = None
+    doc_type: str | None = None
+    critic: str | None = None
+    score: float  # PostgreSQL ts_rank_cd, normalised to 0..1: more and closer matches = higher
+    excerpt: str
+
+
 class RagDebugOut(BaseModel):
     """What retrieval did for this answer (Phase 12). The first four fields are the plan's; the rest add detail."""
 
@@ -71,6 +84,7 @@ class RagDebugOut(BaseModel):
     translation_origin: str  # "model", "fallback" (translation failed) or "disabled"
     history_messages: int = 0
     timings_ms: dict[str, int] = {}
+    keyword_results: list[KeywordResult] = []  # Phase 17
 
 
 class ModelUsageOut(BaseModel):
