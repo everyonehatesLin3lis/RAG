@@ -81,7 +81,7 @@ If time runs short, protect the core in this order: working chatbot → dataset 
 - [x] 13 Tool visualisation: tool, arguments, result
 - [x] 14 Token usage and cost
 - [x] 15 Logging and monitoring
-- [ ] 16 Prompt injection protection
+- [x] 16 Prompt injection protection
 - [ ] 17 Keyword search
 - [ ] 18 Hybrid search
 - [ ] 19 Evaluation dataset
@@ -180,6 +180,8 @@ These apply from the first line of code. Phase 16 is where they are tested, not 
 - No SQL built from raw LLM text. Queries are parameterised and restricted to fixed shapes.
 - Never execute arbitrary code. Never expose API keys in responses, logs or the frontend.
 - Secrets come from environment variables only: `OPENROUTER_API_KEY`, `DATABASE_URL`, `EMBEDDING_API_KEY`, later `GOOGLE_CLOUD_PROJECT`. Never commit `.env`; keep a `.env.example` with names only.
+- Off-topic questions: the system prompt says decline in one or two sentences and give no code, commands or tips (tightened in Phase 16 after the model refused a destructive script but then offered off-topic coding tips).
+- Tested (Phase 16): `python scripts/injection_tests.py [--only R1,U3]` runs 8 live attacks (5 poisoned reviews inserted and embedded inside a rolled-back transaction, 3 user attacks) with mechanical pass/fail checks; a poisoned review only counts if it was actually retrieved. Results in `docs/experiments/prompt_injection_results.json`. Deterministic checks in `tests/test_security.py` (provider/database errors never leak keys or the connection string; injected tags cannot leave their `<source>` block).
 
 ## Logging and evaluation
 
