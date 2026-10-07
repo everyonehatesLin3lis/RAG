@@ -73,12 +73,36 @@ class RagDebugOut(BaseModel):
     timings_ms: dict[str, int] = {}
 
 
+class ModelUsageOut(BaseModel):
+    model: str
+    calls: int
+    input_tokens: int
+    output_tokens: int
+    reasoning_tokens: int = 0  # part of output_tokens: the model's hidden "thinking", billed as output
+    cached_input_tokens: int = 0  # part of input_tokens served from the provider's prompt cache, billed at a discount
+    total_tokens: int
+    cost_usd: float | None = None
+    cost_source: str  # "reported" (by OpenRouter), "estimated" (embedding), "not reported"
+
+
+class Usage(BaseModel):
+    """Phase 14. The first five fields are the plan's; by_model breaks them down per model."""
+
+    model: str  # the answer model
+    input_tokens: int = 0
+    output_tokens: int = 0
+    total_tokens: int = 0
+    estimated_cost_usd: float = 0.0
+    by_model: list[ModelUsageOut] = []
+
+
 class ChatResponse(BaseModel):
     answer: str
     sources: list[Source] = []
     tool_calls: list[ToolCall] = []
     conversation_id: str | None = None  # Phase 11
     debug: RagDebugOut | None = None  # Phase 12
+    usage: Usage | None = None  # Phase 14
 
 
 class StoredMessage(BaseModel):

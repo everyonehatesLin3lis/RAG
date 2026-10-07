@@ -25,8 +25,9 @@ found, and why each decision went the way it did. The full plan is in [`EXECUTIO
 | 11 | Conversation history: stored in PostgreSQL, used for follow-ups, restored after a page reload | done |
 | 12 | RAG visualisation: `debug` in the response, a collapsible "RAG process" panel under each answer | done |
 | 13 | Tool visualisation: a "Tool calls" panel with tool, arguments and a readable result | done |
-| 14 | Token usage and cost | next |
-| 15–31 | Logging, security, hybrid search, evaluation, Cloud SQL, scaling, MCP, streaming, final UI, README, review | to do |
+| 14 | Token usage and cost: per model, real cost reported by OpenRouter, shown under each answer | done |
+| 15 | Logging and monitoring | next |
+| 16–31 | Security, hybrid search, evaluation, Cloud SQL, scaling, MCP, streaming, final UI, README, review | to do |
 
 ## How it works today
 
@@ -43,8 +44,8 @@ Browser (Next.js chat page, conversation id kept in localStorage)
   → LangChain ChatOpenAI → OpenRouter → xiaomi/mimo-v2.6-flash, with the 3 tools attached
       ↺ the model may ask for a tool → our code validates and runs it → the result goes back (max 3 rounds)
   → save the question and answer to PostgreSQL
-  → {"answer", "sources", "tool_calls", "conversation_id", "debug"}: the answer rendered as Markdown,
-    then "Tool calls", "Sources (8)" and "RAG process" as collapsible panels under it
+  → {"answer", "sources", "tool_calls", "conversation_id", "debug", "usage"}: the answer rendered as Markdown,
+    then "Tool calls", "Sources (8)", "RAG process" and "Tokens & cost" as collapsible panels under it
 
 Offline pipeline (scripts/):
   Hugging Face files → inspect → select subset → ingest into PostgreSQL → chunk → embed into pgvector
@@ -419,6 +420,28 @@ can change):
   repeated by the model" instead of silently showing a duplicate.
 - **Panel order:** Tool calls, then Sources, then RAG process. Tools hold the exact facts the answer usually leads with.
 
+### Token usage and cost: measured, not computed (Phase 14)
+
+**Why context size drives cost.** Every token sent to a model is billed, not just the question. A RAG answer sends the
+system rules, recent history, 8 retrieved chunks and the question; when the model uses a tool, all of that is sent
+again in the next round, plus the tool result. Measured on "What did critics think of Mad Max: Fury Road?": the
+question was about 16 tokens, but MiMo received **4,292 input tokens** over 2 rounds. More chunks, longer history or
+more tool rounds mean more input tokens on every answer.
+
+How it is measured, and why this way:
+- **One collector for every call.** A LangChain callback handler is switched on for the duration of one request and
+  sees the result of every chat-model call made inside it: the translation, each answer round, the rounds caused by
+  tools. Nothing has to be passed through the pipeline by hand, so a new call cannot be forgotten.
+- **Real cost, not a price list.** OpenRouter reports the cost of each call in the response, so LLM cost is what was
+  actually billed, including discounts. Multiplying tokens by list prices would have overstated it: MiMo's input was
+  mostly served from the provider's **prompt cache**, billed far below list price (see Findings).
+- **The embedding is estimated** (about 4 characters per token × $0.02 per million) because LangChain's embeddings
+  client does not pass usage on. It is labelled "estimated", and it is below $0.000001 per question.
+- **A missing cost is shown as missing, never as $0**, so the total cannot look cheaper than it is without warning.
+- **Per model as well as in total.** The plan's fields (`model`, `input_tokens`, `output_tokens`, `total_tokens`,
+  `estimated_cost_usd`) are kept, plus `by_model` with calls, cached and reasoning tokens, cost and where it came from.
+  The total is called "estimated" because it includes the embedding estimate.
+
 ### Smaller implementation choices
 
 These follow from the decisions above:
@@ -587,6 +610,25 @@ Checked in the browser:
     time the model did not retry with a year, so the `rating_summary` success view has not yet been seen on a real
     answer (it is built from the same result fields the Phase 9 tests check).
 
+### Token usage and cost (Phase 14)
+
+Real answers, costs as reported by OpenRouter:
+
+| Question | Translation (Gemini) | Answer (MiMo) | Embedding (est.) | Total |
+|---|---|---|---|---|
+| Which is rated higher, Zodiac or Prisoners? (1 tool round) | 862 in / 57 out, $0.000301 | 2 calls, 4,059 in / 184 out, $0.000093 | 18 tokens | 5,180 tokens, **$0.00039** |
+| Why do people like Prisoners? (1 tool round) | 859 in / 90 out, $0.000350 | 2 calls, 4,075 in / 444 out, $0.000440 | 17 tokens | 5,485 tokens, **$0.00079** |
+| What did critics think of Mad Max: Fury Road? (new question, in the browser) | 864 in / 84 out, $0.000342 | 2 calls, 4,292 in (1,984 cached) / 412 out, $0.000444 | 16 tokens | 5,668 tokens, **$0.00079** |
+
+- **About $0.0004–0.0008 per answer** at the moment, so roughly 1,250–2,500 answers per dollar.
+- **Prompt caching cuts MiMo's cost sharply.** In a repeat of the Zodiac question, 1,920 of each round's ~2,000 input
+  tokens came from the provider's cache; MiMo's cost for the whole answer was $0.000083, about a seventh of list price.
+  Even on a new question the second round reuses the first round's prefix (1,984 of 4,292 tokens cached).
+- **Translation is now the most expensive single call.** Gemini 3.1 Flash Lite costs more per token than MiMo, its prompt
+  (instructions and example) is about 860 tokens, and it gets no cache discount here. It was chosen for speed (Phase 7);
+  this is the cost side of that trade-off, still a fraction of a cent.
+- MiMo spends some output on hidden **reasoning** (17–74 tokens here), billed as output.
+
 ### Environment (Windows)
 
 - On this machine, `localhost` tries IPv6 first and Docker's port listens only on IPv4, so connections hung
@@ -641,7 +683,7 @@ cd backend
 pytest
 ```
 
-138 tests. They cover the debug object, conversation history (storage, limits, prompts, endpoints), the three tools (validation, title matching, SQL safety), the tool-calling loop (with a scripted fake model), the chat endpoint and its sources, query translation (validation and fallbacks), the RAG prompt and its
+145 tests. They cover token and cost tracking, the debug object, conversation history (storage, limits, prompts, endpoints), the three tools (validation, title matching, SQL safety), the tool-calling loop (with a scripted fake model), the chat endpoint and its sources, query translation (validation and fallbacks), the RAG prompt and its
 injection defences, retrieval, records and chunking,
 the embedder and embedding job, and the database (schema, vector size, HNSW index, similarity order, top-K search,
 SQL-injection text, cascade deletes). The embedder, retrieval and LLM are replaced with fakes in the unit tests, and

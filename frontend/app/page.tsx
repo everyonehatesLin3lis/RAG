@@ -6,6 +6,7 @@ import ReactMarkdown from "react-markdown";
 import SourceList, { type Source } from "./SourceList";
 import RagPanel, { type RagDebug } from "./RagPanel";
 import ToolCallList, { type ToolCall } from "./ToolCallList";
+import UsagePanel, { type Usage } from "./UsagePanel";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
@@ -17,9 +18,16 @@ type Message = {
   sources?: Source[];
   debug?: RagDebug | null;
   toolCalls?: ToolCall[];
+  usage?: Usage | null;
 };
 
-type ChatResponse = { answer: string; sources: Source[]; debug: RagDebug | null; tool_calls: ToolCall[] };
+type ChatResponse = {
+  answer: string;
+  sources: Source[];
+  debug: RagDebug | null;
+  tool_calls: ToolCall[];
+  usage: Usage | null;
+};
 type ErrorResponse = { error: { code: string; message: string } };
 
 async function sendChat(message: string, conversationId: string): Promise<ChatResponse> {
@@ -120,8 +128,8 @@ export default function Home() {
     setLoading(true);
 
     try {
-      const { answer, sources, debug, tool_calls } = await sendChat(text, conversationId);
-      setMessages((prev) => [...prev, { role: "assistant", content: answer, sources, debug, toolCalls: tool_calls }]);
+      const { answer, sources, debug, tool_calls, usage } = await sendChat(text, conversationId);
+      setMessages((prev) => [...prev, { role: "assistant", content: answer, sources, debug, toolCalls: tool_calls, usage }]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
@@ -165,6 +173,7 @@ export default function Home() {
               <ToolCallList calls={msg.toolCalls ?? []} />
               <SourceList sources={msg.sources ?? []} />
               <RagPanel debug={msg.debug} />
+              <UsagePanel usage={msg.usage} />
             </div>
           ),
         )}

@@ -23,6 +23,7 @@ from app.history import Turn, as_langchain_messages
 from app.query_translation import TranslatedQuery
 from app.retrieval import RetrievedChunk
 from app.tool_calling import ToolCallRecord
+from app.usage import ModelUsage, track_usage
 
 # Implements: specs/6.md#AC-004, specs/10.md#AC-005
 SYSTEM_PROMPT = """You are Movie Research Copilot, an assistant that answers questions about movies.
@@ -97,6 +98,8 @@ class RagAnswer:
     tool_calls: list[ToolCallRecord] = field(default_factory=list)
     # Phase 12: how the answer was produced.
     debug: RagDebug | None = None
+    # Phase 14: tokens and cost per model, for every call made while answering.
+    usage: list[ModelUsage] = field(default_factory=list)
 
 
 def _ms_since(start: float) -> int:
@@ -105,6 +108,14 @@ def _ms_since(start: float) -> int:
 
 # Implements: specs/6.md#AC-001, #AC-002, #AC-004, #AC-005, specs/10.md#AC-002, #AC-006
 def answer_question(question: str, session: Session, history: list[Turn] | None = None) -> RagAnswer:
+    # Phase 14: every model call inside this block (translation, answer rounds, embedding) is counted.
+    with track_usage() as tracker:
+        result = _answer(question, session, history)
+    result.usage = list(tracker.models.values())
+    return result
+
+
+def _answer(question: str, session: Session, history: list[Turn] | None) -> RagAnswer:
     started = perf_counter()
     timings: dict[str, int] = {}
 

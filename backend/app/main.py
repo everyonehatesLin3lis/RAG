@@ -21,9 +21,12 @@ from app.schemas import (
     RagDebugOut,
     Source,
     StoredMessage,
+    ModelUsageOut,
     ToolCall,
+    Usage,
     VectorResult,
 )
+from app.usage import ModelUsage
 
 settings = get_settings()
 
@@ -96,6 +99,27 @@ def answer_in_conversation(session: Session, conversation_id: UUID | None, messa
         tool_calls=[ToolCall(tool=c.tool, arguments=c.arguments, result=c.result) for c in result.tool_calls],
         conversation_id=str(conversation.id),
         debug=to_debug(result.debug) if result.debug else None,
+        usage=to_usage(result.usage),
+    )
+
+
+def to_usage(models: list[ModelUsage]) -> Usage:
+    by_model = [
+        ModelUsageOut(
+            model=m.model, calls=m.calls, input_tokens=m.input_tokens, output_tokens=m.output_tokens,
+            reasoning_tokens=m.reasoning_tokens, cached_input_tokens=m.cached_input_tokens, total_tokens=m.total_tokens,
+            cost_usd=round(m.cost_usd, 8) if m.cost_usd is not None else None, cost_source=m.cost_source,
+        )
+        for m in models
+    ]
+    return Usage(
+        model=settings.openrouter_model or "unknown",
+        input_tokens=sum(m.input_tokens for m in by_model),
+        output_tokens=sum(m.output_tokens for m in by_model),
+        total_tokens=sum(m.total_tokens for m in by_model),
+        # Mostly OpenRouter's reported cost; the embedding part is an estimate, hence the plan's name.
+        estimated_cost_usd=round(sum(m.cost_usd or 0.0 for m in by_model), 8),
+        by_model=by_model,
     )
 
 

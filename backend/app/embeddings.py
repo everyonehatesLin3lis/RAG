@@ -15,6 +15,7 @@ from functools import lru_cache
 import openai
 from langchain_openai import OpenAIEmbeddings
 
+from app import usage
 from app.config import Settings, get_settings
 from app.errors import AppError
 
@@ -81,4 +82,6 @@ def embed_texts(
 # Implements: specs/5.md#AC-001, #AC-006
 def embed_query(text: str) -> list[float]:
     """Embed a user question with the same model as the documents."""
-    return _check([_call(get_embedder().embed_query, text)], 1)[0]
+    vector = _check([_call(get_embedder().embed_query, text)], 1)[0]
+    usage.record_embedding(get_settings().embedding_model, text)  # Phase 14: counted as an estimate
+    return vector
