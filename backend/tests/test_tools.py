@@ -6,7 +6,7 @@ import pytest
 from pydantic import ValidationError
 
 from app import tools
-from app.tools import CompareMoviesInput, FilterMoviesInput, RatingSummaryInput
+from app.tools import CompareMoviesInput, FilterMoviesInput, GetMovieMetadataInput, RatingSummaryInput
 
 
 class NoDatabase:
@@ -73,10 +73,12 @@ def test_ac004_invalid_arguments_return_a_structured_error_without_querying(call
 def test_ac008_langchain_tools_have_plan_names_and_schemas():
     built = {t.name: t for t in tools.langchain_tools(NoDatabase())}
 
-    assert set(built) == {"filter_movies", "compare_movies", "rating_summary"}
+    # Phase 24 added get_movie_metadata to the plan's three tools.
+    assert set(built) == {"filter_movies", "compare_movies", "rating_summary", "get_movie_metadata"}
     assert built["filter_movies"].args_schema is FilterMoviesInput
     assert built["compare_movies"].args_schema is CompareMoviesInput
     assert built["rating_summary"].args_schema is RatingSummaryInput
+    assert built["get_movie_metadata"].args_schema is GetMovieMetadataInput
     for tool in built.values():
         assert len(tool.description) > 40
 

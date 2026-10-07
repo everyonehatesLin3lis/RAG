@@ -102,6 +102,7 @@ class RagDebugOut(BaseModel):
     keyword_results: list[KeywordResult] = []  # Phase 17
     strategy: str = "vector"  # Phase 18: "hybrid" or "vector"
     fused_results: list[FusedResult] = []  # Phase 18: the hybrid ranking (empty for "vector")
+    tool_backend: str = "local"  # Phase 24: "mcp" (tools through the MCP server) or "local" (in-process)
 
 
 class ModelUsageOut(BaseModel):

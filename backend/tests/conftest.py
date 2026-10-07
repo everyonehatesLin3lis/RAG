@@ -30,6 +30,26 @@ def temporary_request_log(tmp_path, monkeypatch):
     return path
 
 
+@pytest.fixture(scope="session")
+def in_process_mcp():
+    """One MCP client connected to the MCP server in-process: the same protocol messages, no child process."""
+    from app import mcp_server
+    from app.mcp_client import McpToolClient
+
+    client = McpToolClient(server=mcp_server.server)
+    yield client
+    client.close()
+
+
+@pytest.fixture(autouse=True)
+def mcp_without_subprocess(monkeypatch, in_process_mcp):
+    """The chat pipeline (TOOL_BACKEND=mcp) uses the in-process server in tests; tests/test_mcp.py also tests the
+    real subprocess over stdio."""
+    from app import mcp_client
+
+    monkeypatch.setattr(mcp_client, "get_mcp_client", lambda: in_process_mcp)
+
+
 class FakeSession:
     """Stands in for a database session in API tests that fake the pipeline; only commit() is called."""
 

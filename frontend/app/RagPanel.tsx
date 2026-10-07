@@ -48,6 +48,7 @@ export type RagDebug = {
   timings_ms: Record<string, number>;
   keyword_results: KeywordResult[];
   strategy: string;
+  tool_backend?: string; // Phase 24: "mcp" or "local"
   fused_results: FusedResult[];
 };
 

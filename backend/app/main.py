@@ -1,15 +1,18 @@
 """FastAPI entrypoint. Run with: uvicorn app.main:app --reload --port 8000"""
 
+import logging
+from contextlib import asynccontextmanager
 from time import perf_counter
 from uuid import UUID
 
 from fastapi import Depends, FastAPI
+from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from app import history, rag, request_log
+from app import history, mcp_client, rag, request_log
 from app.config import get_settings
 from app.db import get_session
 from app.errors import AppError, register_error_handlers
@@ -33,8 +36,24 @@ from app.schemas import (
 from app.usage import ModelUsage
 
 settings = get_settings()
+logger = logging.getLogger(__name__)
 
-app = FastAPI(title="Movie Research Copilot")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Phase 24: start the MCP server with the backend, so the first question does not wait for it, and stop it on
+    shutdown. If it cannot start now, the backend still runs and the first tool use tries again."""
+    if settings.tool_backend == "mcp":
+        try:
+            await run_in_threadpool(mcp_client.get_mcp_client().connect)
+        except AppError:
+            logger.warning("MCP server not available at startup; will retry on first use")
+    yield
+    if settings.tool_backend == "mcp":
+        await run_in_threadpool(mcp_client.get_mcp_client().close)
+
+
+app = FastAPI(title="Movie Research Copilot", lifespan=lifespan)
 register_error_handlers(app)
 
 # The Next.js dev server runs on another port, so the browser needs CORS to call this API.
@@ -201,6 +220,7 @@ def to_debug(debug: rag.RagDebug) -> RagDebugOut:
             )
             for rank, f in enumerate(debug.fused, start=1)
         ],
+        tool_backend=debug.tool_backend,
     )
 
 

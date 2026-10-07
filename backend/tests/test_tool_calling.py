@@ -62,7 +62,7 @@ def test_ac001_model_is_bound_to_the_three_tools(fake_model):
     run_with_tools(base_messages(), tools.langchain_tools(NoDatabase()))
 
     names, choice = model.bound[0]
-    assert set(names) == {"filter_movies", "compare_movies", "rating_summary"}
+    assert set(names) == {"filter_movies", "compare_movies", "rating_summary", "get_movie_metadata"}  # 4th: Phase 24
     assert choice is None  # the model decides
 
 

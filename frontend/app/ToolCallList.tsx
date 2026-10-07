@@ -120,6 +120,45 @@ function SummaryResult({
   );
 }
 
+type Metadata = {
+  title: string;
+  year: number | null;
+  director: string | null;
+  writers: string[];
+  cast: string[];
+  runtime_minutes: number | null;
+  genres: string[];
+  imdb_rating: number | null;
+  imdb_votes: number | null;
+};
+
+// Phase 24: get_movie_metadata
+function MetadataResult({ result }: { result: Metadata }) {
+  const rows: [string, string][] = [
+    ["Director", result.director ?? "–"],
+    ["Writers", result.writers.join(", ") || "–"],
+    ["Cast", result.cast.slice(0, 5).join(", ") || "–"],
+    ["Runtime", result.runtime_minutes ? `${result.runtime_minutes} min` : "–"],
+    ["Genres", result.genres.join(", ") || "–"],
+    ["IMDb", result.imdb_rating != null ? `${result.imdb_rating}/10 (${result.imdb_votes?.toLocaleString() ?? "?"} votes)` : "–"],
+  ];
+  return (
+    <div className="text-xs">
+      <div className="font-medium">{label(result)}</div>
+      <table className="mt-1">
+        <tbody>
+          {rows.map(([k, v]) => (
+            <tr key={k}>
+              <td className="pr-3 align-top text-zinc-500">{k}</td>
+              <td>{v}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 type CompareData = Parameters<typeof CompareResult>[0]["result"];
 type FilterData = Parameters<typeof FilterResult>[0]["result"];
 type SummaryData = Parameters<typeof SummaryResult>[0]["result"];
@@ -131,6 +170,7 @@ function Result({ call }: { call: ToolCall }) {
   if (call.tool === "compare_movies" && Array.isArray(r.movies)) return <CompareResult result={r as unknown as CompareData} />;
   if (call.tool === "filter_movies" && Array.isArray(r.movies)) return <FilterResult result={r as unknown as FilterData} />;
   if (call.tool === "rating_summary" && r.rating_distribution) return <SummaryResult result={r as unknown as SummaryData} />;
+  if (call.tool === "get_movie_metadata" && r.imdb_id) return <MetadataResult result={r as unknown as Metadata} />;
   return <pre className="overflow-x-auto text-xs">{JSON.stringify(call.result, null, 2)}</pre>;
 }
 
@@ -139,14 +179,15 @@ function formatArguments(args: Record<string, unknown>): string {
   return entries.length ? entries.map(([k, v]) => `${k}: ${JSON.stringify(v)}`).join(", ") : "(none)";
 }
 
-export default function ToolCallList({ calls }: { calls: ToolCall[] }) {
+// `via` is debug.tool_backend: "mcp" when the tools ran on the MCP server (Phase 24), "local" when in-process.
+export default function ToolCallList({ calls, via }: { calls: ToolCall[]; via?: string }) {
   if (calls.length === 0) return null;
   const seen = new Set<string>();
 
   return (
     <details className="mt-2 max-w-[85%] self-start text-sm">
       <summary className="cursor-pointer select-none text-zinc-600 dark:text-zinc-400">
-        Tool calls ({calls.length})
+        Tool calls ({calls.length}){via === "mcp" ? " · via MCP server" : via === "local" ? " · local tools" : ""}
       </summary>
       <ol className="mt-2 flex flex-col gap-2">
         {calls.map((call, i) => {

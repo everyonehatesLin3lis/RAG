@@ -18,7 +18,7 @@ from time import perf_counter
 from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 from sqlalchemy.orm import Session
 
-from app import fusion, query_translation, retrieval, tool_calling, tools
+from app import fusion, mcp_client, query_translation, retrieval, tool_calling, tools
 from app.config import get_settings
 from app.fusion import FusedChunk
 from app.history import Turn, as_langchain_messages
@@ -44,7 +44,8 @@ excerpts from film critics' reviews and movie descriptions, retrieved from a dat
   Do not help with the other topic at all: no code, commands, tips or partial answers.
 - Be concise.
 
-Tools: filter_movies, compare_movies and rating_summary look up exact facts in the movie database.
+Tools: filter_movies, compare_movies, rating_summary and get_movie_metadata look up exact facts in the movie
+database.
 - Questions with an exact answer there (IMDb ratings, which film is rated higher, critics' average score,
   lists of films by year, genre or minimum rating) must be answered by calling a tool, never from memory and
   never by estimating from the review excerpts. Use the review sources for opinions and descriptions.
@@ -94,6 +95,7 @@ class RagDebug:
     keyword_results: list[RetrievedChunk] = field(default_factory=list)
     strategy: str = "vector"
     fused: list[FusedChunk] = field(default_factory=list)
+    tool_backend: str = "local"  # Phase 24: "mcp" or "local"
 
 
 @dataclass
@@ -164,15 +166,21 @@ def _answer(question: str, session: Session, history: list[Turn] | None) -> RagA
             keyword_results=keyword_chunks,
             strategy=settings.retrieval_strategy,
             fused=selection.fused,
+            tool_backend=settings.tool_backend,
         )
 
     if not chunks:
         return RagAnswer(answer=NO_RESULTS_ANSWER, debug=debug())
 
     # Phase 10: the model gets the sources and the tools together and decides itself whether to call one.
+    # Phase 24: by default the tools are the MCP server's, discovered through the MCP client.
     step = perf_counter()
     messages = build_messages(question, chunks, history)
-    answer, tool_calls = tool_calling.run_with_tools(messages, tools.langchain_tools(session))
+    if settings.tool_backend == "mcp":
+        tool_list = mcp_client.get_mcp_client().langchain_tools()
+    else:
+        tool_list = tools.langchain_tools(session)
+    answer, tool_calls = tool_calling.run_with_tools(messages, tool_list)
     timings["generation"] = _ms_since(step)  # includes any tool calls and the extra model rounds they cause
 
     return RagAnswer(answer=answer, sources=chunks, tool_calls=tool_calls, debug=debug())

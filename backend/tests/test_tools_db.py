@@ -156,3 +156,27 @@ def test_ac004_invalid_arguments_run_no_query(films):
 
     assert result["error"]["code"] == "INVALID_ARGUMENTS"
     assert statements == []
+
+
+# --- Phase 24: get_movie_metadata ---------------------------------------------------------------------
+
+
+def test_metadata_returns_the_movie_row_and_its_extras(films):
+    films.get(Movie, "tt_t1").director = "A. Director"
+    films.get(Movie, "tt_t1").metadata_ = {"cast": ["Actor One"], "writers": ["Writer One"], "runtime_minutes": 101,
+                                           "imdb_votes": 1234, "keywords": ["heist"]}
+    films.flush()
+
+    result = tools.get_movie_metadata(films, movie="testfilm alpha")
+
+    assert result["title"] == "Testfilm Alpha" and result["year"] == 2099 and result["imdb_id"] == "tt_t1"
+    assert result["director"] == "A. Director"
+    assert result["cast"] == ["Actor One"] and result["writers"] == ["Writer One"]
+    assert result["runtime_minutes"] == 101 and result["imdb_votes"] == 1234 and result["imdb_rating"] == 8.5
+    assert result["critic_reviews_in_database"] == 5
+
+
+def test_metadata_uses_the_same_title_errors(films):
+    assert tools.get_movie_metadata(films, movie="Testfilm Twin")["error"]["code"] == "AMBIGUOUS_TITLE"
+    assert tools.get_movie_metadata(films, movie="Testfilm Twin (2097)")["imdb_id"] == "tt_t5"
+    assert tools.get_movie_metadata(films, movie="Testfilm Nowhere")["error"]["code"] == "MOVIE_NOT_FOUND"

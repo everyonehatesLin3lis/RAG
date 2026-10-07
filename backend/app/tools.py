@@ -1,4 +1,4 @@
-"""The three tools (Phase 9): exact answers from the database instead of from the model's memory.
+"""The tools (Phase 9, get_movie_metadata in Phase 24): exact answers from the database instead of from the model's memory.
 
 "Which is rated higher, Zodiac or Prisoners?" has one correct answer, sitting in a table. Retrieval would hand the
 model a few reviews and hope it infers ratings; a tool looks the numbers up. In Phase 10 the model decides when to
@@ -9,8 +9,9 @@ call a tool and with which arguments, but our code runs it, and it treats those 
 3. Never raise for an expected problem. Return {"error": {...}} so the model can read it and recover
    (ask "which Beauty and the Beast?", or try again with a year).
 
-Each tool is a plain function taking a database session, wrapped as a LangChain tool by `langchain_tools`.
-Phase 24 moves them behind an MCP server with the same names and schemas.
+Each tool is a plain function taking a database session. They reach the model one of two ways (TOOL_BACKEND):
+through the MCP server (app/mcp_server.py, the default since Phase 24) or in-process via `langchain_tools`.
+Same functions, names and schemas either way.
 """
 
 import json
@@ -77,6 +78,10 @@ class RatingSummaryInput(BaseModel):
         if not value:
             raise ValueError("movie title is empty")
         return value
+
+
+class GetMovieMetadataInput(RatingSummaryInput):
+    """Same single argument as rating_summary: one movie title, optionally with the year."""
 
 
 # --- errors ---------------------------------------------------------------------------------------------
@@ -240,6 +245,36 @@ def rating_summary(session: Session, **args) -> dict:
     return _run(RatingSummaryInput, args, body)
 
 
+# Phase 24: the fourth tool, added with the MCP server. One film's own facts, for questions like
+# "who directed Prisoners?" or "what is Zodiac's IMDb rating?", which no other tool answered.
+def get_movie_metadata(session: Session, **args) -> dict:
+    def body(p: GetMovieMetadataInput) -> dict:
+        movie = resolve_movie(session, p.movie)
+        if isinstance(movie, dict):
+            return movie
+
+        extras = movie.metadata_ or {}
+        review_count = session.scalar(select(func.count()).select_from(Review).where(Review.movie_id == movie.id))
+        return {
+            "title": movie.title,
+            "year": movie.year,
+            "imdb_id": movie.id,
+            "director": movie.director,
+            "writers": extras.get("writers", []),
+            "cast": extras.get("cast", []),
+            "runtime_minutes": extras.get("runtime_minutes"),
+            "genres": list(movie.genres),
+            "imdb_rating": _rating(movie),
+            "imdb_votes": extras.get("imdb_votes"),
+            "original_language": extras.get("original_language"),
+            "overview": movie.description,
+            "keywords": extras.get("keywords", []),
+            "critic_reviews_in_database": review_count,
+        }
+
+    return _run(GetMovieMetadataInput, args, body)
+
+
 # --- LangChain wrappers -----------------------------------------------------------------------------------
 
 DESCRIPTIONS = {
@@ -257,12 +292,38 @@ DESCRIPTIONS = {
         "the scores are spread across 2-point buckets. Lead with the average; mention the spread only if the user "
         "asks how opinions were divided. Counts cover the reviews in this database, not every review of the film."
     ),
+    "get_movie_metadata": (
+        "Look up one movie's facts: director, writers, main cast, runtime, genres, IMDb rating and votes, original "
+        "language, plot overview and keywords. Use it for questions like 'who directed Prisoners?' or 'what is "
+        "Zodiac's IMDb rating?'."
+    ),
 }
+
+# Every tool once: name -> (function, input schema). The local LangChain tools (below) and the MCP server
+# (app/mcp_server.py) are both built from this table, so the two paths cannot drift apart.
+TOOLS: dict[str, tuple[Callable[..., dict], type[BaseModel]]] = {
+    "filter_movies": (filter_movies, FilterMoviesInput),
+    "compare_movies": (compare_movies, CompareMoviesInput),
+    "rating_summary": (rating_summary, RatingSummaryInput),
+    "get_movie_metadata": (get_movie_metadata, GetMovieMetadataInput),
+}
+
+
+def run_tool(session: Session, name: str, arguments: dict) -> dict:
+    """Run one tool by name. Never raises: an unknown name or a crash becomes an error the model can read."""
+    if name not in TOOLS:
+        return _error("UNKNOWN_TOOL", f"There is no tool named {name!r}. Available: {', '.join(TOOLS)}.")
+    fn, _ = TOOLS[name]
+    try:
+        return fn(session, **arguments)
+    except Exception:
+        return _error("TOOL_FAILED", f"The {name} tool failed unexpectedly.")
 
 
 # Implements: specs/9.md#AC-008
 def langchain_tools(session: Session) -> list[StructuredTool]:
-    """The three tools as LangChain tools bound to one database session. Outputs are JSON text for the model."""
+    """The tools as in-process LangChain tools bound to one database session (TOOL_BACKEND=local).
+    Outputs are JSON text for the model."""
 
     def make(name: str, fn: Callable[..., dict], schema: type[BaseModel]) -> StructuredTool:
         return StructuredTool.from_function(
@@ -274,8 +335,4 @@ def langchain_tools(session: Session) -> list[StructuredTool]:
             handle_validation_error=lambda exc: json.dumps(_invalid(exc)),
         )
 
-    return [
-        make("filter_movies", filter_movies, FilterMoviesInput),
-        make("compare_movies", compare_movies, CompareMoviesInput),
-        make("rating_summary", rating_summary, RatingSummaryInput),
-    ]
+    return [make(name, fn, schema) for name, (fn, schema) in TOOLS.items()]

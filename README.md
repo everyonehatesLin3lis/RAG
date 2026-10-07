@@ -2,7 +2,7 @@
 
 A movie research chatbot built for a Turing College AI Engineering assignment. It answers questions about
 movies from retrieved critic reviews and movie metadata, shows its sources, explains what retrieval did,
-uses tools for questions with exact answers, and will expose those tools through MCP.
+uses tools for questions with exact answers, and serves those tools from an MCP server.
 
 This README is a living document: it is updated at the end of every phase with what was built, what we
 found, and why each decision went the way it did. The full plan is in [`EXECUTION_PLAN.md`](EXECUTION_PLAN.md).
@@ -33,8 +33,10 @@ found, and why each decision went the way it did. The full plan is in [`EXECUTIO
 | 19 | Evaluation dataset: 49 new questions, every expected answer read from the database | done |
 | 20 | RAG evaluation: retrieval metrics, rule checks and an LLM judge on 49 questions | done |
 | 21 | Comparison of vector-only and hybrid search on the evaluation set, with repeat runs | done |
-| 22 | PostgreSQL moved to Google Cloud SQL | next (deferred by the developer for now) |
-| 23–31 | Scaling, MCP, streaming, final UI, error handling, testing, final evaluation, README, review | to do |
+| 22 | PostgreSQL moved to Google Cloud SQL | postponed by the developer |
+| 23 | Dataset scaled to 50k–100k+ reviews | postponed by the developer |
+| 24 | MCP server: the 4 tools behind MCP (stdio), tested on its own, connected to LangChain | done |
+| 25–31 | Streaming, final UI, error handling, testing, final evaluation, README, review | to do |
 
 ## How it works today
 
@@ -50,8 +52,9 @@ Browser (Next.js chat page, conversation id kept in localStorage)
   → full-text keyword search: 10 chunks containing the translation's keywords
   → Reciprocal Rank Fusion of the two lists → the top 8 go to the model
   → prompt = system rules + the earlier messages + the 8 chunks in <source> tags + the user's original question
-  → LangChain ChatOpenAI → OpenRouter → xiaomi/mimo-v2.6-flash, with the 3 tools attached
-      ↺ the model may ask for a tool → our code validates and runs it → the result goes back (max 3 rounds)
+  → LangChain ChatOpenAI → OpenRouter → xiaomi/mimo-v2.6-flash, with the 4 tools attached
+      ↺ the model may ask for a tool → MCP client → MCP server (child process, stdio) → validates, runs the
+        SQL query → result back to the model (max 3 rounds)
   → save the question and answer to PostgreSQL, append one line to logs/requests.jsonl
   → {"answer", "sources", "tool_calls", "conversation_id", "debug", "usage"}: the answer rendered as Markdown,
     then "Tool calls", "Sources (8)", "RAG process" and "Tokens & cost" as collapsible panels under it
@@ -79,8 +82,7 @@ treated as data:
   own tag or fake a question block.
 - The retrieval SQL only receives the question's embedding as a bound parameter, never the question text.
 
-The target architecture adds query translation, hybrid retrieval (pgvector + keyword search), tool calling
-through MCP, sources in the response, token and cost tracking, and logging; see
+Still to come from the target architecture: streaming over SSE (Phase 25) and the move to Cloud SQL (postponed); see
 [`CLAUDE.md`](CLAUDE.md#target-architecture).
 
 ## Stack
@@ -95,6 +97,7 @@ through MCP, sources in the response, token and cost tracking, and logging; see
 | Embeddings | `openai/text-embedding-3-small` through OpenRouter, 1,536 dimensions |
 | Database | PostgreSQL 17 + pgvector 0.8.7 in Docker, SQLAlchemy, psycopg, Alembic migrations |
 | Data | Hugging Face: Rotten Tomatoes critic reviews + TMDB/IMDb movie metadata |
+| Tools protocol | MCP Python SDK 2.3 (`mcp`): our own server over stdio, our own small LangChain adapter |
 
 ## Decision log
 
@@ -331,6 +334,7 @@ ever used as bound SQL parameters in fixed query shapes.
 | `filter_movies(year_min, genre, rating_min)` | "thrillers since 2010 rated above 7.5" | the best 10 by IMDb rating, plus how many matched in total |
 | `compare_movies(movie_a, movie_b)` | "which is rated higher, Zodiac or Prisoners?" | year, IMDb rating, genres, review count for each, and which is higher |
 | `rating_summary(movie)` | "what do critics score it?" | average critic rating (0–10), number of reviews, spread across 2-point buckets |
+| `get_movie_metadata(movie)` (Phase 24) | "who wrote Zodiac?", "what is its IMDb rating?" | director, writers, cast, runtime, genres, IMDb rating and votes, language, overview, keywords |
 
 Decisions, all made by the developer after the options were explained:
 
@@ -372,6 +376,51 @@ Decisions (all confirmed by the developer):
 | Loop limit | **At most 3 rounds**, then one last call with tools switched off | unlimited: a model that keeps asking for tools would keep the user waiting and keep costing |
 | Tool calls in the response | **Returned now** as `tool_calls: [{tool, arguments, result}]` (shown on the page in Phase 13) | hide until Phase 13: no way to check from outside which tool ran |
 | Retrieval for pure tool questions | **Always runs** | skip it: we cannot know beforehand, and the reviews let the model add context to a number |
+
+### MCP server: the tools behind a standard protocol (Phase 24)
+
+**Tool calling vs MCP.** Tool calling (Phase 10) is the *model* asking *our code* to run a function: it is about who
+decides. MCP (Model Context Protocol) is about *where the function lives and how it is reached*: the tools sit in a
+separate program, a server, that any MCP client can ask "what tools do you have?" (`tools/list`) and "run this one with
+these arguments" (`tools/call`), in JSON-RPC messages. The model still decides exactly as before; only the path from our
+loop to the database changed:
+
+```text
+before:  LangChain tool loop → Python function → PostgreSQL
+now:     LangChain tool loop → MCP client (app/mcp_client.py) → MCP server (app/mcp_server.py, a child process)
+         → same Python function → PostgreSQL
+```
+
+What that buys: the same server works unchanged with other MCP clients (Claude Desktop, the MCP Inspector), the tools
+are discovered instead of imported, and the database code runs in its own process, which gets the database URL and no
+API keys.
+
+Decisions, all made by the developer after the options were explained:
+
+| Decision | Chosen | Alternative and why not |
+|---|---|---|
+| Transport | **stdio**: the backend starts the server as a child process and they talk over its stdin/stdout | Streamable HTTP: a separate web service on its own port, one more process to run and keep alive, and it would need authentication if exposed |
+| LangChain bridge | **our own adapter, ~60 lines**: list the server's tools, wrap each as a LangChain tool that sends `tools/call` | `langchain-mcp-adapters`: less code, but one more dependency, async-first while our pipeline is synchronous, and its results differ from our error format and tool panel |
+| Server lifetime | **one per backend**, started with FastAPI and reused; if it dies, the next call starts a new one | one per question: about 2 s of startup added to every answer |
+| Local tools | **kept behind a setting**: `TOOL_BACKEND=mcp` (default) or `local`, the same functions underneath | MCP only: an MCP failure would leave the chat without tools (the plan: never sacrifice the working core for MCP) |
+
+Implementation choices that follow:
+- **Same tools, same schemas.** Both paths are built from one table in `app/tools.py` (name → function, Pydantic input
+  schema). The server advertises each Pydantic schema as its JSON schema; a test checks the model receives identical
+  tool definitions through MCP and locally.
+- **The server validates.** Any MCP client can call it, so it validates every call itself and returns our structured
+  errors (`INVALID_ARGUMENTS`, `MOVIE_NOT_FOUND`, `AMBIGUOUS_TITLE`, `UNKNOWN_TOOL`) as results marked `is_error`.
+- **Low-level server API.** The SDK's high-level `MCPServer` (formerly FastMCP) builds schemas from Python function
+  signatures and validates with them, which would duplicate our Pydantic schemas and replace our error format. The
+  low-level `Server` takes two handlers, list and call, so it serves our schemas exactly.
+- **Sync outside, async inside.** The MCP SDK is async and our pipeline is synchronous, so the client keeps its
+  connection on an asyncio event loop in a background thread and each tool call waits for its result there.
+- **Failures never crash the chat.** If the server cannot be reached during a call, the tool result is `MCP_UNAVAILABLE`
+  and the model answers without it; if it cannot start at all, the request fails with `MCP_UNAVAILABLE` (503) and the
+  fix is `TOOL_BACKEND=local`.
+- **Fourth tool.** `get_movie_metadata`, named in the plan, answers single-film facts (a film's IMDb rating had no tool
+  before). Questions about director, cast or runtime are not forced through it: the movie's profile source states them
+  exactly, and an extra tool round costs time.
 
 ### Conversation history: what is remembered and how much is sent (Phase 11)
 
@@ -965,8 +1014,49 @@ What the comparison shows:
 - **Latency and cost:** hybrid's 2 s faster average is MiMo's own speed varying (keyword search takes milliseconds); hybrid
   sends about 400 more tokens per answer, a negligible cost difference.
 - **Decision:** hybrid stays the default (the Phase 18 rule: hybrid unless measured worse). Retrieval is better and answer
-  accuracy is equal within noise. Two follow-ups would address what the comparison found: a system-prompt rule against the
-  model's own verdicts, and retrieving reviews per named film for comparison questions. Both are offered to the developer.
+  accuracy is equal within noise. Two follow-ups were offered: a system-prompt rule against the model's own verdicts
+  (**adopted by the developer**, measured below) and retrieving reviews per named film for comparison questions
+  (**skipped by the developer** for now).
+
+### Prompt rule: report what critics say, no verdict of its own (Phase 21 follow-up; [`evaluation/results/hybrid-fixA.json`](evaluation/results/hybrid-fixA.json))
+
+The rule added to the system prompt: report what the critics and the data say; for "which is better / scarier / funnier"
+answer with what the reviews and tool results show, and if they do not settle it, say so rather than deciding. Measured
+with the full evaluation again plus the same 7 questions × 3 runs as above (about $0.38 in total, mostly the judge):
+
+| | Before the rule | With the rule |
+|---|---|---|
+| Full run: answer accuracy / groundedness / hallucination rate | 0.93 / 0.997 / 0.04 | 0.93 / 0.995 / 0.04 |
+| Full run: relevance | 0.96 | 0.93 |
+| 7 questions × 3 runs: mean correctness | 0.83 | 0.88 |
+| 7 questions × 3 runs: answers with an unsupported claim | 3 of 21 | **1 of 21** |
+| 7 questions × 3 runs: mean relevance | 0.95 | 0.90 |
+
+- **The targeted failure is gone.** Black Swan vs Hereditary had the model's own verdict in 2 of 3 runs before; now 0 of 3:
+  it lays out what each film's critics say and states that the sources do not compare them directly.
+- **The remaining unsupported claims are different kinds:** "Vikings is a TV series rather than a film" (from the model's
+  memory, and true: the TMDB/IMDb data lists the series *Vikings* (2013) as a war film, a data-quality issue found by
+  this), and one overstated summary ("none of the reviews discuss the score" for La La Land, where two touch on it).
+- **The price is directness.** The judge rates "the sources do not settle it" as only partly relevant, so relevance dips
+  a little. That is the intended trade: honest about the evidence rather than confident without it.
+- Correctness and the full-run totals are within the run-to-run noise measured in Phase 21; the rule is kept because it
+  removed the specific error it targeted, not because of a score change.
+
+### MCP server (Phase 24)
+
+`python scripts/mcp_check.py` starts the server over stdio exactly as the backend does, lists its tools and calls each
+one, without the chatbot or any LLM:
+
+- **Start-up and discovery: 2.0 s, once per backend** (a Python process importing SQLAlchemy and connecting).
+- **Each call: 2–150 ms** (2 ms for a rejected call; 6–16 ms for title lookups; 143 ms for the first, which opens the
+  database connection).
+- All four error paths came back as structured errors: `AMBIGUOUS_TITLE` (Beauty and the Beast), `MOVIE_NOT_FOUND` (with
+  the argument that failed), `INVALID_ARGUMENTS` (rating 42), `UNKNOWN_TOOL` (`drop_tables`).
+- **Through the web page:** "Which is rated higher, Zodiac or Prisoners? And who directed Prisoners?" called
+  `compare_movies` via the MCP server (the panel says "Tool calls (1) · via MCP server") and answered correctly
+  (Prisoners 8.2 vs Zodiac 7.7, Denis Villeneuve) in 3.8 s of generation. The tool definitions the model receives are
+  identical to Phase 10's, so tool choice is unchanged by construction.
+- Found while testing: *Parasite* is not in the 500-film subset, so questions about it get `MOVIE_NOT_FOUND`.
 
 ### Environment (Windows)
 
@@ -997,6 +1087,9 @@ Prerequisites: Python 3.11, Node.js, Docker Desktop.
    alembic upgrade head
    uvicorn app.main:app --reload --port 8000
    ```
+   - The backend starts the MCP server (`python -m app.mcp_server`) itself; nothing else to run. `TOOL_BACKEND=local`
+     in `backend/.env` runs the tools in-process instead.
+   - To test the MCP server on its own (no LLM, no cost): `python scripts/mcp_check.py` from the repo root.
 4. **Data pipeline** (from the repo root, backend venv active):
    ```bash
    python scripts/download_datasets.py
@@ -1022,7 +1115,9 @@ cd backend
 pytest
 ```
 
-194 tests. They cover the evaluation metrics and judge handling, hybrid fusion and the strategy switch, keyword search (phrases, stems, ranking, safety), security (no secrets in errors, injected tags cannot escape), the request log and its summary, token and cost tracking, the debug object, conversation history (storage, limits, prompts, endpoints), the three tools (validation, title matching, SQL safety), the tool-calling loop (with a scripted fake model), the chat endpoint and its sources, query translation (validation and fallbacks), the RAG prompt and its
+210 tests. They cover the MCP server (discovery, schemas, validation and errors in-process, a real stdio child
+process from client to database result, no API keys passed to it, a server that cannot start, the tool loop through
+MCP, both tool backends), the evaluation metrics and judge handling, hybrid fusion and the strategy switch, keyword search (phrases, stems, ranking, safety), security (no secrets in errors, injected tags cannot escape), the request log and its summary, token and cost tracking, the debug object, conversation history (storage, limits, prompts, endpoints), the four tools (validation, title matching, SQL safety), the tool-calling loop (with a scripted fake model), the chat endpoint and its sources, query translation (validation and fallbacks), the RAG prompt and its
 injection defences, retrieval, records and chunking,
 the embedder and embedding job, and the database (schema, vector size, HNSW index, similarity order, top-K search,
 SQL-injection text, cascade deletes). The embedder, retrieval and LLM are replaced with fakes in the unit tests, and

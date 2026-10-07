@@ -52,6 +52,11 @@ class Settings(BaseSettings):
     # MiMo is a reasoning model; reasoning makes richer rewrites but is much slower (see README findings).
     query_translation_reasoning: bool = False
 
+    # Tools (Phase 24): "mcp" = through the MCP server (app/mcp_server.py, started by the backend over stdio);
+    # "local" = the same functions called in-process, the pre-Phase-24 path, kept as a fallback.
+    tool_backend: Literal["mcp", "local"] = "mcp"
+    mcp_call_timeout_s: float = Field(default=30, gt=0, le=120)
+
     # Web
     cors_origins: list[str] = ["http://localhost:3000"]
 

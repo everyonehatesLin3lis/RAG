@@ -19,6 +19,9 @@ alembic>=1.20
 # Data scripts (Phase 2): Hugging Face download + pandas
 datasets>=5.0
 
+# MCP (Phase 24): the tool server (app/mcp_server.py) and client (app/mcp_client.py)
+mcp>=2.3,<3
+
 # Tests
 pytest>=8.3
 httpx>=0.27
