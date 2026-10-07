@@ -45,7 +45,7 @@ Defaults for this layout. If scaffolding ends up different, correct this section
 - Backend tests: `cd backend && pytest` (database tests skip if the container is down)
 - Frontend dev server: `cd frontend && npm run dev`
 - Frontend type and build check: `cd frontend && npm run build`
-- Data scripts (repo root, backend venv active): `python scripts/download_datasets.py`, `python scripts/inspect_dataset.py`, `python scripts/select_subset.py`, `python scripts/ingest.py [--movies N]`, `python scripts/embed_chunks.py [--dry-run] [--limit N]` (costs money; dry-run first)
+- Data scripts (repo root, backend venv active): `python scripts/download_datasets.py`, `python scripts/inspect_dataset.py`, `python scripts/select_subset.py`, `python scripts/ingest.py [--movies N]`, `python scripts/embed_chunks.py [--dry-run] [--limit N]` (costs money; dry-run first), `python scripts/log_summary.py [--last N]` (monitoring)
 
 ## How to work
 
@@ -80,7 +80,7 @@ If time runs short, protect the core in this order: working chatbot → dataset 
 - [x] 12 RAG visualisation: debug object and expandable panel
 - [x] 13 Tool visualisation: tool, arguments, result
 - [x] 14 Token usage and cost
-- [ ] 15 Logging and monitoring
+- [x] 15 Logging and monitoring
 - [ ] 16 Prompt injection protection
 - [ ] 17 Keyword search
 - [ ] 18 Hybrid search
@@ -183,7 +183,7 @@ These apply from the first line of code. Phase 16 is where they are tested, not 
 
 ## Logging and evaluation
 
-- Logs are JSONL, one line per request: `timestamp`, `conversation_id`, `query`, `translated_query`, `retrieved_chunks`, `tools`, `tokens`, `cost`, `latency_ms`, `status`.
+- Logs are JSONL, one line per request: `timestamp`, `conversation_id`, `query`, `translated_query`, `retrieved_chunks`, `tools`, `tokens`, `cost`, `latency_ms`, `status`. Implemented in `app/request_log.py`, written by `main.answer_in_conversation` for every chat request that reaches the pipeline: `status` is `success`, `no_results` or `error` (+ `error_code`, incl. `DATABASE_UNAVAILABLE`, `INTERNAL_ERROR`); extras `tool_errors`, `translation_origin`, `models` (tokens/cost per model). File `logs/requests.jsonl` (git-ignored, `REQUEST_LOG_PATH`); a write failure never breaks the chat; tests log to a temp file (conftest). Never logged: keys, database URL, retrieved texts, answers. Monitoring: `python scripts/log_summary.py [--last N] [--json]` (requests by status, error codes, latency median/p95/max, cost and tokens per answer, tool use and errors, translation fallbacks, per-model usage).
 - `evaluation/evaluation_dataset.jsonl` holds 20–50 questions as `{"question": "...", "expected_answer": "...", "expected_movie": "..."}`, mixing factual and recommendation questions.
 - Measure retrieval (did the correct source appear, `Recall@K`, `Precision@K`), answers (correctness, groundedness, relevance) and unsupported claims. Custom evaluation first; RAGAS is optional.
 - Save results as JSON per strategy with `strategy`, `retrieval_recall_at_5`, `answer_accuracy`, `groundedness`, `avg_latency_ms` and `avg_cost_usd`, and compare vector-only with hybrid.

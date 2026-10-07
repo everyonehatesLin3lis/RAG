@@ -1,13 +1,15 @@
 """FastAPI entrypoint. Run with: uvicorn app.main:app --reload --port 8000"""
 
+from time import perf_counter
 from uuid import UUID
 
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from app import history, rag
+from app import history, rag, request_log
 from app.config import get_settings
 from app.db import get_session
 from app.errors import AppError, register_error_handlers
@@ -87,12 +89,27 @@ def post_message(conversation_id: UUID, request: MessageRequest, session: Sessio
 
 
 def answer_in_conversation(session: Session, conversation_id: UUID | None, message: str) -> ChatResponse:
-    """Load recent history, answer with it, then store the new question and answer together."""
-    conversation = history.get_or_create_conversation(session, conversation_id)
-    past = history.recent_turns(session, conversation.id)
-    result = rag.answer_question(message, session, past)
-    history.save_exchange(session, conversation.id, message, result.answer)
-    session.commit()
+    """Load recent history, answer with it, then store the new question and answer together.
+    Phase 15: every request, answered or failed, writes one line to the request log."""
+    started = perf_counter()
+    logged_id = str(conversation_id) if conversation_id else None
+    try:
+        conversation = history.get_or_create_conversation(session, conversation_id)
+        logged_id = str(conversation.id)
+        past = history.recent_turns(session, conversation.id)
+        result = rag.answer_question(message, session, past)
+        history.save_exchange(session, conversation.id, message, result.answer)
+        session.commit()
+    except AppError as exc:
+        request_log.write(request_log.error_entry(logged_id, message, exc.code, _ms_since(started)))
+        raise
+    except SQLAlchemyError:
+        request_log.write(request_log.error_entry(logged_id, message, "DATABASE_UNAVAILABLE", _ms_since(started)))
+        raise
+    except Exception:
+        request_log.write(request_log.error_entry(logged_id, message, "INTERNAL_ERROR", _ms_since(started)))
+        raise
+    request_log.write(request_log.success_entry(logged_id, message, result, _ms_since(started)))
     return ChatResponse(
         answer=result.answer,
         sources=[to_source(chunk) for chunk in result.sources],
@@ -101,6 +118,10 @@ def answer_in_conversation(session: Session, conversation_id: UUID | None, messa
         debug=to_debug(result.debug) if result.debug else None,
         usage=to_usage(result.usage),
     )
+
+
+def _ms_since(start: float) -> int:
+    return round((perf_counter() - start) * 1000)
 
 
 def to_usage(models: list[ModelUsage]) -> Usage:

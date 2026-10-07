@@ -26,8 +26,9 @@ found, and why each decision went the way it did. The full plan is in [`EXECUTIO
 | 12 | RAG visualisation: `debug` in the response, a collapsible "RAG process" panel under each answer | done |
 | 13 | Tool visualisation: a "Tool calls" panel with tool, arguments and a readable result | done |
 | 14 | Token usage and cost: per model, real cost reported by OpenRouter, shown under each answer | done |
-| 15 | Logging and monitoring | next |
-| 16–31 | Security, hybrid search, evaluation, Cloud SQL, scaling, MCP, streaming, final UI, README, review | to do |
+| 15 | Logging and monitoring: one JSON line per request, a summary script | done |
+| 16 | Prompt injection protection: tested | next |
+| 17–31 | Keyword and hybrid search, evaluation, Cloud SQL, scaling, MCP, streaming, final UI, README, review | to do |
 
 ## How it works today
 
@@ -43,7 +44,7 @@ Browser (Next.js chat page, conversation id kept in localStorage)
   → prompt = system rules + the earlier messages + the 8 chunks in <source> tags + the user's original question
   → LangChain ChatOpenAI → OpenRouter → xiaomi/mimo-v2.6-flash, with the 3 tools attached
       ↺ the model may ask for a tool → our code validates and runs it → the result goes back (max 3 rounds)
-  → save the question and answer to PostgreSQL
+  → save the question and answer to PostgreSQL, append one line to logs/requests.jsonl
   → {"answer", "sources", "tool_calls", "conversation_id", "debug", "usage"}: the answer rendered as Markdown,
     then "Tool calls", "Sources (8)", "RAG process" and "Tokens & cost" as collapsible panels under it
 
@@ -442,6 +443,26 @@ How it is measured, and why this way:
   `estimated_cost_usd`) are kept, plus `by_model` with calls, cached and reasoning tokens, cost and where it came from.
   The total is called "estimated" because it includes the embedding estimate.
 
+### Logging and monitoring: one line per request (Phase 15)
+
+Every chat request that reaches the pipeline appends one JSON line to `logs/requests.jsonl` with the plan's fields:
+`timestamp`, `conversation_id`, `query`, `translated_query`, `retrieved_chunks`, `tools`, `tokens`, `cost`, `latency_ms`,
+`status`. Choices made while building (defaults the developer can change):
+
+| Choice | Default | Why |
+|---|---|---|
+| Format | **JSON Lines**: one JSON object per line, appended | each line can be parsed on its own, so a crash mid-write damages at most one line; easy to append, easy to read back |
+| Status values | `success`, `no_results`, `error` + `error_code` | "found nothing" is not a failure but should be visible; errors keep their code (`LLM_TIMEOUT`, `DATABASE_UNAVAILABLE`, `INTERNAL_ERROR`, …) |
+| Extra fields | `tool_errors`, `translation_origin`, per-model tokens and cost | answers "how often do tools fail?", "how often does translation fall back?", "which model costs what?" |
+| Never logged | API keys, database URL, retrieved texts, answers | secrets must not leak; texts and answers would make the log large and are already in the database |
+| The question | logged, as the plan asks | fine for development; a shared deployment would need a privacy notice or redaction |
+| If logging fails | the chat still answers | a full disk must not take the chatbot down |
+| Invalid input | not logged | it is rejected before the pipeline runs |
+
+**Monitoring.** `python scripts/log_summary.py` reads the log and reports requests by status, error codes and error
+rate, latency (median, p95, max), cost and tokens per answer, chunks retrieved, tool use and tool errors, translation
+fallbacks, and tokens and cost per model. `--last N` limits it to recent requests; `--json` prints machine-readable output.
+
 ### Smaller implementation choices
 
 These follow from the decisions above:
@@ -629,6 +650,24 @@ Real answers, costs as reported by OpenRouter:
   this is the cost side of that trade-off, still a fraction of a cent.
 - MiMo spends some output on hidden **reasoning** (17–74 tokens here), billed as output.
 
+### Logging and monitoring (Phase 15)
+
+Four real questions in one conversation (a comparison, a follow-up with "it", a filtered list, a critic average), then
+`python scripts/log_summary.py --last 4`:
+
+| Measure | Value |
+|---|---|
+| Requests | 4, all `success`, 0% errors |
+| Latency | median 25.1 s, p95 39.5 s, max 39.5 s |
+| Cost | $0.0036 in total, $0.0009 per answer |
+| Tokens | 6,678 per answer on average; 8 chunks retrieved every time |
+| Tools | used in 100% of these answers: `rating_summary` ×2, `compare_movies`, `filter_movies` |
+| Translation | 0 fallbacks; "Now what do critics say about it?" was rewritten to "…the movie Prisoners" from the history |
+| Per model | MiMo 21,469 tokens, $0.0020 · Gemini 5,177 tokens, $0.0016 · embedding 64 tokens, ~$0.000001 |
+
+Follow-ups cost more: with history and tool rounds, the last two answers used ~7,700–7,900 tokens against ~5,200 for the
+first question.
+
 ### Environment (Windows)
 
 - On this machine, `localhost` tries IPv6 first and Docker's port listens only on IPv4, so connections hung
@@ -683,7 +722,7 @@ cd backend
 pytest
 ```
 
-145 tests. They cover token and cost tracking, the debug object, conversation history (storage, limits, prompts, endpoints), the three tools (validation, title matching, SQL safety), the tool-calling loop (with a scripted fake model), the chat endpoint and its sources, query translation (validation and fallbacks), the RAG prompt and its
+154 tests. They cover the request log and its summary, token and cost tracking, the debug object, conversation history (storage, limits, prompts, endpoints), the three tools (validation, title matching, SQL safety), the tool-calling loop (with a scripted fake model), the chat endpoint and its sources, query translation (validation and fallbacks), the RAG prompt and its
 injection defences, retrieval, records and chunking,
 the embedder and embedding job, and the database (schema, vector size, HNSW index, similarity order, top-K search,
 SQL-injection text, cascade deletes). The embedder, retrieval and LLM are replaced with fakes in the unit tests, and

@@ -19,6 +19,16 @@ def no_paid_api_calls(monkeypatch):
     monkeypatch.setattr(embeddings, "get_embedder", blocked)
 
 
+@pytest.fixture(autouse=True)
+def temporary_request_log(tmp_path, monkeypatch):
+    """Tests write the request log to a temporary file, never to logs/requests.jsonl."""
+    from app.config import get_settings
+
+    path = tmp_path / "requests.jsonl"
+    monkeypatch.setattr(get_settings(), "request_log_path", str(path))
+    return path
+
+
 class FakeSession:
     """Stands in for a database session in API tests that fake the pipeline; only commit() is called."""
 

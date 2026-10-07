@@ -48,6 +48,9 @@ class Settings(BaseSettings):
     # Web
     cors_origins: list[str] = ["http://localhost:3000"]
 
+    # Logging (Phase 15): one JSON line per chat request. Relative paths are relative to the repo root.
+    request_log_path: str = str(Path(__file__).resolve().parents[2] / "logs" / "requests.jsonl")
+
 
 @lru_cache
 def get_settings() -> Settings:
