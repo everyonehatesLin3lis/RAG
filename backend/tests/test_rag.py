@@ -215,3 +215,10 @@ def test_ac006_database_failure_is_rag_retrieval_failed():
         retrieval.search_chunks(BrokenSession(), [0.1] * DIMS, k=8)
     assert exc.value.code == "RAG_RETRIEVAL_FAILED"
     assert exc.value.message == "Unable to retrieve movie information."
+
+
+def test_system_prompt_forbids_the_models_own_verdicts():
+    # Phase 21 found the unsupported claims were the model's own comparative conclusions ("X is more disturbing").
+    prompt = rag.SYSTEM_PROMPT.lower()
+    assert "do not add a verdict of your own" in prompt
+    assert "say so rather than deciding yourself" in prompt
