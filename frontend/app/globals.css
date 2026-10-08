@@ -1,33 +1,49 @@
 @import "tailwindcss";
 
+/* Phase 26: colour tokens, used as Tailwind utilities (bg-surface, border-line, text-muted, bg-accent ...). */
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #18181b;
+  --surface: #f4f4f5; /* answer cards, hovered rows */
+  --line: #e4e4e7; /* borders */
+  --muted: #71717a; /* secondary text */
+  --accent: #2563eb; /* the user's messages, buttons, bars */
+  --accent-foreground: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0b0b0d;
+    --foreground: #ececee;
+    --surface: #18181b;
+    --line: #2e2e33;
+    --muted: #a1a1aa;
+    --accent: #3b82f6;
+    --accent-foreground: #ffffff;
+  }
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-line: var(--line);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
 }
 
 /* Assistant answers rendered from Markdown. Tailwind's reset removes list and heading styles, so restore the basics. */
 .markdown > * + * {
-  margin-top: 0.5rem;
+  margin-top: 0.6rem;
 }
 .markdown ul {
   list-style: disc;
@@ -36,6 +52,9 @@ body {
 .markdown ol {
   list-style: decimal;
   padding-left: 1.25rem;
+}
+.markdown li + li {
+  margin-top: 0.25rem;
 }
 .markdown h1,
 .markdown h2,
@@ -48,4 +67,14 @@ body {
 .markdown code {
   font-family: var(--font-mono);
   font-size: 0.9em;
+}
+.markdown table {
+  border-collapse: collapse;
+  font-size: 0.9em;
+}
+.markdown th,
+.markdown td {
+  border: 1px solid var(--line);
+  padding: 0.25rem 0.5rem;
+  text-align: left;
 }

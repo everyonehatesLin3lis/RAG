@@ -22,7 +22,16 @@ type Message = {
   // Phase 25: set while the answer is still streaming in
   streaming?: boolean;
   status?: string; // progress ("Searching reviews…") or a note under the answer ("Stopped")
+  restored?: boolean; // Phase 26: loaded from history after a reload (text only, no panels)
 };
+
+// Phase 26: shown on an empty chat; one click asks it. Each one exercises a different part of the system.
+const EXAMPLES = [
+  { label: "Compare two films", text: "Which is rated higher, Zodiac or Prisoners?" },
+  { label: "Recommend", text: "Recommend a slow-burning thriller and explain why critics liked it." },
+  { label: "What critics say", text: "What do reviewers say about the acting in Black Swan?" },
+  { label: "Filter the database", text: "Which thrillers since 2010 are rated above 7.5 on IMDb?" },
+];
 
 type ErrorResponse = { error: { code: string; message: string } };
 
@@ -109,7 +118,7 @@ async function loadConversation(id: string): Promise<Message[]> {
     const res = await fetch(`${API_BASE_URL}/api/conversations/${id}`);
     if (!res.ok) return []; // 404: nothing saved yet for this id
     const body = (await res.json()) as StoredConversation;
-    return body.messages.map((m) => ({ role: m.role, content: m.content }));
+    return body.messages.map((m) => ({ role: m.role, content: m.content, restored: true }));
   } catch {
     return [];
   }
@@ -150,9 +159,12 @@ export default function Home() {
     setError(null);
   }
 
-  async function handleSubmit(event: FormEvent) {
+  function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    const text = input.trim();
+    send(input.trim());
+  }
+
+  async function send(text: string) {
     if (!text || loading || !conversationId) return;
 
     // Phase 25: an empty assistant message that the stream fills in.
@@ -220,90 +232,138 @@ export default function Home() {
     }
   }
 
+  const restoredCount = messages.filter((m) => m.restored).length;
+
+  // Phase 26 layout: a fixed header and composer, and only the conversation scrolls between them.
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-4 py-6">
-      <header className="mb-4 flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold">Movie Research Copilot</h1>
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">Ask anything about movies.</p>
-        </div>
-        <button
-          type="button"
-          onClick={startNewChat}
-          disabled={loading}
-          className="shrink-0 rounded-lg border border-zinc-300 px-3 py-1.5 text-sm disabled:opacity-50 dark:border-zinc-700"
-        >
-          New chat
-        </button>
-      </header>
-
-      <section className="flex flex-1 flex-col gap-3 overflow-y-auto pb-4" aria-live="polite">
-        {messages.length === 0 && !loading && (
-          <p className="mt-8 text-center text-zinc-500">Try: &ldquo;Recommend me a slow-burning thriller.&rdquo;</p>
-        )}
-
-        {messages.map((msg, i) =>
-          msg.role === "user" ? (
-            <div key={i} className="max-w-[85%] self-end whitespace-pre-wrap rounded-2xl bg-blue-600 px-4 py-2 text-white">
-              {msg.content}
-            </div>
-          ) : (
-            <div key={i} className="flex flex-col">
-              {/* react-markdown builds React elements and does not render raw HTML, so model output cannot inject markup. */}
-              <div className="markdown max-w-[85%] self-start rounded-2xl bg-zinc-100 px-4 py-2 dark:bg-zinc-800">
-                {msg.content ? <ReactMarkdown>{msg.content}</ReactMarkdown> : null}
-                {msg.status && (
-                  <p className={`text-sm text-zinc-500 ${msg.streaming ? "animate-pulse" : ""}`}>{msg.status}</p>
-                )}
-              </div>
-              <ToolCallList calls={msg.toolCalls ?? []} via={msg.debug?.tool_backend} />
-              <SourceList sources={msg.sources ?? []} />
-              <RagPanel debug={msg.debug} />
-              <UsagePanel usage={msg.usage} />
-            </div>
-          ),
-        )}
-
-        {error && (
-          <div
-            role="alert"
-            className="self-stretch rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300"
-          >
-            {error}
+    <div className="flex h-dvh flex-col">
+      <header className="border-b border-line">
+        <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-4 px-4 py-3">
+          <div className="min-w-0">
+            <h1 className="text-lg font-semibold tracking-tight">Movie Research Copilot</h1>
+            <p className="truncate text-xs text-muted">
+              Answers from critic reviews and movie data, with sources
+            </p>
           </div>
-        )}
-
-        <div ref={bottomRef} />
-      </section>
-
-      <form onSubmit={handleSubmit} className="sticky bottom-0 flex gap-2 bg-background pt-2">
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask about a movie…"
-          maxLength={2000}
-          disabled={loading}
-          aria-label="Message"
-          className="min-w-0 flex-1 rounded-lg border border-zinc-300 bg-transparent px-3 py-2 outline-none focus:border-blue-600 disabled:opacity-60 dark:border-zinc-700"
-        />
-        {loading ? (
           <button
             type="button"
-            onClick={() => abortRef.current?.abort()}
-            className="rounded-lg border border-zinc-300 px-4 py-2 font-medium dark:border-zinc-700"
+            onClick={startNewChat}
+            disabled={loading}
+            className="shrink-0 rounded-lg border border-line px-3 py-1.5 text-sm hover:bg-surface disabled:opacity-50"
           >
-            Stop
+            New chat
           </button>
-        ) : (
-          <button
-            type="submit"
-            disabled={!input.trim() || !conversationId}
-            className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white disabled:opacity-50"
-          >
-            Send
-          </button>
-        )}
-      </form>
-    </main>
+        </div>
+      </header>
+
+      <main className="min-h-0 flex-1 overflow-y-auto">
+        <div className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-4 py-6" aria-live="polite">
+          {messages.length === 0 && !loading && (
+            <div className="mt-6 text-center sm:mt-12">
+              <h2 className="text-xl font-semibold tracking-tight">What do you want to know about a movie?</h2>
+              <p className="mx-auto mt-2 max-w-md text-sm text-muted">
+                Answers are written from 9,987 Rotten Tomatoes critic reviews and IMDb data on 500 films. Exact
+                numbers come from database tools, and every answer lists its sources.
+              </p>
+              <div className="mx-auto mt-6 grid max-w-xl gap-2 text-left sm:grid-cols-2">
+                {EXAMPLES.map((example) => (
+                  <button
+                    key={example.text}
+                    type="button"
+                    onClick={() => send(example.text)}
+                    disabled={!conversationId}
+                    className="rounded-lg border border-line px-3 py-2 text-left text-sm hover:bg-surface disabled:opacity-50"
+                  >
+                    <span className="block text-xs text-muted">{example.label}</span>
+                    {example.text}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {messages.map((msg, i) => (
+            <div key={i} className="flex flex-col">
+              {msg.role === "user" ? (
+                <div className="max-w-[85%] self-end whitespace-pre-wrap rounded-2xl bg-accent px-4 py-2 text-accent-foreground">
+                  {msg.content}
+                </div>
+              ) : (
+                <article className="flex flex-col">
+                  {/* react-markdown builds React elements and does not render raw HTML, so model output cannot inject markup. */}
+                  <div className="markdown rounded-2xl bg-surface px-4 py-3 leading-relaxed">
+                    {msg.content ? <ReactMarkdown>{msg.content}</ReactMarkdown> : null}
+                    {msg.status && (
+                      <p className={`flex items-center gap-2 text-sm text-muted ${msg.streaming ? "animate-pulse" : ""}`}>
+                        {msg.streaming && <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />}
+                        {msg.status}
+                      </p>
+                    )}
+                  </div>
+                  {/* The plan's order: sources, then the collapsible RAG process, tool calls and token usage / cost. */}
+                  <SourceList sources={msg.sources ?? []} />
+                  {!msg.restored && (msg.debug || msg.usage) && (
+                    <div className="mt-3 overflow-hidden rounded-lg border border-line">
+                      <RagPanel debug={msg.debug} />
+                      <ToolCallList calls={msg.toolCalls ?? []} via={msg.debug?.tool_backend} />
+                      <UsagePanel usage={msg.usage} />
+                    </div>
+                  )}
+                </article>
+              )}
+              {msg.restored && i === restoredCount - 1 && (
+                <p className="mt-5 flex items-center gap-3 text-xs text-muted">
+                  <span className="h-px flex-1 bg-line" />
+                  Earlier messages: text only. Sources and details are shown for new answers.
+                  <span className="h-px flex-1 bg-line" />
+                </p>
+              )}
+            </div>
+          ))}
+
+          {error && (
+            <div
+              role="alert"
+              className="rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300"
+            >
+              {error}
+            </div>
+          )}
+
+          <div ref={bottomRef} />
+        </div>
+      </main>
+
+      <footer className="border-t border-line">
+        <form onSubmit={handleSubmit} className="mx-auto flex w-full max-w-3xl gap-2 px-4 py-3">
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Ask about a movie…"
+            maxLength={2000}
+            disabled={loading}
+            aria-label="Message"
+            className="min-w-0 flex-1 rounded-lg border border-line bg-transparent px-3 py-2 outline-none focus:border-accent disabled:opacity-60"
+          />
+          {loading ? (
+            <button
+              type="button"
+              onClick={() => abortRef.current?.abort()}
+              className="rounded-lg border border-line px-4 py-2 font-medium hover:bg-surface"
+            >
+              Stop
+            </button>
+          ) : (
+            <button
+              type="submit"
+              disabled={!input.trim() || !conversationId}
+              className="rounded-lg bg-accent px-4 py-2 font-medium text-accent-foreground disabled:opacity-50"
+            >
+              Send
+            </button>
+          )}
+        </form>
+      </footer>
+    </div>
   );
 }

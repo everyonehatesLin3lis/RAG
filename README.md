@@ -37,7 +37,8 @@ found, and why each decision went the way it did. The full plan is in [`EXECUTIO
 | 23 | Dataset scaled to 50k–100k+ reviews | postponed by the developer |
 | 24 | MCP server: the 4 tools behind MCP (stdio), tested on its own, connected to LangChain | done |
 | 25 | Streaming: the answer appears while it is written (SSE), with progress, live tool calls and a Stop button | done |
-| 26–31 | Final UI, error handling, testing, final evaluation, README, review | to do |
+| 26 | Final UI: fixed header and input, sources shown under each answer, RAG process / tool calls / token usage as collapsible panels, example questions, dark mode, phone width | done |
+| 27–31 | Error handling, testing, final evaluation, README, review | to do |
 
 ## How it works today
 
@@ -59,8 +60,8 @@ Browser (Next.js chat page, conversation id kept in localStorage)
   → save the question and answer to PostgreSQL, append one line to logs/requests.jsonl
   → Server-Sent Events while this happens: status ("Searching reviews…"), tool_call, token (answer text as it is
     written), then sources, metadata (debug, usage, tool calls) and done
-  → the page grows the answer as Markdown, then shows "Tool calls", "Sources (8)", "RAG process" and
-    "Tokens & cost" as collapsible panels under it
+  → the page grows the answer as Markdown, shows the sources under it (3 cards, "Show all 8"), then the
+    collapsible "RAG process", "Tool calls" and "Token usage / cost" panels, each with a one-line summary
 
 Offline pipeline (scripts/):
   Hugging Face files → inspect → select subset → ingest into PostgreSQL → chunk → embed into pgvector
@@ -425,6 +426,30 @@ Implementation choices that follow:
   before). Questions about director, cast or runtime are not forced through it: the movie's profile source states them
   exactly, and an extra tool round costs time.
 
+### Final UI: the plan's screen (Phase 26)
+
+The plan's main screen is the answer, its sources, then ▸ RAG Process, ▸ Tool Calls and ▸ Token Usage / Cost, with the
+debug information collapsible. Decisions, all made by the developer after the options were explained:
+
+| Decision | Chosen | Alternative and why not |
+|---|---|---|
+| Sources | **visible under every answer**: the first 3 as small cards (movie, critic, 3-line excerpt, link), "Show all 8" | a closed panel like the others: shorter, but citations are what makes an answer checkable, and the plan's mockup does not draw Sources as a ▸ panel |
+| Panel order | **the plan's**: RAG process, Tool calls, Token usage / cost | Tool calls first (Phase 13's choice): a tool result is often the answer, but the plan's order follows the pipeline (retrieval, then tools, then the bill) |
+| Answers after a reload | **text only**, with a divider "Earlier messages: text only" | store sources, tool calls, debug and usage per message (a migration and a JSONB column): more complete, but the panels describe the answer just received |
+
+What else changed, and why:
+- **One frame that does not move.** The header and the input stay in place and only the conversation scrolls. Before,
+  the page and the message list both scrolled, so the title scrolled away and long panels left blank screens.
+- **Closed panels still say something.** Each shows a one-line summary: "hybrid search · 8 chunks to the model · 2.0 s",
+  "1 call · via MCP server" (or "none", which says the model answered from the sources alone), "6,620 tokens ·
+  $0.000373". They share one component (`frontend/app/Panel.tsx`), so they look and behave the same.
+- **An empty chat explains itself:** what the answers are based on (9,987 reviews, 500 films, database tools) and four
+  example questions, one per kind of work the system does (comparison, recommendation, critics' opinions, filtering).
+- **Colours as named tokens** (`surface`, `line`, `muted`, `accent` in `globals.css`) with a dark set, and the Geist font
+  the layout loads (an Arial rule in the stylesheet had been overriding it since Phase 0).
+- **Checked:** light and dark, desktop and phone width (375 px: nothing wider than the screen, even with every panel
+  open), streaming, the empty state and the reloaded-history divider.
+
 ### Streaming over SSE (Phase 25)
 
 **What it is.** Without streaming the page waits for the whole answer, then shows it at once. With streaming the
@@ -518,7 +543,8 @@ Choices made while building (defaults the developer can change):
 
 ### Tool visualisation: what the "Tool calls" panel shows (Phase 13)
 
-When the model used a tool, a collapsible **Tool calls** panel appears first under the answer, one card per call,
+When the model used a tool, the collapsible **Tool calls** panel (first under the answer until Phase 26, now after the
+RAG process, as in the plan's final screen) shows one card per call,
 in the plan's layout: **Tool used**, **Arguments**, **Result**. Choices made while building (defaults the developer
 can change):
 - **A readable view per tool:** `compare_movies` as a small table plus which is rated higher; `filter_movies` as the
@@ -1148,6 +1174,14 @@ Measured through the stream endpoint with a small client (real answers, about $0
   token) still finishes and is paid for. Measured: Stop at about 3 s, pipeline stopped at 9.7 s, nothing stored.
 - While measuring, one query translation failed and fell back to the original question (logged as `fallback`); that
   request then had no translation cost because the failed call reported none.
+
+### Final UI (Phase 26)
+
+- Seen while checking the page: for "Which is rated higher, Zodiac or Prisoners?" the vector search returned only Zodiac
+  reviews in its top 10, and keyword search put the *American History X* profile first: full-text search stems the keyword "Prisoners" to
+  "prison", which that profile mentions four times.
+  The answer was right because it came from `compare_movies`, but it shows both known retrieval weaknesses on one
+  screen: comparisons dominated by one film (Phase 21's skipped fix B) and keyword noise (hybrid's lower precision).
 
 ### Environment (Windows)
 

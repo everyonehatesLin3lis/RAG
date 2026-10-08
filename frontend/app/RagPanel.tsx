@@ -1,3 +1,5 @@
+import Panel from "./Panel";
+
 // Phase 12: shows what retrieval did for one answer. Data comes from the `debug` object of /api/chat.
 
 export type VectorResult = {
@@ -81,16 +83,18 @@ export default function RagPanel({ debug }: { debug: RagDebug | null | undefined
   const selected = new Set(debug.selected_chunks);
   const vectorIds = new Set(debug.vector_results.map((r) => r.chunk_id));
   const filters = formatFilters(debug.filters ?? {});
+  const t = debug.timings_ms;
+  const retrievalMs = (t.translation ?? 0) + (t.embedding_and_search ?? 0) + (t.keyword_search ?? 0);
+  const meta = `${debug.strategy} search · ${debug.selected_chunks.length} chunks to the model · ${seconds(retrievalMs)}`;
 
   return (
-    <details className="mt-2 max-w-[85%] self-start text-sm">
-      <summary className="cursor-pointer select-none text-zinc-600 dark:text-zinc-400">RAG process</summary>
-      <div className="mt-2 flex flex-col gap-3 rounded-lg border border-zinc-200 px-3 py-3 dark:border-zinc-700">
+    <Panel title="RAG process" meta={meta}>
+      <div className="flex flex-col gap-3">
         <section>
           <h3 className="font-medium">1. Your question</h3>
-          <p className="text-zinc-700 dark:text-zinc-300">{debug.original_query}</p>
+          <p className="text-foreground/85">{debug.original_query}</p>
           {debug.history_messages > 0 && (
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-muted">
               {debug.history_messages} earlier message{debug.history_messages === 1 ? "" : "s"} from this
               conversation were included.
             </p>
@@ -99,49 +103,49 @@ export default function RagPanel({ debug }: { debug: RagDebug | null | undefined
 
         <section>
           <h3 className="font-medium">2. Search query</h3>
-          <p className="text-zinc-700 dark:text-zinc-300">{debug.translated_query}</p>
-          <p className="text-xs text-zinc-500">{ORIGIN_LABEL[debug.translation_origin] ?? debug.translation_origin}</p>
+          <p className="text-foreground/85">{debug.translated_query}</p>
+          <p className="text-xs text-muted">{ORIGIN_LABEL[debug.translation_origin] ?? debug.translation_origin}</p>
           {debug.keywords.length > 0 && (
             <p className="mt-1 flex flex-wrap gap-1">
               {debug.keywords.map((k) => (
-                <span key={k} className="rounded bg-zinc-100 px-1.5 py-0.5 text-xs dark:bg-zinc-800">
+                <span key={k} className="rounded bg-surface px-1.5 py-0.5 text-xs">
                   {k}
                 </span>
               ))}
             </p>
           )}
-          {filters && <p className="mt-1 text-xs text-zinc-500">Filters (not applied yet): {filters}</p>}
+          {filters && <p className="mt-1 text-xs text-muted">Filters (not applied yet): {filters}</p>}
         </section>
 
         <section>
           <h3 className="font-medium">3. Vector search: {debug.vector_results.length} closest chunks</h3>
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-muted">
             Similarity = 1 − cosine distance between the search query&apos;s embedding and each chunk&apos;s.
           </p>
           <ol className="mt-1 flex flex-col gap-1">
             {debug.vector_results.map((r) => (
               <li key={r.chunk_id} className="flex items-start gap-2">
-                <span className="w-5 shrink-0 text-right text-xs text-zinc-500">{r.rank}</span>
+                <span className="w-5 shrink-0 text-right text-xs text-muted">{r.rank}</span>
                 <span className="w-24 shrink-0" title={`distance ${r.distance}`}>
-                  <span className="block h-1.5 rounded bg-zinc-200 dark:bg-zinc-700">
+                  <span className="block h-1.5 rounded bg-line">
                     <span
-                      className="block h-1.5 rounded bg-blue-600"
+                      className="block h-1.5 rounded bg-accent"
                       style={{ width: `${Math.max(0, Math.min(1, r.similarity)) * 100}%` }}
                     />
                   </span>
-                  <span className="text-xs text-zinc-500">{r.similarity.toFixed(3)}</span>
+                  <span className="text-xs text-muted">{r.similarity.toFixed(3)}</span>
                 </span>
                 <span className="min-w-0">
                   <span className="font-medium">
                     {r.movie}
                     {r.year ? ` (${r.year})` : ""}
                   </span>
-                  <span className="text-zinc-500">
+                  <span className="text-muted">
                     {" "}
                     · {r.doc_type === "profile" ? "movie profile" : r.critic ?? "review"} · chunk {r.chunk_id}
                     {selected.has(r.chunk_id) ? " · sent to the model" : ""}
                   </span>
-                  <span className="block truncate text-xs text-zinc-600 dark:text-zinc-400">{r.excerpt}</span>
+                  <span className="block truncate text-xs text-muted">{r.excerpt}</span>
                 </span>
               </li>
             ))}
@@ -150,20 +154,20 @@ export default function RagPanel({ debug }: { debug: RagDebug | null | undefined
 
         <section>
           <h3 className="font-medium">4. Keyword search: {debug.keyword_results.length} full-text matches</h3>
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-muted">
             PostgreSQL full-text search for the keywords above (each as a phrase, word stems matched).
             {debug.strategy === "hybrid"
               ? " Merged with the vector results in step 5."
               : " Not used: the retrieval strategy is vector-only."}
           </p>
           {debug.keyword_results.length === 0 ? (
-            <p className="text-xs text-zinc-500">No keywords, or no chunk contains them.</p>
+            <p className="text-xs text-muted">No keywords, or no chunk contains them.</p>
           ) : (
             <ol className="mt-1 flex flex-col gap-1">
               {debug.keyword_results.map((r) => (
                 <li key={r.chunk_id} className="flex items-start gap-2">
-                  <span className="w-5 shrink-0 text-right text-xs text-zinc-500">{r.rank}</span>
-                  <span className="w-12 shrink-0 text-xs text-zinc-500" title="ts_rank_cd, normalised 0..1">
+                  <span className="w-5 shrink-0 text-right text-xs text-muted">{r.rank}</span>
+                  <span className="w-12 shrink-0 text-xs text-muted" title="ts_rank_cd, normalised 0..1">
                     {r.score.toFixed(3)}
                   </span>
                   <span className="min-w-0">
@@ -171,12 +175,12 @@ export default function RagPanel({ debug }: { debug: RagDebug | null | undefined
                       {r.movie}
                       {r.year ? ` (${r.year})` : ""}
                     </span>
-                    <span className="text-zinc-500">
+                    <span className="text-muted">
                       {" "}
                       · {r.doc_type === "profile" ? "movie profile" : r.critic ?? "review"} · chunk {r.chunk_id}
                       {vectorIds.has(r.chunk_id) ? " · also found by vector search" : ""}
                     </span>
-                    <span className="block truncate text-xs text-zinc-600 dark:text-zinc-400">{r.excerpt}</span>
+                    <span className="block truncate text-xs text-muted">{r.excerpt}</span>
                   </span>
                 </li>
               ))}
@@ -187,21 +191,21 @@ export default function RagPanel({ debug }: { debug: RagDebug | null | undefined
         {debug.strategy === "hybrid" && debug.fused_results.length > 0 && (
           <section>
             <h3 className="font-medium">5. Hybrid fusion: what the model received</h3>
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-muted">
               Reciprocal Rank Fusion: each chunk scores 1 / (60 + rank) in every list it appears in, added up. Found high
               by both searches beats found by one. The top {debug.selected_chunks.length} were sent to the model.
             </p>
             <ol className="mt-1 flex flex-col gap-1">
               {debug.fused_results.map((r) => (
                 <li key={r.chunk_id} className={`flex items-start gap-2 ${r.selected ? "" : "opacity-50"}`}>
-                  <span className="w-5 shrink-0 text-right text-xs text-zinc-500">{r.rank}</span>
-                  <span className="w-14 shrink-0 text-xs text-zinc-500">{r.fused_score.toFixed(4)}</span>
+                  <span className="w-5 shrink-0 text-right text-xs text-muted">{r.rank}</span>
+                  <span className="w-14 shrink-0 text-xs text-muted">{r.fused_score.toFixed(4)}</span>
                   <span className="min-w-0">
                     <span className="font-medium">
                       {r.movie}
                       {r.year ? ` (${r.year})` : ""}
                     </span>
-                    <span className="text-zinc-500">
+                    <span className="text-muted">
                       {" "}
                       · {r.vector_rank ? `vector #${r.vector_rank}` : ""}
                       {r.vector_rank && r.keyword_rank ? " + " : ""}
@@ -217,7 +221,7 @@ export default function RagPanel({ debug }: { debug: RagDebug | null | undefined
 
         <section>
           <h3 className="font-medium">{debug.strategy === "hybrid" ? "6" : "5"}. Time</h3>
-          <ul className="text-xs text-zinc-600 dark:text-zinc-400">
+          <ul className="text-xs text-muted">
             {Object.entries(debug.timings_ms).map(([step, ms]) => (
               <li key={step}>
                 {TIMING_LABEL[step] ?? step}: {seconds(ms)}
@@ -226,6 +230,6 @@ export default function RagPanel({ debug }: { debug: RagDebug | null | undefined
           </ul>
         </section>
       </div>
-    </details>
+    </Panel>
   );
 }

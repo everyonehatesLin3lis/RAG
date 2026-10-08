@@ -1,5 +1,7 @@
 // Phase 14: tokens and cost for one answer, from `usage` in /api/chat.
 
+import Panel from "./Panel";
+
 export type ModelUsage = {
   model: string;
   calls: number;
@@ -40,13 +42,10 @@ export default function UsagePanel({ usage }: { usage: Usage | null | undefined 
   if (!usage || usage.by_model.length === 0) return null;
 
   return (
-    <details className="mt-2 max-w-[85%] self-start text-sm">
-      <summary className="cursor-pointer select-none text-zinc-600 dark:text-zinc-400">
-        Tokens &amp; cost: {n(usage.total_tokens)} tokens · {dollars(usage.estimated_cost_usd)}
-      </summary>
-      <div className="mt-2 rounded-lg border border-zinc-200 px-3 py-2 dark:border-zinc-700">
+    <Panel title="Token usage / cost" meta={`${n(usage.total_tokens)} tokens · ${dollars(usage.estimated_cost_usd)}`}>
+      <div>
         <table className="w-full text-left text-xs">
-          <thead className="text-zinc-500">
+          <thead className="text-muted">
             <tr>
               <th className="pr-2 font-normal">Model</th>
               <th className="pr-2 font-normal">Calls</th>
@@ -62,15 +61,15 @@ export default function UsagePanel({ usage }: { usage: Usage | null | undefined 
                 <td className="pr-2">{m.calls}</td>
                 <td className="pr-2">
                   {n(m.input_tokens)}
-                  {m.cached_input_tokens > 0 && <div className="text-zinc-500">{n(m.cached_input_tokens)} cached</div>}
+                  {m.cached_input_tokens > 0 && <div className="text-muted">{n(m.cached_input_tokens)} cached</div>}
                 </td>
                 <td className="pr-2">
                   {n(m.output_tokens)}
-                  {m.reasoning_tokens > 0 && <div className="text-zinc-500">{n(m.reasoning_tokens)} reasoning</div>}
+                  {m.reasoning_tokens > 0 && <div className="text-muted">{n(m.reasoning_tokens)} reasoning</div>}
                 </td>
                 <td>
                   {dollars(m.cost_usd)}
-                  <div className="text-zinc-500">{SOURCE_LABEL[m.cost_source] ?? m.cost_source}</div>
+                  <div className="text-muted">{SOURCE_LABEL[m.cost_source] ?? m.cost_source}</div>
                 </td>
               </tr>
             ))}
@@ -85,11 +84,11 @@ export default function UsagePanel({ usage }: { usage: Usage | null | undefined 
             </tr>
           </tfoot>
         </table>
-        <p className="mt-2 text-xs text-zinc-500">
+        <p className="mt-2 text-xs text-muted">
           Most of the input is context, not your question: system rules, recent history and the retrieved sources,
           sent again on every model round. Cached input is served from the provider&apos;s prompt cache at a discount.
         </p>
       </div>
-    </details>
+    </Panel>
   );
 }

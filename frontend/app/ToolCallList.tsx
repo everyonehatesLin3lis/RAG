@@ -1,3 +1,5 @@
+import Panel from "./Panel";
+
 // Phase 13: shows each tool call the model made (tool, arguments, result), from `tool_calls` in /api/chat.
 
 export type ToolCall = {
@@ -40,7 +42,7 @@ function CompareResult({ result }: { result: { movies: Movie[]; higher_imdb_rati
   return (
     <div>
       <table className="w-full text-left text-xs">
-        <thead className="text-zinc-500">
+        <thead className="text-muted">
           <tr>
             <th className="pr-2 font-normal">Movie</th>
             <th className="pr-2 font-normal">IMDb</th>
@@ -71,7 +73,7 @@ function CompareResult({ result }: { result: { movies: Movie[]; higher_imdb_rati
 function FilterResult({ result }: { result: { total_matches: number; returned: number; movies: Movie[] } }) {
   return (
     <div>
-      <div className="text-xs text-zinc-500">
+      <div className="text-xs text-muted">
         {result.total_matches} match{result.total_matches === 1 ? "" : "es"}, showing the best {result.returned} by IMDb rating
       </div>
       <ol className="mt-1 list-decimal pl-5 text-xs">
@@ -108,14 +110,14 @@ function SummaryResult({
       <div className="mt-1 flex flex-col gap-0.5">
         {Object.entries(result.rating_distribution).map(([bucket, count]) => (
           <div key={bucket} className="flex items-center gap-2">
-            <span className="w-10 text-zinc-500">{bucket}</span>
-            <span className="h-1.5 rounded bg-blue-600" style={{ width: `${(count / max) * 8}rem` }} />
-            <span className="text-zinc-500">{count}</span>
+            <span className="w-10 text-muted">{bucket}</span>
+            <span className="h-1.5 rounded bg-accent" style={{ width: `${(count / max) * 8}rem` }} />
+            <span className="text-muted">{count}</span>
           </div>
         ))}
-        {result.unrated_reviews > 0 && <div className="text-zinc-500">no score: {result.unrated_reviews}</div>}
+        {result.unrated_reviews > 0 && <div className="text-muted">no score: {result.unrated_reviews}</div>}
       </div>
-      <div className="mt-1 text-zinc-500">{result.note}</div>
+      <div className="mt-1 text-muted">{result.note}</div>
     </div>
   );
 }
@@ -149,7 +151,7 @@ function MetadataResult({ result }: { result: Metadata }) {
         <tbody>
           {rows.map(([k, v]) => (
             <tr key={k}>
-              <td className="pr-3 align-top text-zinc-500">{k}</td>
+              <td className="pr-3 align-top text-muted">{k}</td>
               <td>{v}</td>
             </tr>
           ))}
@@ -181,30 +183,36 @@ function formatArguments(args: Record<string, unknown>): string {
 
 // `via` is debug.tool_backend: "mcp" when the tools ran on the MCP server (Phase 24), "local" when in-process.
 export default function ToolCallList({ calls, via }: { calls: ToolCall[]; via?: string }) {
-  if (calls.length === 0) return null;
   const seen = new Set<string>();
+  const path = via === "mcp" ? " · via MCP server" : via === "local" ? " · local tools" : "";
+  const meta = calls.length === 0 ? "none" : `${calls.length} call${calls.length === 1 ? "" : "s"}${path}`;
+
+  if (calls.length === 0) {
+    return (
+      <Panel title="Tool calls" meta={meta}>
+        <p className="text-muted">The model answered from the sources without calling a tool.</p>
+      </Panel>
+    );
+  }
 
   return (
-    <details className="mt-2 max-w-[85%] self-start text-sm">
-      <summary className="cursor-pointer select-none text-zinc-600 dark:text-zinc-400">
-        Tool calls ({calls.length}){via === "mcp" ? " · via MCP server" : via === "local" ? " · local tools" : ""}
-      </summary>
-      <ol className="mt-2 flex flex-col gap-2">
+    <Panel title="Tool calls" meta={meta}>
+      <ol className="flex flex-col gap-2">
         {calls.map((call, i) => {
           const key = `${call.tool}:${JSON.stringify(call.arguments)}`;
           const repeated = seen.has(key);
           seen.add(key);
           return (
-            <li key={i} className="rounded-lg border border-zinc-200 px-3 py-2 dark:border-zinc-700">
-              <div className="text-xs text-zinc-500">Tool used{repeated ? " · same call repeated by the model" : ""}</div>
+            <li key={i} className="rounded-lg border border-line px-3 py-2">
+              <div className="text-xs text-muted">Tool used{repeated ? " · same call repeated by the model" : ""}</div>
               <div className="font-mono font-medium">{call.tool}</div>
-              <div className="mt-1 text-xs text-zinc-500">Arguments</div>
+              <div className="mt-1 text-xs text-muted">Arguments</div>
               <div className="font-mono text-xs">{formatArguments(call.arguments)}</div>
-              <div className="mt-1 text-xs text-zinc-500">Result</div>
+              <div className="mt-1 text-xs text-muted">Result</div>
               <Result call={call} />
               <details className="mt-1 text-xs">
-                <summary className="cursor-pointer select-none text-zinc-500">raw JSON (what the model received)</summary>
-                <pre className="mt-1 overflow-x-auto rounded bg-zinc-100 p-2 dark:bg-zinc-900">
+                <summary className="cursor-pointer select-none text-muted">raw JSON (what the model received)</summary>
+                <pre className="mt-1 overflow-x-auto rounded bg-surface p-2">
                   {JSON.stringify({ arguments: call.arguments, result: call.result }, null, 2)}
                 </pre>
               </details>
@@ -212,6 +220,6 @@ export default function ToolCallList({ calls, via }: { calls: ToolCall[]; via?: 
           );
         })}
       </ol>
-    </details>
+    </Panel>
   );
 }
