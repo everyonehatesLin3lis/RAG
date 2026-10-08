@@ -8,14 +8,15 @@ from uuid import UUID
 from fastapi import Depends, FastAPI
 from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from app import history, mcp_client, rag, request_log
+from app import history, mcp_client, rag, request_log, streaming
 from app.config import get_settings
 from app.db import get_session
-from app.errors import AppError, register_error_handlers
+from app.errors import AppError, ClientDisconnected, register_error_handlers
 from app.models import Conversation
 from app.retrieval import RetrievedChunk
 from app.schemas import (
@@ -81,6 +82,20 @@ def chat(request: ChatRequest, session: Session = Depends(get_session)) -> ChatR
     return answer_in_conversation(session, request.conversation_id, request.message)
 
 
+# Phase 25: the same answer as /api/chat, sent as Server-Sent Events while it is produced (app/streaming.py).
+# Invalid input is still rejected with the normal JSON error before the stream starts.
+@app.post("/api/chat/stream")
+async def chat_stream(request: ChatRequest, session: Session = Depends(get_session)) -> StreamingResponse:
+    def run(emit):
+        return answer_in_conversation(session, request.conversation_id, request.message, on_event=emit)
+
+    return StreamingResponse(
+        streaming.chat_events(run),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},  # no proxy may hold the events back
+    )
+
+
 # Phase 11 conversation endpoints (the plan's proposed API). /api/chat stays the main entry point.
 @app.post("/api/conversations", response_model=ConversationOut, status_code=201)
 def create_conversation(session: Session = Depends(get_session)) -> ConversationOut:
@@ -109,18 +124,28 @@ def post_message(conversation_id: UUID, request: MessageRequest, session: Sessio
     return answer_in_conversation(session, conversation_id, request.message)
 
 
-def answer_in_conversation(session: Session, conversation_id: UUID | None, message: str) -> ChatResponse:
+def answer_in_conversation(
+    session: Session, conversation_id: UUID | None, message: str, on_event=None
+) -> ChatResponse:
     """Load recent history, answer with it, then store the new question and answer together.
-    Phase 15: every request, answered or failed, writes one line to the request log."""
+    Phase 15: every request, answered or failed, writes one line to the request log.
+    Phase 25: on_event receives the streaming events; a closed stream stores nothing."""
     started = perf_counter()
     logged_id = str(conversation_id) if conversation_id else None
     try:
         conversation = history.get_or_create_conversation(session, conversation_id)
         logged_id = str(conversation.id)
         past = history.recent_turns(session, conversation.id)
-        result = rag.answer_question(message, session, past)
+        if on_event is None:
+            result = rag.answer_question(message, session, past)
+        else:
+            result = rag.answer_question(message, session, past, on_event=on_event)
         history.save_exchange(session, conversation.id, message, result.answer)
         session.commit()
+    except ClientDisconnected:
+        session.rollback()  # nothing of this exchange is kept
+        request_log.write(request_log.disconnected_entry(logged_id, message, _ms_since(started)))
+        raise
     except AppError as exc:
         request_log.write(request_log.error_entry(logged_id, message, exc.code, _ms_since(started)))
         raise

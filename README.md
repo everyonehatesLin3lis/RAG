@@ -36,13 +36,14 @@ found, and why each decision went the way it did. The full plan is in [`EXECUTIO
 | 22 | PostgreSQL moved to Google Cloud SQL | postponed by the developer |
 | 23 | Dataset scaled to 50k–100k+ reviews | postponed by the developer |
 | 24 | MCP server: the 4 tools behind MCP (stdio), tested on its own, connected to LangChain | done |
-| 25–31 | Streaming, final UI, error handling, testing, final evaluation, README, review | to do |
+| 25 | Streaming: the answer appears while it is written (SSE), with progress, live tool calls and a Stop button | done |
+| 26–31 | Final UI, error handling, testing, final evaluation, README, review | to do |
 
 ## How it works today
 
 ```text
 Browser (Next.js chat page, conversation id kept in localStorage)
-  → POST /api/chat {"message", "conversation_id"}
+  → POST /api/chat/stream {"message", "conversation_id"}   (POST /api/chat: the same answer as one JSON response)
   → FastAPI validates the request (Pydantic)
   → load the last 6 messages of this conversation from PostgreSQL
   → query translation: one LLM call rewrites it (using that history to resolve "it") to
@@ -56,8 +57,10 @@ Browser (Next.js chat page, conversation id kept in localStorage)
       ↺ the model may ask for a tool → MCP client → MCP server (child process, stdio) → validates, runs the
         SQL query → result back to the model (max 3 rounds)
   → save the question and answer to PostgreSQL, append one line to logs/requests.jsonl
-  → {"answer", "sources", "tool_calls", "conversation_id", "debug", "usage"}: the answer rendered as Markdown,
-    then "Tool calls", "Sources (8)", "RAG process" and "Tokens & cost" as collapsible panels under it
+  → Server-Sent Events while this happens: status ("Searching reviews…"), tool_call, token (answer text as it is
+    written), then sources, metadata (debug, usage, tool calls) and done
+  → the page grows the answer as Markdown, then shows "Tool calls", "Sources (8)", "RAG process" and
+    "Tokens & cost" as collapsible panels under it
 
 Offline pipeline (scripts/):
   Hugging Face files → inspect → select subset → ingest into PostgreSQL → chunk → embed into pgvector
@@ -82,7 +85,7 @@ treated as data:
   own tag or fake a question block.
 - The retrieval SQL only receives the question's embedding as a bound parameter, never the question text.
 
-Still to come from the target architecture: streaming over SSE (Phase 25) and the move to Cloud SQL (postponed); see
+Still to come from the target architecture: the move to Cloud SQL (postponed); see
 [`CLAUDE.md`](CLAUDE.md#target-architecture).
 
 ## Stack
@@ -421,6 +424,57 @@ Implementation choices that follow:
 - **Fourth tool.** `get_movie_metadata`, named in the plan, answers single-film facts (a film's IMDb rating had no tool
   before). Questions about director, cast or runtime are not forced through it: the movie's profile source states them
   exactly, and an extra tool round costs time.
+
+### Streaming over SSE (Phase 25)
+
+**What it is.** Without streaming the page waits for the whole answer, then shows it at once. With streaming the
+backend keeps the HTTP response open and writes events into it as they happen, and the page shows each one as it
+arrives. Server-Sent Events (SSE) is the simplest standard for that: a normal HTTP response of type
+`text/event-stream` in which every event is a line `data: <json>` followed by a blank line. It only goes from server to
+browser, which is all a chat answer needs (WebSockets would add a two-way channel we do not use).
+
+**What streams.** The plan's events are `token`, `sources` and `done`. Measured before building: most of the wait comes
+*before* the first token (query translation, retrieval and especially tool rounds), so progress events were added:
+
+```text
+status     {"stage": "search", "message": "Searching reviews and movie data"}   (also translation, answer, tool)
+tool_call  {"tool", "arguments", "result"}                                       as each tool finishes
+token      {"content": "Prisoners"}                                               each piece of answer text
+sources    the 8 chunks given to the model (the plan's event)
+metadata   {"answer", "conversation_id", "tool_calls", "debug", "usage"}          everything /api/chat returns
+done       (the plan's event)
+error      {"error": {"code", "message"}}                                         failure after the stream started
+```
+
+Decisions, all made by the developer after the options were explained:
+
+| Decision | Chosen | Alternative and why not |
+|---|---|---|
+| Endpoint | **new `POST /api/chat/stream`**; `POST /api/chat` stays plain JSON, same pipeline | make `/api/chat` stream: the evaluation runner, the tests and any other client would all have to parse SSE |
+| Events | **the plan's three plus progress** (status, tool_call, metadata, error) | only the three: the page would show nothing for the 3–15 s before the first token |
+| Cost while streaming | **keep OpenRouter's reported cost** with a ~10-line `ChatOpenAI` subclass | estimate from tokens × price: computed instead of reported, which Phase 14 decided against |
+| Browser goes away | **stop at the next event, save nothing**, log `disconnected` | finish and save: pays for an answer nobody reads |
+
+How it is built, and why:
+- **Cost.** OpenRouter does send the cost in the last chunk of a stream (checked with the raw client), but LangChain
+  keeps only the token counts from that chunk. `llm.OpenRouterChat` overrides one method to keep the whole usage
+  block, so `usage` stays "reported". The same chunk repeats the model name, which LangChain's merge turned into
+  `xiaomi/mimo-v2.6-flashxiaomi/mimo-v2.6-flash`; the subclass records the name separately. This touches a LangChain
+  internal method; a test fails if an upgrade changes it.
+- **One pipeline, two outputs.** `rag.answer_question` and the tool loop take an optional `on_event` callback. Without
+  it nothing changes (`/api/chat` and the evaluation still make plain calls). With it every model round is streamed and
+  each step is reported.
+- **Blocking code in a streaming response.** The pipeline is ordinary blocking code (database, LLM, MCP), so it runs in
+  a worker thread and passes events to the async response through a queue (`app/streaming.py`).
+- **Errors after the start.** Once the first event is sent the HTTP status is already 200, so a later failure arrives
+  as an `error` event with the usual codes, and the page shows it like any other error. Invalid input is still rejected
+  with the normal JSON error before the stream starts.
+- **Stop.** The page has a Stop button. Closing the stream makes the worker's next event raise `ClientDisconnected`,
+  which stops the pipeline; nothing is stored and the page says "Stopped. This answer was not saved."
+- **Text before a tool call.** MiMo sometimes writes a sentence before calling a tool ("let me look up candidates…").
+  It has already been shown, so it stays in the answer as its own paragraph (the first version ran it into the answer).
+- **Reading the stream in the browser.** The browser's `EventSource` only does GET, and the question is a JSON POST, so
+  the page reads the response body with `fetch` and splits it into events itself (about 20 lines).
 
 ### Conversation history: what is remembered and how much is sent (Phase 11)
 
@@ -1057,6 +1111,43 @@ one, without the chatbot or any LLM:
   (Prisoners 8.2 vs Zodiac 7.7, Denis Villeneuve) in 3.8 s of generation. The tool definitions the model receives are
   identical to Phase 10's, so tool choice is unchanged by construction.
 - Found while testing: *Parasite* is not in the 500-film subset, so questions about it get `MOVIE_NOT_FOUND`.
+- **Does a fourth tool make the model call tools when it should not?** While testing Phase 25, "why do critics like X?"
+  sometimes triggered `rating_summary` and `get_movie_metadata`, each tool round adding 4–8 s. Measured on the 24
+  factual, opinion and plot evaluation questions ([`evaluation/results/hybrid-p24.json`](evaluation/results/hybrid-p24.json),
+  about $0.13) against the run with three tools:
+
+  | | 3 tools | 4 tools |
+  |---|---|---|
+  | Answers that called a tool | 1 of 24 | 3 of 24 (`get_movie_metadata` twice, `rating_summary` once) |
+  | Answer accuracy (factual / opinion / plot) | 1.00 / 0.94 / 1.00 | 1.00 / 1.00 / 1.00 |
+  | Median latency | 5.3–11.6 s | 12.9–21.3 s |
+
+  A small increase, with no loss of accuracy. The latency doubled on the 21 answers that called no tool as well, so
+  that is MiMo being slower on the day of the run, not the tool. The extra calls seen by hand were the model's
+  run-to-run variation. Kept as is.
+
+### Streaming (Phase 25)
+
+Measured through the stream endpoint with a small client (real answers, about $0.01 in total):
+
+| Question | First status | First text | Whole answer |
+|---|---|---|---|
+| Opinion, no tool ("acting in Black Swan") | 0.4 s | 5.3 s | 6.8 s |
+| Recommendation, no tool ("slow-burning thriller") | 0.4 s | 6.6 s | 10.3 s |
+| Comparison with `compare_movies` (3 runs) | 0.4–0.6 s | 10.3–16.6 s | 11.7–17.2 s |
+| Opinion where the model also called tools ("why do critics like Hereditary?") | 0.4 s | 11.8–17.2 s | 17.5–23.5 s |
+
+- **Without tools, text appears 1.5–4 s earlier** than the whole answer would. With tools, the first text comes late:
+  the tool round itself (a full MiMo call, 4–8 s) has to finish before the answer can start. The status line ("Calling
+  compare_movies") is what fills that wait.
+- **MiMo streams in coarse pieces:** from 5 to 165 token events per answer; one answer arrived in 5 large chunks.
+- **Streaming does not change the model's choices:** the same comparison made one tool call in 3 of 4 runs with
+  streaming *and* in 3 of 4 without; the extra calls (a repeated `rating_summary`) happen either way.
+- **Cost is reported again** for streamed answers (e.g. MiMo $0.00054 for 3 calls), with the right model names.
+- **Stop:** the pipeline stops at its next event; a model call already in progress (MiMo thinking before its first
+  token) still finishes and is paid for. Measured: Stop at about 3 s, pipeline stopped at 9.7 s, nothing stored.
+- While measuring, one query translation failed and fell back to the original question (logged as `fallback`); that
+  request then had no translation cost because the failed call reported none.
 
 ### Environment (Windows)
 
@@ -1106,7 +1197,8 @@ Prerequisites: Python 3.11, Node.js, Docker Desktop.
    npm install
    npm run dev
    ```
-   Then open http://localhost:3000.
+   Then open http://localhost:3000. The page uses the streaming endpoint; to watch the raw events:
+   `curl -N -X POST http://127.0.0.1:8000/api/chat/stream -H "Content-Type: application/json" -d '{"message": "Which is rated higher, Zodiac or Prisoners?"}'`
 
 ## Tests
 
@@ -1115,7 +1207,8 @@ cd backend
 pytest
 ```
 
-210 tests. They cover the MCP server (discovery, schemas, validation and errors in-process, a real stdio child
+222 tests. They cover streaming (the SSE events and their order, errors after the start, invalid input, the
+pipeline stopping when the browser goes away, OpenRouter's cost kept from a streamed chunk), the MCP server (discovery, schemas, validation and errors in-process, a real stdio child
 process from client to database result, no API keys passed to it, a server that cannot start, the tool loop through
 MCP, both tool backends), the evaluation metrics and judge handling, hybrid fusion and the strategy switch, keyword search (phrases, stems, ranking, safety), security (no secrets in errors, injected tags cannot escape), the request log and its summary, token and cost tracking, the debug object, conversation history (storage, limits, prompts, endpoints), the four tools (validation, title matching, SQL safety), the tool-calling loop (with a scripted fake model), the chat endpoint and its sources, query translation (validation and fallbacks), the RAG prompt and its
 injection defences, retrieval, records and chunking,

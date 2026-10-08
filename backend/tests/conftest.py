@@ -51,9 +51,12 @@ def mcp_without_subprocess(monkeypatch, in_process_mcp):
 
 
 class FakeSession:
-    """Stands in for a database session in API tests that fake the pipeline; only commit() is called."""
+    """Stands in for a database session in API tests that fake the pipeline; only commit() and rollback() are called."""
 
     def commit(self):
+        pass
+
+    def rollback(self):
         pass
 
 

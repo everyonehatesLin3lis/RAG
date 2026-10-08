@@ -15,7 +15,8 @@ with what it has. This caps both the wait and the cost if a model keeps asking f
 """
 
 import json
-from dataclasses import dataclass
+from collections.abc import Callable
+from dataclasses import asdict, dataclass
 
 from langchain_core.messages import AIMessage, BaseMessage, ToolMessage
 from langchain_core.tools import BaseTool
@@ -54,24 +55,60 @@ def execute(call: dict, tools_by_name: dict[str, BaseTool]) -> dict:
 
 
 # Implements: specs/10.md#AC-001, #AC-002
-def run_with_tools(messages: list[BaseMessage], tools: list[BaseTool]) -> tuple[str, list[ToolCallRecord]]:
-    """Run the model with tools until it answers. Returns the answer text and every tool call made."""
+def run_with_tools(
+    messages: list[BaseMessage], tools: list[BaseTool], on_event: Callable[[dict], None] | None = None
+) -> tuple[str, list[ToolCallRecord]]:
+    """Run the model with tools until it answers. Returns the answer text and every tool call made.
+
+    Phase 25: with on_event, every model round is streamed and the loop reports what happens as events: each piece
+    of answer text ("token"), each tool about to run ("status") and each tool result ("tool_call"). MiMo sometimes
+    writes a sentence before calling a tool ("let me look that up"); it has already been shown, so it stays in the
+    answer, as its own paragraph. Without on_event it works as before (only the final reply's text).
+    """
     messages = list(messages)
     tools_by_name = {tool.name: tool for tool in tools}
     model = llm.tool_model(tools)
     records: list[ToolCallRecord] = []
 
+    texts: list[str] = []  # everything the user saw: a model sometimes writes a sentence before a tool call
+
+    def call_model(runnable) -> AIMessage:
+        if on_event is None:
+            return llm.invoke(runnable, messages)
+        started_round = False
+
+        def on_text(text: str) -> None:
+            nonlocal started_round
+            if not started_round and any(t.strip() for t in texts):
+                on_event({"type": "token", "content": "\n\n"})  # new paragraph after an earlier round's text
+            started_round = True
+            on_event({"type": "token", "content": text})
+
+        return llm.stream(runnable, messages, on_text)
+
+    def shown() -> str:
+        return "\n\n".join(t for t in texts if t.strip())
+
     for _ in range(MAX_TOOL_ROUNDS):
-        reply: AIMessage = llm.invoke(model, messages)
+        reply = call_model(model)
+        texts.append(reply.text)
         if not reply.tool_calls:
-            return reply.text, records
+            return shown() if on_event else reply.text, records
 
         messages.append(reply)
         for call in reply.tool_calls:
+            if on_event:
+                on_event({"type": "status", "stage": "tool", "message": f"Calling {call['name']}"})
             result = execute(call, tools_by_name)
-            records.append(ToolCallRecord(tool=call["name"], arguments=call.get("args") or {}, result=result))
+            record = ToolCallRecord(tool=call["name"], arguments=call.get("args") or {}, result=result)
+            records.append(record)
+            if on_event:
+                on_event({"type": "tool_call", "data": asdict(record)})
             messages.append(ToolMessage(content=json.dumps(result, ensure_ascii=False), tool_call_id=call["id"]))
+        if on_event:
+            on_event({"type": "status", "stage": "answer", "message": "Writing the answer"})
 
     # Round limit reached: same tools in view (the history refers to them), but the model may not call any.
-    final: AIMessage = llm.invoke(llm.tool_model(tools, tool_choice="none"), messages)
-    return final.text, records
+    final = call_model(llm.tool_model(tools, tool_choice="none"))
+    texts.append(final.text)
+    return shown() if on_event else final.text, records

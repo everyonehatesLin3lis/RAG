@@ -41,6 +41,10 @@ def main() -> None:
     if summary["error_codes"]:
         print(f"Errors:        {summary['error_codes']}")
     print(f"Latency:       median {lat['median'] / 1000:.1f} s, p95 {lat['p95'] / 1000:.1f} s, max {lat['max'] / 1000:.1f} s")
+    first = summary["first_token_ms"]
+    if first["streamed"]:
+        print(f"First token:   median {first['median'] / 1000:.1f} s, p95 {first['p95'] / 1000:.1f} s "
+              f"({first['streamed']} streamed answers)")
     if cost["average_per_answer"] is not None:
         print(f"Cost:          ${cost['total']:.6f} total, ${cost['average_per_answer']:.6f} per answer")
         print(f"Tokens:        {tokens['total']:,} total, {tokens['average_per_answer']:,} per answer")

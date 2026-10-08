@@ -11,6 +11,7 @@ Two defences live here:
    a <question> block. The user's question is escaped the same way.
 """
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from html import escape
 from time import perf_counter
@@ -117,17 +118,29 @@ def _ms_since(start: float) -> int:
 
 
 # Implements: specs/6.md#AC-001, #AC-002, #AC-004, #AC-005, specs/10.md#AC-002, #AC-006
-def answer_question(question: str, session: Session, history: list[Turn] | None = None) -> RagAnswer:
+def answer_question(
+    question: str, session: Session, history: list[Turn] | None = None, on_event: Callable[[dict], None] | None = None
+) -> RagAnswer:
+    """on_event (Phase 25, streaming): receives progress ("status"), answer text ("token") and tool results
+    ("tool_call") as they happen. Without it the answer is produced in one piece, as before."""
     # Phase 14: every model call inside this block (translation, answer rounds, embedding) is counted.
     with track_usage() as tracker:
-        result = _answer(question, session, history)
+        result = _answer(question, session, history, on_event)
     result.usage = list(tracker.models.values())
     return result
 
 
-def _answer(question: str, session: Session, history: list[Turn] | None) -> RagAnswer:
+def _answer(
+    question: str, session: Session, history: list[Turn] | None, on_event: Callable[[dict], None] | None
+) -> RagAnswer:
     started = perf_counter()
     timings: dict[str, int] = {}
+
+    def status(stage: str, message: str) -> None:
+        if on_event:
+            on_event({"type": "status", "stage": stage, "message": message})
+
+    status("translation", "Understanding the question")
 
     # Phase 7: search with the rewritten query, but answer the question the user actually asked.
     # Phase 11: the translator sees recent history, so "compare it with Zodiac" becomes a stand-alone search.
@@ -141,6 +154,7 @@ def _answer(question: str, session: Session, history: list[Turn] | None) -> RagA
     hybrid = settings.retrieval_strategy == "hybrid"
     candidates = settings.hybrid_candidates if hybrid else settings.retrieval_top_k
 
+    status("search", "Searching reviews and movie data")
     step = perf_counter()
     vector_chunks = retrieval.retrieve(translation.semantic_query, session, k=candidates)  # embed, then pgvector
     timings["embedding_and_search"] = _ms_since(step)
@@ -180,7 +194,17 @@ def _answer(question: str, session: Session, history: list[Turn] | None) -> RagA
         tool_list = mcp_client.get_mcp_client().langchain_tools()
     else:
         tool_list = tools.langchain_tools(session)
-    answer, tool_calls = tool_calling.run_with_tools(messages, tool_list)
+    if on_event is None:
+        answer, tool_calls = tool_calling.run_with_tools(messages, tool_list)
+    else:
+        status("answer", "Writing the answer")
+
+        def forward(event: dict) -> None:
+            if event["type"] == "token" and "first_token" not in timings:
+                timings["first_token"] = _ms_since(started)  # what the user waits before text appears
+            on_event(event)
+
+        answer, tool_calls = tool_calling.run_with_tools(messages, tool_list, on_event=forward)
     timings["generation"] = _ms_since(step)  # includes any tool calls and the extra model rounds they cause
 
     return RagAnswer(answer=answer, sources=chunks, tool_calls=tool_calls, debug=debug())

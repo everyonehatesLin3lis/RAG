@@ -1,0 +1,2591 @@
+{
+  "summary": {
+    "strategy": "hybrid",
+    "questions": 24,
+    "retrieval_hit_rate": 1.0,
+    "retrieval_recall_at_5": 1.0,
+    "retrieval_recall_at_8": 1.0,
+    "retrieval_precision_at_5": 0.7667,
+    "answer_accuracy": 1.0,
+    "relevance": 1.0,
+    "groundedness": 0.994,
+    "hallucination_rate": 0.0417,
+    "rule_must_contain_rate": 1.0,
+    "expected_tool_used_rate": null,
+    "avg_latency_ms": 17140,
+    "avg_cost_usd": 0.0007,
+    "errors": {},
+    "not_judged": [],
+    "flagged_for_review": [],
+    "judge": {
+      "model": "anthropic/claude-haiku-4.5",
+      "cost_usd": 0.110464
+    },
+    "by_type": {
+      "factual": {
+        "questions": 8,
+        "answer_accuracy": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination_rate": 0.0,
+        "retrieval_hit_rate": 1.0,
+        "retrieval_recall_at_5": 1.0,
+        "retrieval_recall_at_8": 1.0,
+        "retrieval_precision_at_5": 0.75
+      },
+      "opinion": {
+        "questions": 8,
+        "answer_accuracy": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination_rate": 0.0,
+        "retrieval_hit_rate": 1.0,
+        "retrieval_recall_at_5": 1.0,
+        "retrieval_recall_at_8": 1.0,
+        "retrieval_precision_at_5": 0.9
+      },
+      "plot": {
+        "questions": 8,
+        "answer_accuracy": 1.0,
+        "relevance": 1.0,
+        "groundedness": 0.9821,
+        "hallucination_rate": 0.125,
+        "retrieval_hit_rate": 1.0,
+        "retrieval_recall_at_5": 1.0,
+        "retrieval_recall_at_8": 1.0,
+        "retrieval_precision_at_5": 0.65
+      }
+    },
+    "started_at": "2026-10-08T07:33:08+00:00"
+  },
+  "questions": [
+    {
+      "id": "F1",
+      "type": "factual",
+      "question": "Who directed Interstellar?",
+      "answer": "Christopher Nolan directed *Interstellar* (2014). The film was written by Jonathan Nolan and Christopher Nolan, and stars Matthew McConaughey, Anne Hathaway, Michael Caine, and Jessica Chastain.",
+      "error": null,
+      "latency_ms": 8949,
+      "cost_usd": 0.000565,
+      "tokens": 3785,
+      "chunks": [
+        {
+          "chunk_id": 67,
+          "movie": "Interstellar (2014)"
+        },
+        {
+          "chunk_id": 5214,
+          "movie": "Interstellar (2014)"
+        },
+        {
+          "chunk_id": 558,
+          "movie": "Marriage Story (2019)"
+        },
+        {
+          "chunk_id": 5221,
+          "movie": "Interstellar (2014)"
+        },
+        {
+          "chunk_id": 143,
+          "movie": "Once Upon a Time… in Hollywood (2019)"
+        },
+        {
+          "chunk_id": 5213,
+          "movie": "Interstellar (2014)"
+        },
+        {
+          "chunk_id": 184,
+          "movie": "Shrek (2001)"
+        },
+        {
+          "chunk_id": 5216,
+          "movie": "Interstellar (2014)"
+        }
+      ],
+      "tools": [],
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 0.6
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies Christopher Nolan as the director of Interstellar, which matches the reference answer exactly.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Christopher Nolan directed Interstellar (2014)",
+            "supported": true,
+            "evidence": "chunk_id 67"
+          },
+          {
+            "claim": "The film was written by Jonathan Nolan and Christopher Nolan",
+            "supported": true,
+            "evidence": "chunk_id 67"
+          },
+          {
+            "claim": "The film stars Matthew McConaughey, Anne Hathaway, Michael Caine, and Jessica Chastain",
+            "supported": true,
+            "evidence": "chunk_id 67"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "F2",
+      "type": "factual",
+      "question": "Who directed Get Out?",
+      "answer": "**Jordan Peele** directed *Get Out* (2017). He also wrote the screenplay and is described by Peter Travers (Rolling Stone) as \"one half of the comic team of Key and Peele,\" making this his directorial debut.\n\nThe film stars Daniel Kaluuya and Allison Williams, runs 104 minutes, and holds an IMDb rating of 7.8.",
+      "error": null,
+      "latency_ms": 6845,
+      "cost_usd": 0.000581,
+      "tokens": 3866,
+      "chunks": [
+        {
+          "chunk_id": 9989,
+          "movie": "Get Out (2017)"
+        },
+        {
+          "chunk_id": 9996,
+          "movie": "Get Out (2017)"
+        },
+        {
+          "chunk_id": 185,
+          "movie": "Get Out (2017)"
+        },
+        {
+          "chunk_id": 9993,
+          "movie": "Get Out (2017)"
+        },
+        {
+          "chunk_id": 107,
+          "movie": "Good Will Hunting (1997)"
+        },
+        {
+          "chunk_id": 193,
+          "movie": "Fargo (1996)"
+        },
+        {
+          "chunk_id": 9992,
+          "movie": "Get Out (2017)"
+        },
+        {
+          "chunk_id": 282,
+          "movie": "Looper (2012)"
+        }
+      ],
+      "tools": [],
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 0.8
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies Jordan Peele as the director of Get Out, which matches the reference answer exactly. The additional details provided (writer, cast, runtime, IMDb rating) are all accurate and supported by the sources.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Jordan Peele directed Get Out (2017)",
+            "supported": true,
+            "evidence": "chunk_id 185: 'Director: Jordan Peele'"
+          },
+          {
+            "claim": "He also wrote the screenplay",
+            "supported": true,
+            "evidence": "chunk_id 185: 'Writers: Jordan Peele'"
+          },
+          {
+            "claim": "He is one half of the comic team of Key and Peele",
+            "supported": true,
+            "evidence": "chunk_id 9989: 'debuting director Jordan Peele (one half of the comic team of Key and Peele)'"
+          },
+          {
+            "claim": "This was his directorial debut",
+            "supported": true,
+            "evidence": "chunk_id 9989: 'debuting director Jordan Peele'"
+          },
+          {
+            "claim": "The film stars Daniel Kaluuya and Allison Williams",
+            "supported": true,
+            "evidence": "chunk_id 185: 'Cast: Daniel Kaluuya, Allison Williams...'"
+          },
+          {
+            "claim": "The film runs 104 minutes",
+            "supported": true,
+            "evidence": "chunk_id 185: 'Runtime: 104 minutes'"
+          },
+          {
+            "claim": "The film holds an IMDb rating of 7.8",
+            "supported": true,
+            "evidence": "chunk_id 185: 'IMDb rating: 7.8 (797,032 votes)'"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "F3",
+      "type": "factual",
+      "question": "Who directed Mad Max: Fury Road?",
+      "answer": "**George Miller** directed *Mad Max: Fury Road* (2015), which he also co-wrote with Brendan McCarthy and Nick Lathouris. The film stars Tom Hardy and Charlize Theron and runs 121 minutes.",
+      "error": null,
+      "latency_ms": 13986,
+      "cost_usd": 0.000647,
+      "tokens": 3978,
+      "chunks": [
+        {
+          "chunk_id": 106,
+          "movie": "Mad Max: Fury Road (2015)"
+        },
+        {
+          "chunk_id": 558,
+          "movie": "Marriage Story (2019)"
+        },
+        {
+          "chunk_id": 6953,
+          "movie": "Mad Max: Fury Road (2015)"
+        },
+        {
+          "chunk_id": 6960,
+          "movie": "Mad Max: Fury Road (2015)"
+        },
+        {
+          "chunk_id": 143,
+          "movie": "Once Upon a Time… in Hollywood (2019)"
+        },
+        {
+          "chunk_id": 6959,
+          "movie": "Mad Max: Fury Road (2015)"
+        },
+        {
+          "chunk_id": 184,
+          "movie": "Shrek (2001)"
+        },
+        {
+          "chunk_id": 6952,
+          "movie": "Mad Max: Fury Road (2015)"
+        }
+      ],
+      "tools": [],
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 0.6
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies George Miller as the director of Mad Max: Fury Road, which matches the reference answer exactly.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "George Miller directed Mad Max: Fury Road (2015)",
+            "supported": true,
+            "evidence": "chunk_id 106"
+          },
+          {
+            "claim": "George Miller co-wrote the film with Brendan McCarthy and Nick Lathouris",
+            "supported": true,
+            "evidence": "chunk_id 106"
+          },
+          {
+            "claim": "The film stars Tom Hardy and Charlize Theron",
+            "supported": true,
+            "evidence": "chunk_id 106"
+          },
+          {
+            "claim": "The film runs 121 minutes",
+            "supported": true,
+            "evidence": "chunk_id 106"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "F4",
+      "type": "factual",
+      "question": "In what year was Groundhog Day released?",
+      "answer": "**Groundhog Day** was released in **1993**.\n\nDirected by Harold Ramis and starring Bill Murray, the film has an IMDb rating of 8.0 (from 731,053 votes) and runs 101 minutes.",
+      "error": null,
+      "latency_ms": 23519,
+      "cost_usd": 0.000898,
+      "tokens": 6112,
+      "chunks": [
+        {
+          "chunk_id": 228,
+          "movie": "Groundhog Day (1993)"
+        },
+        {
+          "chunk_id": 1700,
+          "movie": "Groundhog Day (1993)"
+        },
+        {
+          "chunk_id": 1710,
+          "movie": "Groundhog Day (1993)"
+        },
+        {
+          "chunk_id": 1706,
+          "movie": "Groundhog Day (1993)"
+        },
+        {
+          "chunk_id": 1702,
+          "movie": "Groundhog Day (1993)"
+        },
+        {
+          "chunk_id": 1705,
+          "movie": "Groundhog Day (1993)"
+        },
+        {
+          "chunk_id": 1711,
+          "movie": "Groundhog Day (1993)"
+        },
+        {
+          "chunk_id": 1712,
+          "movie": "Groundhog Day (1993)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "get_movie_metadata",
+          "arguments": {
+            "movie": "Groundhog Day (1993)"
+          }
+        }
+      ],
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer states that Groundhog Day was released in 1993, which matches the reference answer exactly. The year is confirmed in multiple sources and the tool result.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Groundhog Day was released in 1993",
+            "supported": true,
+            "evidence": "chunk_id 228, 1700, 1710, 1706, 1702, 1705, 1711, 1712; tool result get_movie_metadata"
+          },
+          {
+            "claim": "Directed by Harold Ramis",
+            "supported": true,
+            "evidence": "chunk_id 228; tool result get_movie_metadata"
+          },
+          {
+            "claim": "Starring Bill Murray",
+            "supported": true,
+            "evidence": "chunk_id 228; tool result get_movie_metadata"
+          },
+          {
+            "claim": "IMDb rating of 8.0",
+            "supported": true,
+            "evidence": "chunk_id 228; tool result get_movie_metadata"
+          },
+          {
+            "claim": "731,053 votes on IMDb",
+            "supported": true,
+            "evidence": "chunk_id 228; tool result get_movie_metadata"
+          },
+          {
+            "claim": "Runs 101 minutes",
+            "supported": true,
+            "evidence": "chunk_id 228; tool result get_movie_metadata"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "F5",
+      "type": "factual",
+      "question": "Who directed Hereditary?",
+      "answer": "Hereditary (2018) was directed by Ari Aster, who also wrote the film.",
+      "error": null,
+      "latency_ms": 14374,
+      "cost_usd": 0.000544,
+      "tokens": 3845,
+      "chunks": [
+        {
+          "chunk_id": 10373,
+          "movie": "Hereditary (2018)"
+        },
+        {
+          "chunk_id": 558,
+          "movie": "Marriage Story (2019)"
+        },
+        {
+          "chunk_id": 448,
+          "movie": "Hereditary (2018)"
+        },
+        {
+          "chunk_id": 143,
+          "movie": "Once Upon a Time… in Hollywood (2019)"
+        },
+        {
+          "chunk_id": 10379,
+          "movie": "Hereditary (2018)"
+        },
+        {
+          "chunk_id": 184,
+          "movie": "Shrek (2001)"
+        },
+        {
+          "chunk_id": 10385,
+          "movie": "Hereditary (2018)"
+        },
+        {
+          "chunk_id": 229,
+          "movie": "Wonder Woman (2017)"
+        }
+      ],
+      "tools": [],
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 0.6
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies Ari Aster as the director of Hereditary, which matches the reference answer exactly. The additional information that Ari Aster also wrote the film is supported by the sources.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Hereditary (2018) was directed by Ari Aster",
+            "supported": true,
+            "evidence": "chunk_id 448: 'Director: Ari Aster'"
+          },
+          {
+            "claim": "Ari Aster also wrote the film",
+            "supported": true,
+            "evidence": "chunk_id 448: 'Writers: Ari Aster'"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "F6",
+      "type": "factual",
+      "question": "Who directed the 2015 film Room?",
+      "answer": "The 2015 film *Room* was directed by Lenny Abrahamson.",
+      "error": null,
+      "latency_ms": 11756,
+      "cost_usd": 0.000486,
+      "tokens": 3439,
+      "chunks": [
+        {
+          "chunk_id": 407,
+          "movie": "Room (2015)"
+        },
+        {
+          "chunk_id": 9311,
+          "movie": "Room (2015)"
+        },
+        {
+          "chunk_id": 9306,
+          "movie": "Room (2015)"
+        },
+        {
+          "chunk_id": 9308,
+          "movie": "Room (2015)"
+        },
+        {
+          "chunk_id": 9320,
+          "movie": "Room (2015)"
+        },
+        {
+          "chunk_id": 359,
+          "movie": "Lost in Translation (2003)"
+        },
+        {
+          "chunk_id": 9324,
+          "movie": "Room (2015)"
+        },
+        {
+          "chunk_id": 558,
+          "movie": "Marriage Story (2019)"
+        }
+      ],
+      "tools": [],
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies Lenny Abrahamson as the director of the 2015 film Room, which matches the reference answer exactly.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "The 2015 film Room was directed by Lenny Abrahamson",
+            "supported": true,
+            "evidence": "chunk_id 407 states 'Director: Lenny Abrahamson' for Room (2015)"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "F7",
+      "type": "factual",
+      "question": "Who directed The Shape of Water?",
+      "answer": "**Guillermo del Toro** directed *The Shape of Water* (2017), which he also co-wrote with Vanessa Taylor.",
+      "error": null,
+      "latency_ms": 20472,
+      "cost_usd": 0.00072,
+      "tokens": 3875,
+      "chunks": [
+        {
+          "chunk_id": 417,
+          "movie": "The Shape of Water (2017)"
+        },
+        {
+          "chunk_id": 558,
+          "movie": "Marriage Story (2019)"
+        },
+        {
+          "chunk_id": 10062,
+          "movie": "The Shape of Water (2017)"
+        },
+        {
+          "chunk_id": 143,
+          "movie": "Once Upon a Time… in Hollywood (2019)"
+        },
+        {
+          "chunk_id": 10052,
+          "movie": "The Shape of Water (2017)"
+        },
+        {
+          "chunk_id": 184,
+          "movie": "Shrek (2001)"
+        },
+        {
+          "chunk_id": 10059,
+          "movie": "The Shape of Water (2017)"
+        },
+        {
+          "chunk_id": 229,
+          "movie": "Wonder Woman (2017)"
+        }
+      ],
+      "tools": [],
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 0.6
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies Guillermo del Toro as the director of The Shape of Water, which matches the reference answer exactly.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Guillermo del Toro directed The Shape of Water (2017)",
+            "supported": true,
+            "evidence": "chunk_id 417"
+          },
+          {
+            "claim": "He co-wrote it with Vanessa Taylor",
+            "supported": true,
+            "evidence": "chunk_id 417"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "F8",
+      "type": "factual",
+      "question": "Which war film from 2017 did Christopher Nolan direct?",
+      "answer": "**Dunkirk (2017)** — directed and written by Christopher Nolan. It runs 107 minutes and holds an IMDb rating of 7.8 (795,498 votes). It depicts the 1940 evacuation of Allied soldiers from the beaches and harbour of Dunkirk.",
+      "error": null,
+      "latency_ms": 8141,
+      "cost_usd": 0.000611,
+      "tokens": 3881,
+      "chunks": [
+        {
+          "chunk_id": 186,
+          "movie": "Dunkirk (2017)"
+        },
+        {
+          "chunk_id": 9965,
+          "movie": "Dunkirk (2017)"
+        },
+        {
+          "chunk_id": 9955,
+          "movie": "Dunkirk (2017)"
+        },
+        {
+          "chunk_id": 421,
+          "movie": "Platoon (1986)"
+        },
+        {
+          "chunk_id": 9950,
+          "movie": "Dunkirk (2017)"
+        },
+        {
+          "chunk_id": 82,
+          "movie": "Saving Private Ryan (1998)"
+        },
+        {
+          "chunk_id": 174,
+          "movie": "Full Metal Jacket (1987)"
+        },
+        {
+          "chunk_id": 9948,
+          "movie": "Dunkirk (2017)"
+        }
+      ],
+      "tools": [],
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 0.8
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies Dunkirk as the 2017 war film directed by Christopher Nolan, matching the reference answer exactly. All additional details provided (runtime, IMDb rating, plot description) are accurate and supported by the sources.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Dunkirk is from 2017",
+            "supported": true,
+            "evidence": "chunk_id 186"
+          },
+          {
+            "claim": "Dunkirk was directed by Christopher Nolan",
+            "supported": true,
+            "evidence": "chunk_id 186"
+          },
+          {
+            "claim": "Dunkirk was written by Christopher Nolan",
+            "supported": true,
+            "evidence": "chunk_id 186"
+          },
+          {
+            "claim": "Dunkirk runs 107 minutes",
+            "supported": true,
+            "evidence": "chunk_id 186"
+          },
+          {
+            "claim": "Dunkirk holds an IMDb rating of 7.8 with 795,498 votes",
+            "supported": true,
+            "evidence": "chunk_id 186"
+          },
+          {
+            "claim": "Dunkirk depicts the 1940 evacuation of Allied soldiers from the beaches and harbour of Dunkirk",
+            "supported": true,
+            "evidence": "chunk_id 186"
+          },
+          {
+            "claim": "Dunkirk is a war film",
+            "supported": true,
+            "evidence": "chunk_id 186"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "O1",
+      "type": "opinion",
+      "question": "What do critics praise about Mad Max: Fury Road?",
+      "answer": "Critics consistently praise the film's visual and technical craft, pacing, and performances:\n\n- **Visuals & technical craft:** Ian Nathan (Empire Magazine, 5/5) hails \"jaw-dropping action\" and \"barking-mad imagination\"; Bruce Kirkland (Toronto Sun, 4/5) praises the \"sensational photography, set design and other technical attributes\"; Stephen Whitty (Newark Star-Ledger, 3.5/4) highlights \"nightmarish visual imagery, an easy command of composition.\"\n- **Pace & action:** Soren Andersen (Seattle Times, 4/4) calls the pace \"delirious\" and the stunts \"incredible\"; Chris Vognar (Dallas Morning News, A-) says the film keeps topping itself with \"something even more outlandish and imaginative than what you just saw.\"\n- **Performances:** Andersen praises Tom Hardy's \"marvel of subdued conviction\" and Charlize Theron's \"impressive gravity\" as Furiosa; Nathan notes the irony of Hardy being \"the point of calm.\" Brian Tallerico (RogerEbert.com, 4/4) also commends the film for avoiding \"paper-thin characters.\"\n- **Filmmaking vision:** Michael O'Sullivan (Washington Post, 3/4) credits \"Miller's nitro-burning aesthetic vision,\" and Cary Darling (Fort Worth Star-Telegram, 4/5) calls it a \"surreal, operatic take on the action movie\" that makes the earlier films \"seem almost timid by comparison.\"\n\nThe main caveat, per Whitty, is that story flaws — \"easy political posturing, too many shallow characters\" — are outweighed by Miller's directorial strengths.",
+      "error": null,
+      "latency_ms": 20145,
+      "cost_usd": 0.00033,
+      "tokens": 2849,
+      "chunks": [
+        {
+          "chunk_id": 6957,
+          "movie": "Mad Max: Fury Road (2015)"
+        },
+        {
+          "chunk_id": 6956,
+          "movie": "Mad Max: Fury Road (2015)"
+        },
+        {
+          "chunk_id": 6959,
+          "movie": "Mad Max: Fury Road (2015)"
+        },
+        {
+          "chunk_id": 6952,
+          "movie": "Mad Max: Fury Road (2015)"
+        },
+        {
+          "chunk_id": 6966,
+          "movie": "Mad Max: Fury Road (2015)"
+        },
+        {
+          "chunk_id": 6965,
+          "movie": "Mad Max: Fury Road (2015)"
+        },
+        {
+          "chunk_id": 6962,
+          "movie": "Mad Max: Fury Road (2015)"
+        },
+        {
+          "chunk_id": 6960,
+          "movie": "Mad Max: Fury Road (2015)"
+        }
+      ],
+      "tools": [],
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer accurately summarizes what critics in the provided sources praise about Mad Max: Fury Road. It covers the main themes critics highlight: visual and technical craft, pacing and action, performances, and filmmaking vision. All specific quotes and attributions match the sources provided, and the answer appropriately notes the caveat about story flaws mentioned by Whitty. The answer directly addresses the question about what critics praise.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Ian Nathan (Empire Magazine, 5/5) hails 'jaw-dropping action' and 'barking-mad imagination'",
+            "supported": true,
+            "evidence": "chunk_id 6952: 'jaw-dropping action, crackpot humour'"
+          },
+          {
+            "claim": "Bruce Kirkland (Toronto Sun, 4/5) praises the 'sensational photography, set design and other technical attributes'",
+            "supported": true,
+            "evidence": "chunk_id 6959: 'sensational photography, set design and other technical attributes'"
+          },
+          {
+            "claim": "Stephen Whitty (Newark Star-Ledger, 3.5/4) highlights 'nightmarish visual imagery, an easy command of composition'",
+            "supported": true,
+            "evidence": "chunk_id 6957: 'nightmarish visual imagery, an easy command of composition'"
+          },
+          {
+            "claim": "Soren Andersen (Seattle Times, 4/4) calls the pace 'delirious' and the stunts 'incredible'",
+            "supported": true,
+            "evidence": "chunk_id 6960: 'pace is delirious, the stunts are incredible'"
+          },
+          {
+            "claim": "Chris Vognar (Dallas Morning News, A-) says the film keeps topping itself with 'something even more outlandish and imaginative than what you just saw'",
+            "supported": true,
+            "evidence": "chunk_id 6966: 'Something even more outlandish and imaginative than what you just saw'"
+          },
+          {
+            "claim": "Andersen praises Tom Hardy's 'marvel of subdued conviction'",
+            "supported": true,
+            "evidence": "chunk_id 6960: 'Hardy's performance is a marvel of subdued conviction'"
+          },
+          {
+            "claim": "Andersen praises Charlize Theron's 'impressive gravity' as Furiosa",
+            "supported": true,
+            "evidence": "chunk_id 6960: 'Theron brings an impressive gravity to her work as Furiosa'"
+          },
+          {
+            "claim": "Ian Nathan notes the irony of Hardy being 'the point of calm'",
+            "supported": true,
+            "evidence": "chunk_id 6952: 'Imagine a movie where Tom Hardy is the point of calm'"
+          },
+          {
+            "claim": "Brian Tallerico (RogerEbert.com, 4/4) commends the film for avoiding 'paper-thin characters'",
+            "supported": true,
+            "evidence": "chunk_id 6956: 'pushing us forward without the cheap special effects or paper-thin characters'"
+          },
+          {
+            "claim": "Michael O'Sullivan (Washington Post, 3/4) credits 'Miller's nitro-burning aesthetic vision'",
+            "supported": true,
+            "evidence": "chunk_id 6965: 'Propelled by Miller's nitro-burning aesthetic vision'"
+          },
+          {
+            "claim": "Cary Darling (Fort Worth Star-Telegram, 4/5) calls it a 'surreal, operatic take on the action movie'",
+            "supported": true,
+            "evidence": "chunk_id 6962: 'surreal, operatic take on the action movie'"
+          },
+          {
+            "claim": "Cary Darling says it makes earlier films 'seem almost timid by comparison'",
+            "supported": true,
+            "evidence": "chunk_id 6962: 'seem almost timid by comparison'"
+          },
+          {
+            "claim": "Stephen Whitty notes story flaws including 'easy political posturing, too many shallow characters'",
+            "supported": true,
+            "evidence": "chunk_id 6957: 'easy political posturing, too many shallow characters'"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "O2",
+      "type": "opinion",
+      "question": "What did critics dislike about Suicide Squad?",
+      "answer": "**Suicide Squad (2016)** drew a fairly consistent set of complaints from critics:\n\n- **Peter Travers (Rolling Stone)** argued director David Ayer compromised his \"hardcore action bona fides\" for a tame PG-13 crowd-pleaser \"that would rather ingratiate than cut deep, or even cut at all.\"\n- **Cary Darling (Fort Worth Star-Telegram/DFW.com)** called it loud rather than visionary — \"volume is not vision\" — and said it \"turns out to be just another generic superhero action movie,\" despite some entertaining performances.\n- **Marjorie Baumgarten (Austin Chronicle)** criticized the film for having \"no one to root for,\" plot points that \"lack coherence,\" and flashbacks that make it feel \"fused into shape in the editing room.\"\n- **Wendy Ide (Observer (UK))** said the film lacks \"a credible antagonist,\" calling that \"one of the many problems with Suicide Squad.\"\n- **Michael O'Sullivan (Washington Post)** said the film aimed at but fell short of the teenage demographic, calling it \"a double cop-out\" that disappoints both fans of the source material's darker aesthetic and \"discerning adolescents.\"\n- **Roxana Hadadi (Chesapeake Family Magazine)**, while praising the visuals and the performances of Will Smith and Margot Robbie, concluded that \"overall Suicide Squad is a sloppy mess.\"\n\nNot every review was negative: **Tony Hicks (San Jose Mercury News)** gave it a fresh 2.5/4, describing it as a \"semi-delightful mess\" and a \"sloppy and wild ride\" worth enjoying for now.\n\nFor reference, the database lists the film at an IMDb rating of **5.9/10** (753,507 votes), directed by David Ayer.",
+      "error": null,
+      "latency_ms": 24667,
+      "cost_usd": 0.000697,
+      "tokens": 3307,
+      "chunks": [
+        {
+          "chunk_id": 6913,
+          "movie": "Suicide Squad (2016)"
+        },
+        {
+          "chunk_id": 6927,
+          "movie": "Suicide Squad (2016)"
+        },
+        {
+          "chunk_id": 6921,
+          "movie": "Suicide Squad (2016)"
+        },
+        {
+          "chunk_id": 6930,
+          "movie": "Suicide Squad (2016)"
+        },
+        {
+          "chunk_id": 6924,
+          "movie": "Suicide Squad (2016)"
+        },
+        {
+          "chunk_id": 214,
+          "movie": "Suicide Squad (2016)"
+        },
+        {
+          "chunk_id": 6925,
+          "movie": "Suicide Squad (2016)"
+        },
+        {
+          "chunk_id": 6915,
+          "movie": "Suicide Squad (2016)"
+        }
+      ],
+      "tools": [],
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer accurately summarizes the critical complaints about Suicide Squad (2016) found in the provided sources. It covers all major criticisms: the PG-13 compromise, generic nature, lack of coherent plot, absence of a credible antagonist, tonal mismatch with source material, and the 'sloppy mess' characterization. The answer also appropriately notes the one fresh review and includes accurate metadata.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Peter Travers (Rolling Stone) argued director David Ayer compromised his 'hardcore action bona fides' for a tame PG-13 crowd-pleaser",
+            "supported": true,
+            "evidence": "chunk_id 6913"
+          },
+          {
+            "claim": "Cary Darling (Fort Worth Star-Telegram/DFW.com) said 'volume is not vision' and called it 'just another generic superhero action movie'",
+            "supported": true,
+            "evidence": "chunk_id 6921"
+          },
+          {
+            "claim": "Marjorie Baumgarten (Austin Chronicle) criticized the film for having 'no one to root for' and plot points that 'lack coherence'",
+            "supported": true,
+            "evidence": "chunk_id 6925"
+          },
+          {
+            "claim": "Marjorie Baumgarten said flashbacks make it feel 'fused into shape in the editing room'",
+            "supported": true,
+            "evidence": "chunk_id 6925"
+          },
+          {
+            "claim": "Wendy Ide (Observer (UK)) said the film lacks 'a credible antagonist'",
+            "supported": true,
+            "evidence": "chunk_id 6930"
+          },
+          {
+            "claim": "Michael O'Sullivan (Washington Post) called it 'a double cop-out' that disappoints both source material fans and discerning adolescents",
+            "supported": true,
+            "evidence": "chunk_id 6924"
+          },
+          {
+            "claim": "Roxana Hadadi (Chesapeake Family Magazine) praised the visuals and performances of Will Smith and Margot Robbie",
+            "supported": true,
+            "evidence": "chunk_id 6927"
+          },
+          {
+            "claim": "Roxana Hadadi concluded that 'overall Suicide Squad is a sloppy mess'",
+            "supported": true,
+            "evidence": "chunk_id 6927"
+          },
+          {
+            "claim": "Tony Hicks (San Jose Mercury News) gave it a fresh 2.5/4 rating",
+            "supported": true,
+            "evidence": "chunk_id 6915"
+          },
+          {
+            "claim": "Tony Hicks described it as a 'semi-delightful mess' and 'sloppy and wild ride'",
+            "supported": true,
+            "evidence": "chunk_id 6915"
+          },
+          {
+            "claim": "The film has an IMDb rating of 5.9/10 (753,507 votes)",
+            "supported": true,
+            "evidence": "chunk_id 214"
+          },
+          {
+            "claim": "The film was directed by David Ayer",
+            "supported": true,
+            "evidence": "chunk_id 214"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "O3",
+      "type": "opinion",
+      "question": "What do critics say about Heath Ledger's performance in The Dark Knight?",
+      "answer": "Critics across the board praise Heath Ledger's Joker performance in *The Dark Knight* (2008):\n\n- **Owen Gleiberman (Entertainment Weekly, A-)**: Ledger delivers \"a maniacal gusto inspired enough to suggest that he might have lived to be as audacious an actor as Marlon Brando, and maybe as great\" — noting it was the last performance he completed before his death.\n- **Michael Phillips (Chicago Tribune, 4/4)**: \"Ledger's work is improbably droll, impossibly creepy, meticulously detailed,\" and the standout among the film's \"two-faced masquerading freaks.\"\n- **Peter Howell (Toronto Star, 4/4)**: The film deserves consideration for Best Picture and Director \"along with the expected Oscar kudos for Ledger.\"\n\nLater critics in the database treat that performance as the benchmark: in *The Dark Knight Rises* (2012), Dann Gire (Chicago Daily Herald, 3/4) writes that \"no villain could come close to matching Ledger's inspired Joker,\" and Robert Roten (Laramie Movie Scope, B) calls the sequel \"a bit of a letdown, containing nothing close to the brilliance of the late Heath Ledger's performance in the previous film.\"",
+      "error": null,
+      "latency_ms": 20224,
+      "cost_usd": 0.000658,
+      "tokens": 3848,
+      "chunks": [
+        {
+          "chunk_id": 24,
+          "movie": "The Dark Knight (2008)"
+        },
+        {
+          "chunk_id": 29,
+          "movie": "The Dark Knight (2008)"
+        },
+        {
+          "chunk_id": 6838,
+          "movie": "The Dark Knight Rises (2012)"
+        },
+        {
+          "chunk_id": 10315,
+          "movie": "Joker (2019)"
+        },
+        {
+          "chunk_id": 1,
+          "movie": "The Dark Knight (2008)"
+        },
+        {
+          "chunk_id": 6844,
+          "movie": "The Dark Knight Rises (2012)"
+        },
+        {
+          "chunk_id": 6842,
+          "movie": "The Dark Knight Rises (2012)"
+        },
+        {
+          "chunk_id": 35,
+          "movie": "The Dark Knight (2008)"
+        }
+      ],
+      "tools": [],
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 0.6
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer accurately summarizes what critics in the provided sources say about Heath Ledger's performance in The Dark Knight (2008). It includes direct quotes from Owen Gleiberman, Michael Phillips, and Peter Howell about his Joker performance, and appropriately contextualizes later comparisons from reviews of The Dark Knight Rises. All claims are grounded in the sources provided.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Owen Gleiberman gave The Dark Knight an A- rating",
+            "supported": true,
+            "evidence": "chunk_id 24"
+          },
+          {
+            "claim": "Ledger's performance was 'a maniacal gusto inspired enough to suggest that he might have lived to be as audacious an actor as Marlon Brando, and maybe as great'",
+            "supported": true,
+            "evidence": "chunk_id 24 - Owen Gleiberman quote"
+          },
+          {
+            "claim": "It was Ledger's last performance completed before his death",
+            "supported": true,
+            "evidence": "chunk_id 24"
+          },
+          {
+            "claim": "Michael Phillips gave The Dark Knight a 4/4 rating",
+            "supported": true,
+            "evidence": "chunk_id 29"
+          },
+          {
+            "claim": "Ledger's work is 'improbably droll, impossibly creepy, meticulously detailed'",
+            "supported": true,
+            "evidence": "chunk_id 29 - Michael Phillips quote"
+          },
+          {
+            "claim": "Peter Howell gave The Dark Knight a 4/4 rating",
+            "supported": true,
+            "evidence": "chunk_id 35"
+          },
+          {
+            "claim": "The film deserves consideration for Best Picture and Best Director along with Oscar kudos for Ledger",
+            "supported": true,
+            "evidence": "chunk_id 35 - Peter Howell quote"
+          },
+          {
+            "claim": "Dann Gire wrote that 'no villain could come close to matching Ledger's inspired Joker'",
+            "supported": true,
+            "evidence": "chunk_id 6844"
+          },
+          {
+            "claim": "Robert Roten called The Dark Knight Rises 'a bit of a letdown, containing nothing close to the brilliance of the late Heath Ledger's performance in the previous film'",
+            "supported": true,
+            "evidence": "chunk_id 6838"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "O4",
+      "type": "opinion",
+      "question": "What do critics say about Joaquin Phoenix in Joker?",
+      "answer": "Critics consistently single out Joaquin Phoenix's performance as the driving force of *Joker* (2019), though they differ on how they characterize it:\n\n- **Peter Travers (Rolling Stone, 4.5/5)** calls it \"a gut-punch performance by Phoenix that puts a horrifically human face on an iconic comic-book villain,\" and dismisses the surrounding controversy.\n- **Mark Daniell (Toronto Sun, 4/4)** credits Phillips and Phoenix together for \"reimagining what a comic book movie can be\" — one free of multi-movie setup that \"can go to places other films in this genre can't.\"\n- **Richard Roeper (Chicago Sun-Times, 3.5/4)** says Phoenix appears in virtually every minute and \"dominat[es] the screen with his memorably creepy turn,\" leaving the film clinging \"to you like the aftermath of an unfortunately realistic nightmare.\"\n- **Donald Clarke (Irish Times, 4/5)** says Phoenix \"kicks everything else into distant wings\" and \"spares no effort in keeping us diverted\" on what he calls a \"grim fairground ride.\"\n- **Dwight Brown (National Newspaper Publishers Association, 2.5/4)** describes Phoenix as creating \"a snake of a man with few to no redeeming qualities\" in \"a blistering performance that should get him a front row seat on Oscar night.\"\n- **Matthew Lickona (San Diego Reader, 2/5)** is the outlier: while still marking the review fresh, he argues Phoenix \"exemplif[ies] performing [rather than] acting,\" \"creepily contorting as the Clown Prince of Crime\" in Phillips' \"timely, toxic take on the Making of a Murdering Madman.\"\n\nIn short, the reviews agree Phoenix dominates the film, but divide on whether that constitutes great acting or mere physical contortion.",
+      "error": null,
+      "latency_ms": 15860,
+      "cost_usd": 0.000686,
+      "tokens": 3988,
+      "chunks": [
+        {
+          "chunk_id": 10313,
+          "movie": "Joker (2019)"
+        },
+        {
+          "chunk_id": 10315,
+          "movie": "Joker (2019)"
+        },
+        {
+          "chunk_id": 10312,
+          "movie": "Joker (2019)"
+        },
+        {
+          "chunk_id": 10320,
+          "movie": "Joker (2019)"
+        },
+        {
+          "chunk_id": 10314,
+          "movie": "Joker (2019)"
+        },
+        {
+          "chunk_id": 1,
+          "movie": "The Dark Knight (2008)"
+        },
+        {
+          "chunk_id": 81,
+          "movie": "Joker (2019)"
+        },
+        {
+          "chunk_id": 10325,
+          "movie": "Joker (2019)"
+        }
+      ],
+      "tools": [],
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer accurately summarizes what critics say about Joaquin Phoenix's performance in Joker (2019) based on the provided sources. It covers all six reviews with accurate quotes and characterizations, correctly identifies the critics and their ratings, and fairly represents both the consensus praise and the one dissenting view from Matthew Lickona. The answer directly addresses the question about critical reception of Phoenix's performance.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Peter Travers (Rolling Stone, 4.5/5) calls Phoenix's performance 'a gut-punch performance by Phoenix that puts a horrifically human face on an iconic comic-book villain'",
+            "supported": true,
+            "evidence": "chunk_id 10315"
+          },
+          {
+            "claim": "Mark Daniell (Toronto Sun, 4/4) credits Phillips and Phoenix together for 'reimagining what a comic book movie can be'",
+            "supported": true,
+            "evidence": "chunk_id 10312"
+          },
+          {
+            "claim": "Richard Roeper (Chicago Sun-Times, 3.5/4) says Phoenix appears in virtually every minute and 'dominat[es] the screen with his memorably creepy turn'",
+            "supported": true,
+            "evidence": "chunk_id 10320"
+          },
+          {
+            "claim": "Donald Clarke (Irish Times, 4/5) says Phoenix 'kicks everything else into distant wings' and 'spares no effort in keeping us diverted'",
+            "supported": true,
+            "evidence": "chunk_id 10314"
+          },
+          {
+            "claim": "Dwight Brown (National Newspaper Publishers Association, 2.5/4) describes Phoenix as creating 'a snake of a man with few to no redeeming qualities' in 'a blistering performance that should get him a front row seat on Oscar night'",
+            "supported": true,
+            "evidence": "chunk_id 10313"
+          },
+          {
+            "claim": "Matthew Lickona (San Diego Reader, 2/5) argues Phoenix 'exemplif[ies] performing [rather than] acting,' 'creepily contorting as the Clown Prince of Crime'",
+            "supported": true,
+            "evidence": "chunk_id 10325"
+          },
+          {
+            "claim": "The reviews agree Phoenix dominates the film, but divide on whether that constitutes great acting or mere physical contortion",
+            "supported": true,
+            "evidence": "chunks 10313, 10315, 10312, 10320, 10314, 10325"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "O5",
+      "type": "opinion",
+      "question": "What do reviewers think of the visuals in Avatar?",
+      "answer": "Reviewers widely praise *Avatar*'s visuals, though some question whether they change cinema:\n\n**Positive:**\n- **Ty Burr (Boston Globe)**, 3.5/4: \"an entertainment to be not just seen but absorbed on a molecular level… Cameron aims for sheer wonderment, and he delivers.\"\n- **Anne Thompson (indieWire)**, A: \"a joyous celebration of story craft and the visual possibilities of cinema… Avatar is stunning,\" crediting Cameron and Weta Digital's technology.\n- **Michael Phillips (Chicago Tribune)**, 3/4: Cameron \"delivered the screen's most anticipated and persuasive blend of live-action and motion-capture animation to date.\"\n- **Peter Bradshaw (Guardian)**, 3/5: \"The effects of Avatar are certainly something to see, especially on an Imax screen the size of an upended football field\" — though he adds \"it's difficult to tell if the game has really been changed or not.\"\n\n**Mixed/reserved:**\n- **Tom Maurstad (Dallas Morning News)**, 3/5: \"It is cool. But all this 'change the way you look at films' hype is just that… it looks like a video game.\"\n- **Jake Coyle (Associated Press)**, 2.5/4: the effects are \"clearly revolutionary,\" but the film \"nevertheless feels unsatisfying and somehow lacks the pulse of a truly alive film.\"\n- **Paul Byrnes (Sydney Morning Herald)**, 3/5: calls it \"a beautiful folly, a technical wonder that represents a failure of nerve.\"\n\nIn short: the visuals themselves are nearly universally admired as groundbreaking and immersive, while the divide is over whether the spectacle translates into a satisfying film.",
+      "error": null,
+      "latency_ms": 31587,
+      "cost_usd": 0.000744,
+      "tokens": 3603,
+      "chunks": [
+        {
+          "chunk_id": 5035,
+          "movie": "Avatar (2009)"
+        },
+        {
+          "chunk_id": 5037,
+          "movie": "Avatar (2009)"
+        },
+        {
+          "chunk_id": 5050,
+          "movie": "Avatar (2009)"
+        },
+        {
+          "chunk_id": 5047,
+          "movie": "Avatar (2009)"
+        },
+        {
+          "chunk_id": 5045,
+          "movie": "Avatar (2009)"
+        },
+        {
+          "chunk_id": 5033,
+          "movie": "Avatar (2009)"
+        },
+        {
+          "chunk_id": 7559,
+          "movie": "Avatar: The Way of Water (2022)"
+        },
+        {
+          "chunk_id": 5032,
+          "movie": "Avatar (2009)"
+        }
+      ],
+      "tools": [],
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer accurately summarizes what reviewers in the provided sources say about Avatar's visuals. It correctly quotes and attributes reviews from Ty Burr, Anne Thompson, Michael Phillips, Peter Bradshaw, Tom Maurstad, Jake Coyle, and Paul Byrnes. The answer appropriately categorizes reviews as positive or mixed/reserved, and accurately captures the nuance that while visuals are praised, some reviewers question whether they elevate the overall film. All specific quotes and attributions match the sources provided.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Ty Burr (Boston Globe) gave Avatar 3.5/4 and said it's 'an entertainment to be not just seen but absorbed on a molecular level' and 'Cameron aims for sheer wonderment, and he delivers.'",
+            "supported": true,
+            "evidence": "chunk_id 5037"
+          },
+          {
+            "claim": "Anne Thompson (indieWire) gave Avatar an A and called it 'a joyous celebration of story craft and the visual possibilities of cinema' and 'Avatar is stunning'",
+            "supported": true,
+            "evidence": "chunk_id 5050"
+          },
+          {
+            "claim": "Anne Thompson credited Cameron and Weta Digital's technology",
+            "supported": true,
+            "evidence": "chunk_id 5050"
+          },
+          {
+            "claim": "Michael Phillips (Chicago Tribune) gave Avatar 3/4 and said Cameron 'delivered the screen's most anticipated and persuasive blend of live-action and motion-capture animation to date.'",
+            "supported": true,
+            "evidence": "chunk_id 5033"
+          },
+          {
+            "claim": "Peter Bradshaw (Guardian) gave Avatar 3/5 and said 'The effects of Avatar are certainly something to see, especially on an Imax screen the size of an upended football field'",
+            "supported": true,
+            "evidence": "chunk_id 5045"
+          },
+          {
+            "claim": "Peter Bradshaw said 'it's difficult to tell if the game has really been changed or not'",
+            "supported": true,
+            "evidence": "chunk_id 5045"
+          },
+          {
+            "claim": "Tom Maurstad (Dallas Morning News) gave Avatar 3/5 and said 'It is cool. But all this \"change the way you look at films\" hype is just that… it looks like a video game.'",
+            "supported": true,
+            "evidence": "chunk_id 5047"
+          },
+          {
+            "claim": "Jake Coyle (Associated Press) gave Avatar 2.5/4 and said the effects are 'clearly revolutionary' but the film 'nevertheless feels unsatisfying and somehow lacks the pulse of a truly alive film.'",
+            "supported": true,
+            "evidence": "chunk_id 5032"
+          },
+          {
+            "claim": "Paul Byrnes (Sydney Morning Herald) gave Avatar 3/5 and called it 'a beautiful folly, a technical wonder that represents a failure of nerve.'",
+            "supported": true,
+            "evidence": "chunk_id 5035"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "O6",
+      "type": "opinion",
+      "question": "What are the main criticisms of Batman v Superman: Dawn of Justice?",
+      "answer": "The critics in this dataset consistently raise several criticisms of *Batman v Superman: Dawn of Justice*:\n\n- **Lumbering and joyless tone**: Joshua Rothkopf (Time Out, 2/5) calls it \"a lumbering, dead-on-arrival superhero mélange,\" and Ann Hornaday (Washington Post, 1.5/4) says that rather than \"escapism and sensory exhilaration,\" viewers get heroes who \"grimace, scowl and wince their way through heroics with the joyless determination of shift workers making the doughnuts.\"\n- **Derivative, unoriginal storytelling**: Stephen Whitty (Newark Star-Ledger, 2/4) describes the film as a \"greatest-hits medley of every superhero movie ever made — a little Dark Knight Rises here, a bit of Batman Begins there,\" adding that \"none of it convinces.\"\n- **Incoherent narrative**: Preston Jones (Fort Worth Star-Telegram, 1/5) argues that the film sacrifices \"logic, reason and character motivation,\" likening it to \"Hollywood's latest exercise in fan service\" with screenplay ingredients thrown \"in a blender and filming the scraps.\"\n- **A disappointment for the genre**: Rothkopf frames it as \"a $250 million tombstone for a genre in dire need of a break.\"\n\nOverall, the database's critic average for the film is 4.9/10 (from 20 rated reviews in the database), with most scores clustered in the middle-lower range (no review above 8, and several in the 2–4 band). Note these review excerpts are all negative; the distribution indicates some more positive reviews exist in the data but are not shown here.",
+      "error": null,
+      "latency_ms": 22434,
+      "cost_usd": 0.000729,
+      "tokens": 6262,
+      "chunks": [
+        {
+          "chunk_id": 9246,
+          "movie": "Batman v Superman: Dawn of Justice (2016)"
+        },
+        {
+          "chunk_id": 1042,
+          "movie": "Raiders of the Lost Ark (1981)"
+        },
+        {
+          "chunk_id": 9254,
+          "movie": "Batman v Superman: Dawn of Justice (2016)"
+        },
+        {
+          "chunk_id": 1198,
+          "movie": "Ferris Bueller's Day Off (1986)"
+        },
+        {
+          "chunk_id": 9261,
+          "movie": "Batman v Superman: Dawn of Justice (2016)"
+        },
+        {
+          "chunk_id": 10,
+          "movie": "Fight Club (1999)"
+        },
+        {
+          "chunk_id": 9258,
+          "movie": "Batman v Superman: Dawn of Justice (2016)"
+        },
+        {
+          "chunk_id": 646,
+          "movie": "Citizen Kane (1941)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "rating_summary",
+          "arguments": {
+            "movie": "Batman v Superman: Dawn of Justice (2016)"
+          }
+        }
+      ],
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 0.6
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer accurately summarizes the main criticisms of Batman v Superman: Dawn of Justice found in the provided sources. All four criticisms are directly supported by quotes from the reviews: the lumbering/joyless tone (Rothkopf and Hornaday), derivative storytelling (Whitty), incoherent narrative (Jones), and disappointment for the genre (Rothkopf). The answer appropriately notes that these are criticisms from the database and acknowledges the rating distribution from the tool results.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Joshua Rothkopf (Time Out, 2/5) calls it 'a lumbering, dead-on-arrival superhero mélange'",
+            "supported": true,
+            "evidence": "chunk_id 9246"
+          },
+          {
+            "claim": "Ann Hornaday (Washington Post, 1.5/4) says viewers get heroes who 'grimace, scowl and wince their way through heroics with the joyless determination of shift workers making the doughnuts'",
+            "supported": true,
+            "evidence": "chunk_id 9261"
+          },
+          {
+            "claim": "Stephen Whitty (Newark Star-Ledger, 2/4) describes the film as a 'greatest-hits medley of every superhero movie ever made'",
+            "supported": true,
+            "evidence": "chunk_id 9254"
+          },
+          {
+            "claim": "Preston Jones (Fort Worth Star-Telegram, 1/5) argues that the film sacrifices 'logic, reason and character motivation'",
+            "supported": true,
+            "evidence": "chunk_id 9258"
+          },
+          {
+            "claim": "Rothkopf frames it as 'a $250 million tombstone for a genre in dire need of a break'",
+            "supported": true,
+            "evidence": "chunk_id 9246"
+          },
+          {
+            "claim": "The database's critic average for the film is 4.9/10 from 20 rated reviews",
+            "supported": true,
+            "evidence": "rating_summary tool result"
+          },
+          {
+            "claim": "Most scores clustered in the middle-lower range with no review above 8",
+            "supported": true,
+            "evidence": "rating_summary tool result shows rating_distribution with 8-10 category at 0"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "O7",
+      "type": "opinion",
+      "question": "Do critics think Gravity is worth seeing?",
+      "answer": "Yes — the critics in this database are uniformly positive about *Gravity* (2013), with all six reviews listed as \"fresh\":\n\n- **Ann Hornaday (Washington Post), 4/4** — says it \"must be seen in theaters to be appreciated,\" arguing that watching it on anything less than a 40-foot screen is \"tantamount to listening to Beethoven through a tin can and a string.\"\n- **Christy Lemire (ChristyLemire.com), 4/4** — \"Believe the hype: Gravity is as jaw-droppingly spectacular as you've heard,\" praising it as magnificent technically but also \"a marvel of controlled acting and precise tone.\"\n- **Matt Zoller Seitz (RogerEbert.com), 4/4** — highlights that, in its heart, \"it is not primarily a film about astronauts, or space, or even a specific catastrophe.\"\n- **Lou Lumenick (New York Post), 4/4** — calls it \"a visually enthralling popcorn movie\" that \"will rivet vast crowds\" over its running time \"with not a second wasted.\"\n- **Mark Kermode (Observer (UK)), 4/5** — praises its \"level of sheer visual invention that would have left Stanley Kubrick's head spinning.\"\n- **A.A. Dowd (AV Club), B+, fresh** — says the film \"makes the case for throwing immense resources at true visionaries,\" with Cuarón \"expertly\" blending \"the epic with the intimate.\"\n\nIn short, the available reviews consistently present it as worth seeing — several specifically urging the theatrical experience for its scale and visual craft.",
+      "error": null,
+      "latency_ms": 24317,
+      "cost_usd": 0.000562,
+      "tokens": 3564,
+      "chunks": [
+        {
+          "chunk_id": 7178,
+          "movie": "Gravity (2013)"
+        },
+        {
+          "chunk_id": 7183,
+          "movie": "Gravity (2013)"
+        },
+        {
+          "chunk_id": 7176,
+          "movie": "Gravity (2013)"
+        },
+        {
+          "chunk_id": 7185,
+          "movie": "Gravity (2013)"
+        },
+        {
+          "chunk_id": 161,
+          "movie": "Gravity (2013)"
+        },
+        {
+          "chunk_id": 7172,
+          "movie": "Gravity (2013)"
+        },
+        {
+          "chunk_id": 7186,
+          "movie": "Gravity (2013)"
+        },
+        {
+          "chunk_id": 327,
+          "movie": "Children of Men (2006)"
+        }
+      ],
+      "tools": [],
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer accurately summarizes what critics in the database say about whether Gravity is worth seeing. All six reviews cited are indeed marked as 'fresh' and contain positive recommendations. The answer correctly quotes or paraphrases key points from each review and accurately conveys that critics think the film is worth seeing, particularly emphasizing the theatrical experience.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "All six reviews listed are marked as 'fresh'",
+            "supported": true,
+            "evidence": "chunks 7178, 7183, 7176, 7185, 7172, 7186 all indicate 'fresh' status"
+          },
+          {
+            "claim": "Ann Hornaday gave Gravity 4/4",
+            "supported": true,
+            "evidence": "chunk 7178"
+          },
+          {
+            "claim": "Ann Hornaday said it 'must be seen in theaters to be appreciated'",
+            "supported": true,
+            "evidence": "chunk 7178"
+          },
+          {
+            "claim": "Christy Lemire gave Gravity 4/4",
+            "supported": true,
+            "evidence": "chunk 7185"
+          },
+          {
+            "claim": "Christy Lemire said 'Believe the hype: Gravity is as jaw-droppingly spectacular as you've heard'",
+            "supported": true,
+            "evidence": "chunk 7185"
+          },
+          {
+            "claim": "Matt Zoller Seitz gave Gravity 4/4",
+            "supported": true,
+            "evidence": "chunk 7183"
+          },
+          {
+            "claim": "Lou Lumenick gave Gravity 4/4",
+            "supported": true,
+            "evidence": "chunk 7172"
+          },
+          {
+            "claim": "Lou Lumenick called it 'a visually enthralling popcorn movie'",
+            "supported": true,
+            "evidence": "chunk 7172"
+          },
+          {
+            "claim": "Mark Kermode gave Gravity 4/5",
+            "supported": true,
+            "evidence": "chunk 7186"
+          },
+          {
+            "claim": "Mark Kermode praised its 'level of sheer visual invention that would have left Stanley Kubrick's head spinning'",
+            "supported": true,
+            "evidence": "chunk 7186"
+          },
+          {
+            "claim": "A.A. Dowd gave Gravity B+",
+            "supported": true,
+            "evidence": "chunk 7176"
+          },
+          {
+            "claim": "A.A. Dowd said the film 'makes the case for throwing immense resources at true visionaries'",
+            "supported": true,
+            "evidence": "chunk 7176"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "O8",
+      "type": "opinion",
+      "question": "What do critics say about the music in La La Land?",
+      "answer": "Critics' comments on *La La Land*'s music focus less on specific songs and more on how the film uses the musical form:\n\n- **Mick LaSalle** (San Francisco Chronicle, 4/4) notes the \"impersonal splashiness of the opening number\" but says the film becomes \"a film of great intimacy.\"\n- **Joe Dziemianowicz** (New York Daily News, 5/5) says the movie \"understands and celebrates what makes musicals tick. People sing because they feel so much. Emotions have to come out.\"\n- **Mara Reinstein** (Us Weekly, 4/4) calls it \"a gorgeous homage to the golden age of Hollywood musicals in the 1950s.\"\n- **Ian Freer** (Empire, 5/5) describes it as \"audacious, retro, funny and heartfelt\" — \"the latest great musical for people who don't like musicals.\"\n- **Peter Rainer** (Christian Science Monitor, A) singles out the finale, which ends with a \"what-might-have-been fantasia\" and \"a bluesy jazz piano chord, full of hurt and healing, that slowly fades to silence.\"\n- **Stephen Whitty** (Newark Star-Ledger, 3.5/4) frames the music as serving the fantasy: \"There's a genre which isn't afraid to recreate what romance actually feels like. And that's where 'La La Land' soars.\"\n- **Candice Frederick** (Reel Talk Online, B-), the most reserved, calls the film \"fun and cutesy\" but implies it falls short of a truly great movie musical.\n\nThe available excerpts don't include detailed critiques of individual songs or the score itself — no reviewer breaks down the compositions or performances beyond the broader points above.",
+      "error": null,
+      "latency_ms": 16941,
+      "cost_usd": 0.000879,
+      "tokens": 4068,
+      "chunks": [
+        {
+          "chunk_id": 9632,
+          "movie": "La La Land (2016)"
+        },
+        {
+          "chunk_id": 9635,
+          "movie": "La La Land (2016)"
+        },
+        {
+          "chunk_id": 9643,
+          "movie": "La La Land (2016)"
+        },
+        {
+          "chunk_id": 9634,
+          "movie": "La La Land (2016)"
+        },
+        {
+          "chunk_id": 9630,
+          "movie": "La La Land (2016)"
+        },
+        {
+          "chunk_id": 9644,
+          "movie": "La La Land (2016)"
+        },
+        {
+          "chunk_id": 9628,
+          "movie": "La La Land (2016)"
+        },
+        {
+          "chunk_id": 507,
+          "movie": "Sweeney Todd: The Demon Barber of Fleet Street (2007)"
+        }
+      ],
+      "tools": [],
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer accurately summarizes what critics in the provided sources say about La La Land's music. It correctly attributes quotes and paraphrases to the appropriate reviewers with their correct ratings and publications. The answer appropriately notes that the available excerpts focus on the musical form and emotional impact rather than specific songs or score details, which is an accurate observation based on the sources provided.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Mick LaSalle (San Francisco Chronicle, 4/4) notes the 'impersonal splashiness of the opening number' but says the film becomes 'a film of great intimacy.'",
+            "supported": true,
+            "evidence": "chunk_id 9635"
+          },
+          {
+            "claim": "Joe Dziemianowicz (New York Daily News, 5/5) says the movie 'understands and celebrates what makes musicals tick. People sing because they feel so much. Emotions have to come out.'",
+            "supported": true,
+            "evidence": "chunk_id 9630"
+          },
+          {
+            "claim": "Mara Reinstein (Us Weekly, 4/4) calls it 'a gorgeous homage to the golden age of Hollywood musicals in the 1950s.'",
+            "supported": true,
+            "evidence": "chunk_id 9628"
+          },
+          {
+            "claim": "Ian Freer (Empire, 5/5) describes it as 'audacious, retro, funny and heartfelt' — 'the latest great musical for people who don't like musicals.'",
+            "supported": true,
+            "evidence": "chunk_id 9643"
+          },
+          {
+            "claim": "Peter Rainer (Christian Science Monitor, A) singles out the finale, which ends with a 'what-might-have-been fantasia' and 'a bluesy jazz piano chord, full of hurt and healing, that slowly fades to silence.'",
+            "supported": true,
+            "evidence": "chunk_id 9634"
+          },
+          {
+            "claim": "Stephen Whitty (Newark Star-Ledger, 3.5/4) frames the music as serving the fantasy: 'There's a genre which isn't afraid to recreate what romance actually feels like. And that's where 'La La Land' soars.'",
+            "supported": true,
+            "evidence": "chunk_id 9632"
+          },
+          {
+            "claim": "Candice Frederick (Reel Talk Online, B-) calls the film 'fun and cutesy' but implies it falls short of a truly great movie musical.",
+            "supported": true,
+            "evidence": "chunk_id 9644"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "P1",
+      "type": "plot",
+      "question": "Which film follows a family that must stay silent to survive creatures that hunt by sound?",
+      "answer": "**A Quiet Place (2018)** — its overview states: \"A family is forced to live in silence while hiding from creatures that hunt by sound.\"\n\nDirected by John Krasinski and starring Emily Blunt and John Krasinski, it's a 91-minute Horror/Drama/Science Fiction film with an IMDb rating of 7.5.",
+      "error": null,
+      "latency_ms": 6944,
+      "cost_usd": 0.000817,
+      "tokens": 3853,
+      "chunks": [
+        {
+          "chunk_id": 270,
+          "movie": "A Quiet Place (2018)"
+        },
+        {
+          "chunk_id": 10191,
+          "movie": "A Quiet Place (2018)"
+        },
+        {
+          "chunk_id": 10196,
+          "movie": "A Quiet Place (2018)"
+        },
+        {
+          "chunk_id": 277,
+          "movie": "Shaun of the Dead (2004)"
+        },
+        {
+          "chunk_id": 10195,
+          "movie": "A Quiet Place (2018)"
+        },
+        {
+          "chunk_id": 374,
+          "movie": "Saw (2004)"
+        },
+        {
+          "chunk_id": 10189,
+          "movie": "A Quiet Place (2018)"
+        },
+        {
+          "chunk_id": 588,
+          "movie": "Alien³ (1992)"
+        }
+      ],
+      "tools": [],
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 0.8
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies A Quiet Place (2018) as the film matching the question's description. The answer directly quotes the overview from the sources which states 'A family is forced to live in silence while hiding from creatures that hunt by sound,' which perfectly matches the question about a family that must stay silent to survive creatures that hunt by sound. All details provided (director, cast, runtime, rating, genres) are accurate and match the reference.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "A Quiet Place (2018) follows a family forced to live in silence while hiding from creatures that hunt by sound",
+            "supported": true,
+            "evidence": "chunk_id 270 - Overview section"
+          },
+          {
+            "claim": "Directed by John Krasinski",
+            "supported": true,
+            "evidence": "chunk_id 270"
+          },
+          {
+            "claim": "Starring Emily Blunt and John Krasinski",
+            "supported": true,
+            "evidence": "chunk_id 270"
+          },
+          {
+            "claim": "91-minute runtime",
+            "supported": true,
+            "evidence": "chunk_id 270"
+          },
+          {
+            "claim": "Horror/Drama/Science Fiction genres",
+            "supported": true,
+            "evidence": "chunk_id 270"
+          },
+          {
+            "claim": "IMDb rating of 7.5",
+            "supported": true,
+            "evidence": "chunk_id 270"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "P2",
+      "type": "plot",
+      "question": "Which movie is about a young con artist who poses as a pilot and a doctor while an FBI agent chases him?",
+      "answer": "**Catch Me If You Can (2002)**\n\nThe description states it is \"a true story about Frank Abagnale Jr. who, before his 19th birthday, successfully conned millions of dollars worth of checks as a Pan Am pilot, doctor, and legal prosecutor,\" with an FBI agent pursuing him.\n\nReviews support this:\n- **Adam Nayman (eye WEEKLY)**: \"Most of the film is an extended chase, with Abagnale always one clever step ahead.\"\n- **Roger Ebert (Chicago Sun-Times)**: notes the irony that \"the only person who completely appreciates Abagnale's accomplishments is the man trying to arrest him.\"",
+      "error": null,
+      "latency_ms": 15412,
+      "cost_usd": 0.000813,
+      "tokens": 3908,
+      "chunks": [
+        {
+          "chunk_id": 104,
+          "movie": "Catch Me If You Can (2002)"
+        },
+        {
+          "chunk_id": 3190,
+          "movie": "Catch Me If You Can (2002)"
+        },
+        {
+          "chunk_id": 366,
+          "movie": "American Hustle (2013)"
+        },
+        {
+          "chunk_id": 3184,
+          "movie": "Catch Me If You Can (2002)"
+        },
+        {
+          "chunk_id": 578,
+          "movie": "Now You See Me 2 (2016)"
+        },
+        {
+          "chunk_id": 3175,
+          "movie": "Catch Me If You Can (2002)"
+        },
+        {
+          "chunk_id": 206,
+          "movie": "Now You See Me (2013)"
+        },
+        {
+          "chunk_id": 3183,
+          "movie": "Catch Me If You Can (2002)"
+        }
+      ],
+      "tools": [],
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 0.6
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies Catch Me If You Can (2002) as the movie matching the question's description. The source material confirms it is about Frank Abagnale Jr., a young con artist who posed as a pilot and doctor, with an FBI agent pursuing him. The answer accurately reflects the reference answer.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Catch Me If You Can is a true story about Frank Abagnale Jr.",
+            "supported": true,
+            "evidence": "chunk_id 104: 'A true story about Frank Abagnale Jr.'"
+          },
+          {
+            "claim": "Frank Abagnale Jr. conned millions of dollars worth of checks as a Pan Am pilot, doctor, and legal prosecutor",
+            "supported": true,
+            "evidence": "chunk_id 104: 'successfully conned millions of dollars worth of checks as a Pan Am pilot, doctor, and legal prosecutor'"
+          },
+          {
+            "claim": "An FBI agent pursues Frank Abagnale Jr.",
+            "supported": true,
+            "evidence": "chunk_id 104: 'An FBI agent makes it his mission to put him behind bars'"
+          },
+          {
+            "claim": "The film is an extended chase with Abagnale always one clever step ahead",
+            "supported": true,
+            "evidence": "chunk_id 3190: 'Most of the film is an extended chase, with Abagnale always one clever step ahead'"
+          },
+          {
+            "claim": "The only person who completely appreciates Abagnale's accomplishments is the man trying to arrest him",
+            "supported": true,
+            "evidence": "chunk_id 3183: 'the only person who completely appreciates Abagnale's accomplishments is the man trying to arrest him'"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "P3",
+      "type": "plot",
+      "question": "Which film is about a cowboy doll who feels replaced by a new space ranger toy?",
+      "answer": "**Toy Story (1995)** is the film. According to its plot description, the toys are \"led by Woody, Andy's toys live happily in his room until Andy's birthday brings Buzz Lightyear onto the scene. Afraid of losing his place in Andy's heart, Woody plots against Buzz.\"\n\nToy Story 2 (1999) is the sequel, in which \"an obsessive toy collector named Al McWhiggen... kidnaps Woody,\" and Woody must decide where he belongs.",
+      "error": null,
+      "latency_ms": 17120,
+      "cost_usd": 0.000507,
+      "tokens": 3384,
+      "chunks": [
+        {
+          "chunk_id": 113,
+          "movie": "Toy Story (1995)"
+        },
+        {
+          "chunk_id": 259,
+          "movie": "Toy Story 2 (1999)"
+        },
+        {
+          "chunk_id": 2330,
+          "movie": "Toy Story 2 (1999)"
+        },
+        {
+          "chunk_id": 2013,
+          "movie": "Toy Story (1995)"
+        },
+        {
+          "chunk_id": 2329,
+          "movie": "Toy Story 2 (1999)"
+        },
+        {
+          "chunk_id": 138,
+          "movie": "Toy Story 3 (2010)"
+        },
+        {
+          "chunk_id": 596,
+          "movie": "Hugo (2011)"
+        },
+        {
+          "chunk_id": 2015,
+          "movie": "Toy Story (1995)"
+        }
+      ],
+      "tools": [],
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 0.4
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies Toy Story (1995) as the film about a cowboy doll (Woody) who feels replaced by a new space ranger toy (Buzz Lightyear). The plot description provided matches the reference answer exactly.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Toy Story (1995) features Woody, Andy's toys living happily in his room until Andy's birthday brings Buzz Lightyear onto the scene",
+            "supported": true,
+            "evidence": "chunk_id 113"
+          },
+          {
+            "claim": "Woody is afraid of losing his place in Andy's heart and plots against Buzz",
+            "supported": true,
+            "evidence": "chunk_id 113"
+          },
+          {
+            "claim": "Toy Story 2 (1999) is the sequel",
+            "supported": true,
+            "evidence": "chunk_id 259"
+          },
+          {
+            "claim": "In Toy Story 2, an obsessive toy collector named Al McWhiggen kidnaps Woody",
+            "supported": true,
+            "evidence": "chunk_id 259"
+          },
+          {
+            "claim": "In Toy Story 2, Woody must decide where he belongs",
+            "supported": true,
+            "evidence": "chunk_id 259"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "P4",
+      "type": "plot",
+      "question": "Which movie tells of a mute cleaning woman who falls in love with an amphibian creature held in a government lab?",
+      "answer": "**The Shape of Water (2017)**, directed by Guillermo del Toro.\n\nThe film's description: \"An other-worldly story, set against the backdrop of Cold War era America circa 1962, where a mute janitor working at a lab falls in love with an amphibious man being held captive there and devises a plan to help him escape.\" It stars Sally Hawkins, Michael Shannon, Richard Jenkins and Octavia Spencer, with an IMDb rating of 7.3.\n\nCritics echo this premise: Nigel Andrews (Financial Times) notes it is \"inspired by The Creature from the Black Lagoon (1994),\" while Tom Shone (Sunday Times) praises its sincerity and craft.",
+      "error": null,
+      "latency_ms": 18699,
+      "cost_usd": 0.000813,
+      "tokens": 4066,
+      "chunks": [
+        {
+          "chunk_id": 417,
+          "movie": "The Shape of Water (2017)"
+        },
+        {
+          "chunk_id": 10052,
+          "movie": "The Shape of Water (2017)"
+        },
+        {
+          "chunk_id": 147,
+          "movie": "The Hobbit: An Unexpected Journey (2012)"
+        },
+        {
+          "chunk_id": 10061,
+          "movie": "The Shape of Water (2017)"
+        },
+        {
+          "chunk_id": 346,
+          "movie": "Fantastic Beasts and Where to Find Them (2016)"
+        },
+        {
+          "chunk_id": 10059,
+          "movie": "The Shape of Water (2017)"
+        },
+        {
+          "chunk_id": 362,
+          "movie": "Twilight (2008)"
+        },
+        {
+          "chunk_id": 10062,
+          "movie": "The Shape of Water (2017)"
+        }
+      ],
+      "tools": [],
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 0.6
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies The Shape of Water (2017) as the movie matching the question's description. The film does tell of a mute cleaning woman (janitor) who falls in love with an amphibian creature held in a government lab, exactly as described in the reference.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "The Shape of Water was directed by Guillermo del Toro",
+            "supported": true,
+            "evidence": "chunk_id 417"
+          },
+          {
+            "claim": "The film is set against the backdrop of Cold War era America circa 1962",
+            "supported": true,
+            "evidence": "chunk_id 417"
+          },
+          {
+            "claim": "A mute janitor working at a lab falls in love with an amphibious man being held captive there",
+            "supported": true,
+            "evidence": "chunk_id 417"
+          },
+          {
+            "claim": "The film stars Sally Hawkins, Michael Shannon, Richard Jenkins and Octavia Spencer",
+            "supported": true,
+            "evidence": "chunk_id 417"
+          },
+          {
+            "claim": "The film has an IMDb rating of 7.3",
+            "supported": true,
+            "evidence": "chunk_id 417"
+          },
+          {
+            "claim": "Nigel Andrews (Financial Times) notes it is inspired by The Creature from the Black Lagoon (1994)",
+            "supported": false,
+            "evidence": "The source states it was inspired by The Creature from the Black Lagoon (1954), not 1994"
+          },
+          {
+            "claim": "Tom Shone (Sunday Times) praises its sincerity and craft",
+            "supported": true,
+            "evidence": "chunk_id 10059"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 0.857,
+        "hallucination": true,
+        "unsupported_claims": [
+          "Nigel Andrews (Financial Times) notes it is inspired by The Creature from the Black Lagoon (1994)"
+        ]
+      }
+    },
+    {
+      "id": "P5",
+      "type": "plot",
+      "question": "Which film is about a lonely writer who falls in love with his computer's operating system?",
+      "answer": "**Her (2013)**, directed by Spike Jonze, is the film about a lonely writer who falls in love with his computer's operating system.\n\n- **Plot**: Theodore, \"a lonely writer, purchases a newly developed operating system designed to meet the user's every need,\" and \"a romantic relationship develops between him and his operating system.\"\n- **Cary Darling** (Fort Worth Star-Telegram/DFW.com), reviewing *Her*: \"A lonely young man falls head over keyboard in love with his computer's operating system... one designed to be empathetic with humans, and has Scarlett Johansson as its Siri-with-sex-appeal voice.\"\n- **Claudia Puig** (USA Today): \"The film's genius is how it grounds the notion of a man falling for an artificially intelligent machine with reality.\"\n\nData: IMDb rating 8.0 (719,042 votes), runtime 126 minutes, genres Romance/Science Fiction/Drama.",
+      "error": null,
+      "latency_ms": 40906,
+      "cost_usd": 0.001014,
+      "tokens": 6815,
+      "chunks": [
+        {
+          "chunk_id": 234,
+          "movie": "Her (2013)"
+        },
+        {
+          "chunk_id": 7981,
+          "movie": "Her (2013)"
+        },
+        {
+          "chunk_id": 362,
+          "movie": "Twilight (2008)"
+        },
+        {
+          "chunk_id": 7975,
+          "movie": "Her (2013)"
+        },
+        {
+          "chunk_id": 86,
+          "movie": "Back to the Future (1985)"
+        },
+        {
+          "chunk_id": 7983,
+          "movie": "Her (2013)"
+        },
+        {
+          "chunk_id": 420,
+          "movie": "Midnight in Paris (2011)"
+        },
+        {
+          "chunk_id": 281,
+          "movie": "Ex Machina (2015)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "get_movie_metadata",
+          "arguments": {
+            "movie": "Her (2013)"
+          }
+        }
+      ],
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 0.6
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies Her (2013) as the film about a lonely writer who falls in love with his computer's operating system, matching the reference exactly.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Her (2013) is directed by Spike Jonze",
+            "supported": true,
+            "evidence": "chunk_id 234 and tool result get_movie_metadata"
+          },
+          {
+            "claim": "Theodore is a lonely writer who purchases a newly developed operating system",
+            "supported": true,
+            "evidence": "chunk_id 234 and tool result get_movie_metadata"
+          },
+          {
+            "claim": "A romantic relationship develops between Theodore and his operating system",
+            "supported": true,
+            "evidence": "chunk_id 234 and tool result get_movie_metadata"
+          },
+          {
+            "claim": "Cary Darling from Fort Worth Star-Telegram/DFW.com reviewed the film",
+            "supported": true,
+            "evidence": "chunk_id 7981"
+          },
+          {
+            "claim": "Cary Darling wrote 'A lonely young man falls head over keyboard in love with his computer's operating system'",
+            "supported": true,
+            "evidence": "chunk_id 7981"
+          },
+          {
+            "claim": "The operating system is designed to be empathetic with humans and has Scarlett Johansson as its voice",
+            "supported": true,
+            "evidence": "chunk_id 7981"
+          },
+          {
+            "claim": "Claudia Puig from USA Today reviewed the film",
+            "supported": true,
+            "evidence": "chunk_id 7975"
+          },
+          {
+            "claim": "Claudia Puig wrote about 'a man falling for an artificially intelligent machine'",
+            "supported": true,
+            "evidence": "chunk_id 7975"
+          },
+          {
+            "claim": "IMDb rating is 8.0 with 719,042 votes",
+            "supported": true,
+            "evidence": "chunk_id 234 and tool result get_movie_metadata"
+          },
+          {
+            "claim": "Runtime is 126 minutes",
+            "supported": true,
+            "evidence": "chunk_id 234 and tool result get_movie_metadata"
+          },
+          {
+            "claim": "Genres are Romance, Science Fiction, and Drama",
+            "supported": true,
+            "evidence": "chunk_id 234 and tool result get_movie_metadata"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "P6",
+      "type": "plot",
+      "question": "Which movie follows a programmer invited to test whether a humanoid robot is truly conscious?",
+      "answer": "**Ex Machina** (2015). According to its description, Caleb, a coder at the world's largest internet company, wins a competition to spend a week at a private mountain retreat, where he must \"participate in a strange and fascinating experiment in which he must interact with the world's first true artificial intelligence, housed in the body of a beautiful robot girl.\"\n\nThis fits the theme of testing machine consciousness (the film's keywords include \"turing test,\" \"consciousness,\" and \"human android relationship\"), whereas *I, Robot* (2004) follows \"a technophobic cop\" investigating a death in a robot-populated Chicago.",
+      "error": null,
+      "latency_ms": 12882,
+      "cost_usd": 0.000396,
+      "tokens": 2680,
+      "chunks": [
+        {
+          "chunk_id": 295,
+          "movie": "I, Robot (2004)"
+        },
+        {
+          "chunk_id": 281,
+          "movie": "Ex Machina (2015)"
+        },
+        {
+          "chunk_id": 3730,
+          "movie": "I, Robot (2004)"
+        },
+        {
+          "chunk_id": 3725,
+          "movie": "I, Robot (2004)"
+        },
+        {
+          "chunk_id": 3713,
+          "movie": "I, Robot (2004)"
+        },
+        {
+          "chunk_id": 3718,
+          "movie": "I, Robot (2004)"
+        },
+        {
+          "chunk_id": 280,
+          "movie": "Ex Machina (2015)"
+        },
+        {
+          "chunk_id": 3731,
+          "movie": "I, Robot (2004)"
+        }
+      ],
+      "tools": [],
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 0.2
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies Ex Machina (2015) as the movie matching the question. The plot description provided matches the reference answer exactly, and the system correctly distinguished it from I, Robot (2004), which follows a different premise (a cop investigating a death rather than a programmer testing a robot's consciousness).",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Ex Machina was released in 2015",
+            "supported": true,
+            "evidence": "chunk_id 280"
+          },
+          {
+            "claim": "Caleb is a coder at the world's largest internet company",
+            "supported": true,
+            "evidence": "chunk_id 280"
+          },
+          {
+            "claim": "Caleb wins a competition to spend a week at a private mountain retreat",
+            "supported": true,
+            "evidence": "chunk_id 280"
+          },
+          {
+            "claim": "Caleb must interact with the world's first true artificial intelligence, housed in the body of a beautiful robot girl",
+            "supported": true,
+            "evidence": "chunk_id 280"
+          },
+          {
+            "claim": "The film's keywords include 'turing test,' 'consciousness,' and 'human android relationship'",
+            "supported": true,
+            "evidence": "chunk_id 281"
+          },
+          {
+            "claim": "I, Robot (2004) follows a technophobe cop investigating a death",
+            "supported": true,
+            "evidence": "chunk_id 295"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "P7",
+      "type": "plot",
+      "question": "Which film follows journalists uncovering child abuse covered up by the Catholic Church in Boston?",
+      "answer": "**Spotlight** (2015).\n\nThe database overview states: \"The true story of how the Boston Globe uncovered the massive scandal of child molestation and cover-up within the local Catholic Archdiocese, shaking the entire Catholic Church to its core.\"\n\nCritics' reviews confirm this:\n- **David Stratton** (The Australian): \"Spotlight is a celebration of the freedom of the press, a riveting story of investigative journalism and of the role played by The Boston Globe in bringing to public attention the terrible crimes that had been taking place in the city for decades.\"\n- **Steven D. Greydanus** (National Catholic Register): the film \"plunges us into the rhythms of a specific time and place: Boston around the turn of the millennium.\"\n- **Lou Lumenick** (New York Post) on how \"journalists can get co-opted by the institutions they cover\" and \"how much courage it takes to pursue a story that may alienate many of your readers.\"\n\nThe film is directed by Tom McCarthy and stars Mark Ruffalo, Michael Keaton, and Rachel McAdams; it holds an IMDb rating of 8.1.",
+      "error": null,
+      "latency_ms": 7497,
+      "cost_usd": 0.0006,
+      "tokens": 3623,
+      "chunks": [
+        {
+          "chunk_id": 353,
+          "movie": "Spotlight (2015)"
+        },
+        {
+          "chunk_id": 8148,
+          "movie": "Spotlight (2015)"
+        },
+        {
+          "chunk_id": 8138,
+          "movie": "Spotlight (2015)"
+        },
+        {
+          "chunk_id": 8144,
+          "movie": "Spotlight (2015)"
+        },
+        {
+          "chunk_id": 8139,
+          "movie": "Spotlight (2015)"
+        },
+        {
+          "chunk_id": 8147,
+          "movie": "Spotlight (2015)"
+        },
+        {
+          "chunk_id": 8134,
+          "movie": "Spotlight (2015)"
+        },
+        {
+          "chunk_id": 8132,
+          "movie": "Spotlight (2015)"
+        }
+      ],
+      "tools": [],
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies Spotlight (2015) as the film about journalists uncovering child abuse covered up by the Catholic Church in Boston, which matches the reference exactly.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Spotlight is from 2015",
+            "supported": true,
+            "evidence": "chunk_id 353"
+          },
+          {
+            "claim": "The film is about the Boston Globe uncovering child molestation and cover-up within the local Catholic Archdiocese",
+            "supported": true,
+            "evidence": "chunk_id 353"
+          },
+          {
+            "claim": "The film is directed by Tom McCarthy",
+            "supported": true,
+            "evidence": "chunk_id 353"
+          },
+          {
+            "claim": "The film stars Mark Ruffalo, Michael Keaton, and Rachel McAdams",
+            "supported": true,
+            "evidence": "chunk_id 353"
+          },
+          {
+            "claim": "The film has an IMDb rating of 8.1",
+            "supported": true,
+            "evidence": "chunk_id 353"
+          },
+          {
+            "claim": "David Stratton from The Australian called it 'a celebration of the freedom of the press, a riveting story of investigative journalism'",
+            "supported": true,
+            "evidence": "chunk_id 8148"
+          },
+          {
+            "claim": "Steven D. Greydanus noted the film 'plunges us into the rhythms of a specific time and place: Boston around the turn of the millennium'",
+            "supported": true,
+            "evidence": "chunk_id 8147"
+          },
+          {
+            "claim": "Lou Lumenick from the New York Post discussed how 'journalists can get co-opted by the institutions they cover' and 'how much courage it takes to pursue a story that may alienate many of your readers'",
+            "supported": true,
+            "evidence": "chunk_id 8132"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "P8",
+      "type": "plot",
+      "question": "Which movie is about a young woman and her son held captive in a small shed for years?",
+      "answer": "That description matches **Room (2015)**, directed by Lenny Abrahamson and written by Emma Donoghue.\n\n- Per the film's overview: \"Held captive for 7 years in an enclosed space, a woman and her young son finally gain their freedom, allowing the boy to experience the outside world for the first time.\"\n- Philippa Hawker (The Age) calls it \"a powerful imagining of an extraordinary situation\" as well as \"a poignant evocation of the ordinary, everyday intensity and complexity of the bond between mother and child.\"\n- David Jenkins (Little White Lies) describes it as \"a moving feminist tract which explores questions of what it means to be a mother, what it means to give love, and what it means to receive it.\"\n- Amy Nicholson (L.A. Weekly) notes Abrahamson's fascination with \"how Jack can see joy in this dungeon, and how Joy can dream of freedom when her son can't comprehend that there's anywhere else to go.\"\n\nThe film stars Brie Larson and Jacob Tremblay, runs 118 minutes, and holds an IMDb rating of 8.1. Note that the sources describe the setting as an enclosed space/\"dungeon\" rather than specifically a \"small shed.\"",
+      "error": null,
+      "latency_ms": 7683,
+      "cost_usd": 0.000589,
+      "tokens": 3535,
+      "chunks": [
+        {
+          "chunk_id": 407,
+          "movie": "Room (2015)"
+        },
+        {
+          "chunk_id": 9306,
+          "movie": "Room (2015)"
+        },
+        {
+          "chunk_id": 9310,
+          "movie": "Room (2015)"
+        },
+        {
+          "chunk_id": 9325,
+          "movie": "Room (2015)"
+        },
+        {
+          "chunk_id": 9311,
+          "movie": "Room (2015)"
+        },
+        {
+          "chunk_id": 9307,
+          "movie": "Room (2015)"
+        },
+        {
+          "chunk_id": 9320,
+          "movie": "Room (2015)"
+        },
+        {
+          "chunk_id": 9323,
+          "movie": "Room (2015)"
+        }
+      ],
+      "tools": [],
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies Room (2015) as the film matching the question's description. The film is indeed about a young woman and her son held captive in an enclosed space for years, which matches the reference answer exactly.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Room (2015) is directed by Lenny Abrahamson",
+            "supported": true,
+            "evidence": "chunk_id 407"
+          },
+          {
+            "claim": "Room (2015) is written by Emma Donoghue",
+            "supported": true,
+            "evidence": "chunk_id 407"
+          },
+          {
+            "claim": "The film's overview states: 'Held captive for 7 years in an enclosed space, a woman and her young son finally gain their freedom, allowing the boy to experience the outside world for the first time.'",
+            "supported": true,
+            "evidence": "chunk_id 407"
+          },
+          {
+            "claim": "Philippa Hawker (The Age) calls it 'a powerful imagining of an extraordinary situation' and 'a poignant evocation of the ordinary, everyday intensity and complexity of the bond between mother and child.'",
+            "supported": true,
+            "evidence": "chunk_id 9325"
+          },
+          {
+            "claim": "David Jenkins (Little White Lies) describes it as 'a moving feminist tract which explores questions of what it means to be a mother, what it means to give love, and what it means to receive it.'",
+            "supported": true,
+            "evidence": "chunk_id 9323"
+          },
+          {
+            "claim": "Amy Nicholson (L.A. Weekly) notes Abrahamson's fascination with 'how Jack can see joy in this dungeon, and how Joy can dream of freedom when her son can't comprehend that there's anywhere else to go.'",
+            "supported": true,
+            "evidence": "chunk_id 9307"
+          },
+          {
+            "claim": "The film stars Brie Larson and Jacob Tremblay",
+            "supported": true,
+            "evidence": "chunk_id 407"
+          },
+          {
+            "claim": "The film runs 118 minutes",
+            "supported": true,
+            "evidence": "chunk_id 407"
+          },
+          {
+            "claim": "The film holds an IMDb rating of 8.1",
+            "supported": true,
+            "evidence": "chunk_id 407"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    }
+  ]
+}

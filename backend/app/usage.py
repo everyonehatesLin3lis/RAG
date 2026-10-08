@@ -67,7 +67,8 @@ class UsageTracker(BaseCallbackHandler):
                 usage = message.usage_metadata or {}
                 cost = (meta.get("token_usage") or {}).get("cost")
                 with self._lock:
-                    entry = self._entry(meta.get("model_name") or "unknown")
+                    # usage_model: set by llm.OpenRouterChat on streamed replies, where model_name comes out doubled
+                    entry = self._entry(meta.get("usage_model") or meta.get("model_name") or "unknown")
                     entry.calls += 1
                     entry.input_tokens += usage.get("input_tokens", 0)
                     entry.output_tokens += usage.get("output_tokens", 0)

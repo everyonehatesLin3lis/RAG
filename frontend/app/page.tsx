@@ -19,35 +19,67 @@ type Message = {
   debug?: RagDebug | null;
   toolCalls?: ToolCall[];
   usage?: Usage | null;
+  // Phase 25: set while the answer is still streaming in
+  streaming?: boolean;
+  status?: string; // progress ("Searching reviews…") or a note under the answer ("Stopped")
 };
 
-type ChatResponse = {
-  answer: string;
-  sources: Source[];
-  debug: RagDebug | null;
-  tool_calls: ToolCall[];
-  usage: Usage | null;
-};
 type ErrorResponse = { error: { code: string; message: string } };
 
-async function sendChat(message: string, conversationId: string): Promise<ChatResponse> {
+// Phase 25: the events of POST /api/chat/stream (backend/app/streaming.py).
+type StreamEvent =
+  | { type: "status"; stage: string; message: string }
+  | { type: "token"; content: string }
+  | { type: "tool_call"; data: ToolCall }
+  | { type: "sources"; data: Source[] }
+  | {
+      type: "metadata";
+      data: { answer: string; conversation_id: string; tool_calls: ToolCall[]; debug: RagDebug | null; usage: Usage | null };
+    }
+  | { type: "done" }
+  | { type: "error"; error: { code: string; message: string } };
+
+// Server-Sent Events over fetch: the browser's EventSource only does GET, and we POST a JSON body. The body is read
+// as it arrives; events are separated by a blank line, and each has one "data: <json>" line.
+async function streamChat(
+  message: string,
+  conversationId: string,
+  onEvent: (event: StreamEvent) => void,
+  signal: AbortSignal,
+): Promise<void> {
   let res: Response;
   try {
-    res = await fetch(`${API_BASE_URL}/api/chat`, {
+    res = await fetch(`${API_BASE_URL}/api/chat/stream`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message, conversation_id: conversationId }),
+      signal,
     });
-  } catch {
+  } catch (err) {
+    if (signal.aborted) throw err;
     throw new Error("Cannot reach the server. Is the backend running?");
   }
-
-  const body = (await res.json().catch(() => null)) as ChatResponse | ErrorResponse | null;
-  if (!res.ok || body === null || "error" in body) {
-    const detail = body && "error" in body ? body.error.message : `Request failed (${res.status}).`;
-    throw new Error(detail);
+  if (!res.ok || !res.body) {
+    // Invalid input is rejected before the stream starts, with the usual JSON error.
+    const body = (await res.json().catch(() => null)) as ErrorResponse | null;
+    throw new Error(body?.error?.message ?? `Request failed (${res.status}).`);
   }
-  return body;
+
+  const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
+  let buffer = "";
+  for (;;) {
+    const { value, done } = await reader.read();
+    if (done) return;
+    buffer += value;
+    let end: number;
+    while ((end = buffer.indexOf("\n\n")) >= 0) {
+      const block = buffer.slice(0, end);
+      buffer = buffer.slice(end + 2);
+      for (const line of block.split("\n")) {
+        if (line.startsWith("data: ")) onEvent(JSON.parse(line.slice(6)) as StreamEvent);
+      }
+    }
+  }
 }
 
 // Phase 11: the conversation id is remembered in this browser, so a reload continues the same conversation.
@@ -90,6 +122,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -122,17 +155,67 @@ export default function Home() {
     const text = input.trim();
     if (!text || loading || !conversationId) return;
 
-    setMessages((prev) => [...prev, { role: "user", content: text }]);
+    // Phase 25: an empty assistant message that the stream fills in.
+    setMessages((prev) => [
+      ...prev,
+      { role: "user", content: text },
+      { role: "assistant", content: "", streaming: true, status: "Sending…", toolCalls: [] },
+    ]);
     setInput("");
     setError(null);
     setLoading(true);
 
+    const updateAnswer = (change: (m: Message) => Message) =>
+      setMessages((prev) => [...prev.slice(0, -1), change(prev[prev.length - 1])]);
+
+    const controller = new AbortController();
+    abortRef.current = controller;
+    let finished = false;
     try {
-      const { answer, sources, debug, tool_calls, usage } = await sendChat(text, conversationId);
-      setMessages((prev) => [...prev, { role: "assistant", content: answer, sources, debug, toolCalls: tool_calls, usage }]);
+      await streamChat(
+        text,
+        conversationId,
+        (event) => {
+          switch (event.type) {
+            case "status":
+              updateAnswer((m) => ({ ...m, status: event.message }));
+              break;
+            case "token":
+              updateAnswer((m) => ({ ...m, content: m.content + event.content }));
+              break;
+            case "tool_call":
+              updateAnswer((m) => ({ ...m, toolCalls: [...(m.toolCalls ?? []), event.data] }));
+              break;
+            case "sources":
+              updateAnswer((m) => ({ ...m, sources: event.data }));
+              break;
+            case "metadata": {
+              const d = event.data;
+              updateAnswer((m) => ({ ...m, content: d.answer, toolCalls: d.tool_calls, debug: d.debug, usage: d.usage }));
+              break;
+            }
+            case "done":
+              finished = true;
+              updateAnswer((m) => ({ ...m, streaming: false, status: undefined }));
+              break;
+            case "error":
+              throw new Error(event.error.message);
+          }
+        },
+        controller.signal,
+      );
+      if (!finished) throw new Error("The answer was cut off. Please try again.");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
+      if (controller.signal.aborted) {
+        // Stopped by the user: the server stops too and stores nothing, so say so under what was shown.
+        updateAnswer((m) => ({ ...m, streaming: false, status: "Stopped. This answer was not saved." }));
+      } else {
+        // Failed: drop the unfinished answer (the server did not store it) and show the error.
+        setMessages((prev) => (prev[prev.length - 1]?.streaming ? prev.slice(0, -1) : prev));
+        setError(err instanceof Error ? err.message : "Something went wrong.");
+      }
     } finally {
+      abortRef.current = null;
       setLoading(false);
     }
   }
@@ -168,7 +251,10 @@ export default function Home() {
             <div key={i} className="flex flex-col">
               {/* react-markdown builds React elements and does not render raw HTML, so model output cannot inject markup. */}
               <div className="markdown max-w-[85%] self-start rounded-2xl bg-zinc-100 px-4 py-2 dark:bg-zinc-800">
-                <ReactMarkdown>{msg.content}</ReactMarkdown>
+                {msg.content ? <ReactMarkdown>{msg.content}</ReactMarkdown> : null}
+                {msg.status && (
+                  <p className={`text-sm text-zinc-500 ${msg.streaming ? "animate-pulse" : ""}`}>{msg.status}</p>
+                )}
               </div>
               <ToolCallList calls={msg.toolCalls ?? []} via={msg.debug?.tool_backend} />
               <SourceList sources={msg.sources ?? []} />
@@ -176,12 +262,6 @@ export default function Home() {
               <UsagePanel usage={msg.usage} />
             </div>
           ),
-        )}
-
-        {loading && (
-          <div className="self-start rounded-2xl bg-zinc-100 px-4 py-2 text-zinc-500 dark:bg-zinc-800">
-            Thinking…
-          </div>
         )}
 
         {error && (
@@ -206,13 +286,23 @@ export default function Home() {
           aria-label="Message"
           className="min-w-0 flex-1 rounded-lg border border-zinc-300 bg-transparent px-3 py-2 outline-none focus:border-blue-600 disabled:opacity-60 dark:border-zinc-700"
         />
-        <button
-          type="submit"
-          disabled={loading || !input.trim() || !conversationId}
-          className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white disabled:opacity-50"
-        >
-          Send
-        </button>
+        {loading ? (
+          <button
+            type="button"
+            onClick={() => abortRef.current?.abort()}
+            className="rounded-lg border border-zinc-300 px-4 py-2 font-medium dark:border-zinc-700"
+          >
+            Stop
+          </button>
+        ) : (
+          <button
+            type="submit"
+            disabled={!input.trim() || !conversationId}
+            className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white disabled:opacity-50"
+          >
+            Send
+          </button>
+        )}
       </form>
     </main>
   );

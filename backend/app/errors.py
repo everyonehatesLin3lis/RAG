@@ -20,6 +20,10 @@ class AppError(Exception):
         self.status_code = status_code
 
 
+class ClientDisconnected(Exception):
+    """Phase 25: the browser closed a streamed answer. Raised inside the pipeline to stop it; never shown."""
+
+
 def error_response(code: str, message: str, status_code: int) -> JSONResponse:
     body = ErrorResponse(error=ErrorDetail(code=code, message=message))
     return JSONResponse(status_code=status_code, content=body.model_dump())
