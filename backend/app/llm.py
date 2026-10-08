@@ -14,6 +14,7 @@ from langchain_core.tools import BaseTool
 from langchain_openai import ChatOpenAI
 from pydantic import BaseModel
 
+from app import deadline
 from app.config import get_settings
 from app.errors import AppError
 
@@ -76,29 +77,40 @@ def get_structured_model(reasoning: bool) -> ChatOpenAI:
     )
 
 
+def provider_error(exc: openai.APIError) -> AppError:
+    """Phase 27: one place that turns an OpenRouter failure into our error. Messages stay generic for the user; the
+    code says what happened, for the log. Order matters: the specific errors are subclasses of APIError."""
+    if isinstance(exc, openai.APITimeoutError):
+        return AppError("LLM_TIMEOUT", "The language model took too long to respond.", 504)
+    if isinstance(exc, openai.RateLimitError):  # 429: too many requests, or the account is out of credit
+        return AppError("LLM_RATE_LIMITED", "The language model is busy right now. Please try again in a moment.", 429)
+    if isinstance(exc, (openai.AuthenticationError, openai.PermissionDeniedError)):  # 401/403: key wrong or revoked
+        return AppError("LLM_AUTH_FAILED", "The language model is not configured correctly.", 502)
+    return AppError("LLM_UNAVAILABLE", "The language model is unavailable right now.", 502)
+
+
 def invoke(runnable, messages):
     """Call a model, turning provider failures into our standard errors."""
+    deadline.check()
     try:
         return runnable.invoke(messages)
-    except openai.APITimeoutError as exc:
-        raise AppError("LLM_TIMEOUT", "The language model took too long to respond.", 504) from exc
     except openai.APIError as exc:
-        raise AppError("LLM_UNAVAILABLE", "The language model is unavailable right now.", 502) from exc
+        raise provider_error(exc) from exc
 
 
 def stream(runnable, messages, on_text: Callable[[str], None]) -> AIMessageChunk:
     """Phase 25: call a model with streaming. Each piece of text goes to on_text as it arrives; the return value is
     the whole reply (text, tool calls, usage), the same thing invoke() would have returned."""
+    deadline.check()
     reply: AIMessageChunk | None = None
     try:
         for chunk in runnable.stream(messages):
+            deadline.check()  # a reply still streaming past the deadline is cut off here
             if chunk.text:
                 on_text(chunk.text)
             reply = chunk if reply is None else reply + chunk
-    except openai.APITimeoutError as exc:
-        raise AppError("LLM_TIMEOUT", "The language model took too long to respond.", 504) from exc
     except openai.APIError as exc:
-        raise AppError("LLM_UNAVAILABLE", "The language model is unavailable right now.", 502) from exc
+        raise provider_error(exc) from exc
     return reply if reply is not None else AIMessageChunk(content="")
 
 

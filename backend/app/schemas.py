@@ -102,7 +102,10 @@ class RagDebugOut(BaseModel):
     keyword_results: list[KeywordResult] = []  # Phase 17
     strategy: str = "vector"  # Phase 18: "hybrid" or "vector"
     fused_results: list[FusedResult] = []  # Phase 18: the hybrid ranking (empty for "vector")
-    tool_backend: str = "local"  # Phase 24: "mcp" (tools through the MCP server) or "local" (in-process)
+    # Phase 24: "mcp" (tools through the MCP server) or "local" (in-process); Phase 27: "mcp, then local" when the
+    # server failed mid-answer and the remaining calls ran in-process
+    tool_backend: str = "local"
+    warnings: list[str] = []  # Phase 27: what failed while the answer could still be produced
 
 
 class ModelUsageOut(BaseModel):

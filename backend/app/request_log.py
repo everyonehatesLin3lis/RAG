@@ -58,6 +58,7 @@ def success_entry(conversation_id: str, query: str, result, latency_ms: int) -> 
         "latency_ms": latency_ms,
         # Phase 25: how long the user waited for the first text of a streamed answer (absent for /api/chat)
         "first_token_ms": debug.timings_ms.get("first_token") if debug else None,
+        "warnings": debug.warnings if debug else [],  # Phase 27: answered, but with a fallback
         "status": "success" if result.sources else "no_results",
     }
 
@@ -140,5 +141,6 @@ def summarise(entries: list[dict]) -> dict:
         "tool_errors": dict(Counter(t for e in answered for t in e.get("tool_errors", []))),
         "answers_using_tools_pct": round(100 * sum(bool(e.get("tools")) for e in answered) / len(answered), 1) if answered else None,
         "translation_fallbacks": sum(e.get("translation_origin") == "fallback" for e in answered),
+        "answers_with_warnings": dict(Counter(w.split(" (")[0].split(",")[0] for e in answered for w in e.get("warnings") or [])),
         "models": {name: {"tokens": models[name], "cost_usd": round(model_cost[name], 6)} for name in models},
     }

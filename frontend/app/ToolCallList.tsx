@@ -184,7 +184,8 @@ function formatArguments(args: Record<string, unknown>): string {
 // `via` is debug.tool_backend: "mcp" when the tools ran on the MCP server (Phase 24), "local" when in-process.
 export default function ToolCallList({ calls, via }: { calls: ToolCall[]; via?: string }) {
   const seen = new Set<string>();
-  const path = via === "mcp" ? " · via MCP server" : via === "local" ? " · local tools" : "";
+  const path =
+    via === "mcp" ? " · via MCP server" : via === "local" ? " · local tools" : via ? ` · ${via} tools` : "";
   const meta = calls.length === 0 ? "none" : `${calls.length} call${calls.length === 1 ? "" : "s"}${path}`;
 
   if (calls.length === 0) {

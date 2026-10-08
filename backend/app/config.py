@@ -57,6 +57,9 @@ class Settings(BaseSettings):
     tool_backend: Literal["mcp", "local"] = "mcp"
     mcp_call_timeout_s: float = Field(default=30, gt=0, le=120)
 
+    # Error handling (Phase 27): the time limit for answering one question, all steps together (app/deadline.py).
+    chat_timeout_s: float = Field(default=90, gt=0, le=600)
+
     # Web
     cors_origins: list[str] = ["http://localhost:3000"]
 

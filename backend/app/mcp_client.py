@@ -23,6 +23,7 @@ import logging
 import os
 import sys
 import threading
+from collections.abc import Callable
 from concurrent.futures import Future
 from functools import lru_cache
 from pathlib import Path
@@ -139,13 +140,22 @@ class McpToolClient:
         except (IndexError, AttributeError, ValueError):
             return _error("TOOL_FAILED", f"The {name} tool returned an unreadable result.")
 
-    def langchain_tools(self) -> list[StructuredTool]:
+    def langchain_tools(self, fallback: Callable[[str, dict], dict] | None = None) -> list[StructuredTool]:
         """One LangChain tool per tool the server lists. The JSON schema is passed as is: the model sees the server's
-        schema, and the server (not LangChain) validates the arguments and returns INVALID_ARGUMENTS when they are wrong."""
+        schema, and the server (not LangChain) validates the arguments and returns INVALID_ARGUMENTS when they are wrong.
+
+        fallback (Phase 27): called with (name, arguments) when the server cannot be reached for a call, so the same
+        tool can run another way (in-process) instead of the model getting MCP_UNAVAILABLE."""
         self.connect()
 
+        def call(name: str, arguments: dict) -> dict:
+            result = self.call_tool(name, arguments)
+            if fallback and (result.get("error") or {}).get("code") == "MCP_UNAVAILABLE":
+                return fallback(name, arguments)
+            return result
+
         def make(name: str):
-            return lambda **kwargs: json.dumps(self.call_tool(name, kwargs), ensure_ascii=False)
+            return lambda **kwargs: json.dumps(call(name, kwargs), ensure_ascii=False)
 
         return [
             StructuredTool(name=t.name, description=t.description or "", args_schema=t.input_schema, func=make(t.name))

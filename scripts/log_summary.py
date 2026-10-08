@@ -53,6 +53,8 @@ def main() -> None:
         if summary["tool_errors"]:
             print(f"Tool errors:   {summary['tool_errors']}")
         print(f"Translation:   {summary['translation_fallbacks']} fallbacks to the original question")
+        if summary["answers_with_warnings"]:
+            print(f"Fallbacks:     {summary['answers_with_warnings']}")
         for name, m in summary["models"].items():
             print(f"Model:         {name:32} {m['tokens']:>8,} tokens  ${m['cost_usd']:.6f}")
 

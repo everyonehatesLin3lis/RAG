@@ -19,8 +19,9 @@ from time import perf_counter
 from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 from sqlalchemy.orm import Session
 
-from app import fusion, mcp_client, query_translation, retrieval, tool_calling, tools
+from app import deadline, fusion, mcp_client, query_translation, retrieval, tool_calling, tools
 from app.config import get_settings
+from app.errors import AppError
 from app.fusion import FusedChunk
 from app.history import Turn, as_langchain_messages
 from app.query_translation import TranslatedQuery
@@ -97,6 +98,8 @@ class RagDebug:
     strategy: str = "vector"
     fused: list[FusedChunk] = field(default_factory=list)
     tool_backend: str = "local"  # Phase 24: "mcp" or "local"
+    # Phase 27: parts that failed while the answer could still be produced (shown under the answer, logged)
+    warnings: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -124,7 +127,8 @@ def answer_question(
     """on_event (Phase 25, streaming): receives progress ("status"), answer text ("token") and tool results
     ("tool_call") as they happen. Without it the answer is produced in one piece, as before."""
     # Phase 14: every model call inside this block (translation, answer rounds, embedding) is counted.
-    with track_usage() as tracker:
+    # Phase 27: and the whole question has one time limit (app/deadline.py).
+    with track_usage() as tracker, deadline.limit(get_settings().chat_timeout_s):
         result = _answer(question, session, history, on_event)
     result.usage = list(tracker.models.values())
     return result
@@ -135,6 +139,11 @@ def _answer(
 ) -> RagAnswer:
     started = perf_counter()
     timings: dict[str, int] = {}
+    warnings: list[str] = []
+
+    def warn(message: str) -> None:
+        if message not in warnings:
+            warnings.append(message)
 
     def status(stage: str, message: str) -> None:
         if on_event:
@@ -155,18 +164,28 @@ def _answer(
     candidates = settings.hybrid_candidates if hybrid else settings.retrieval_top_k
 
     status("search", "Searching reviews and movie data")
+    deadline.check()
+    strategy = settings.retrieval_strategy
     step = perf_counter()
-    vector_chunks = retrieval.retrieve(translation.semantic_query, session, k=candidates)  # embed, then pgvector
+    try:
+        vector_chunks = retrieval.retrieve(translation.semantic_query, session, k=candidates)  # embed, then pgvector
+    except AppError as exc:
+        # Phase 27: without an embedding there is no vector search, but keyword search still works. Answer from it
+        # when the question has keywords; otherwise there is nothing to search with, and the error stands.
+        if not exc.code.startswith("EMBEDDING_") or not translation.keywords:
+            raise
+        vector_chunks, strategy = [], "hybrid"  # fusing one list = the keyword ranking
+        warn(f"Semantic search was unavailable ({exc.code}), so this answer is based on keyword search only.")
     timings["embedding_and_search"] = _ms_since(step)
 
     step = perf_counter()
     keyword_chunks = retrieval.keyword_search(session, translation.keywords, k=candidates)
     timings["keyword_search"] = _ms_since(step)
+    deadline.check()
 
-    selection = fusion.select(
-        vector_chunks, keyword_chunks, settings.retrieval_strategy, settings.retrieval_top_k, k=settings.rrf_k
-    )
+    selection = fusion.select(vector_chunks, keyword_chunks, strategy, settings.retrieval_top_k, k=settings.rrf_k)
     chunks = selection.chunks  # what the model receives and what `sources` lists
+    tool_backend = settings.tool_backend
 
     def debug() -> RagDebug:
         timings["total"] = _ms_since(started)
@@ -178,9 +197,10 @@ def _answer(
             selected_chunk_ids=[c.id for c in chunks],
             timings_ms=timings,
             keyword_results=keyword_chunks,
-            strategy=settings.retrieval_strategy,
+            strategy=strategy,
             fused=selection.fused,
-            tool_backend=settings.tool_backend,
+            tool_backend=tool_backend,
+            warnings=warnings,
         )
 
     if not chunks:
@@ -190,9 +210,25 @@ def _answer(
     # Phase 24: by default the tools are the MCP server's, discovered through the MCP client.
     step = perf_counter()
     messages = build_messages(question, chunks, history)
+    mcp_down = "The MCP tool server was unavailable, so the movie tools ran inside the backend instead."
+
+    def run_locally(name: str, arguments: dict) -> dict:
+        # Phase 27: an MCP call that fails mid-answer is run in-process instead, with the same function.
+        nonlocal tool_backend
+        tool_backend = "mcp, then local"  # some calls may have gone through MCP before it failed
+        warn(mcp_down)
+        return tools.run_tool(session, name, arguments)
+
+    tool_list = None
     if settings.tool_backend == "mcp":
-        tool_list = mcp_client.get_mcp_client().langchain_tools()
-    else:
+        try:
+            tool_list = mcp_client.get_mcp_client().langchain_tools(fallback=run_locally)
+        except AppError as exc:
+            if exc.code != "MCP_UNAVAILABLE":
+                raise
+            tool_backend = "local"  # Phase 27: the server did not start; same tools, in-process
+            warn(mcp_down)
+    if tool_list is None:
         tool_list = tools.langchain_tools(session)
     if on_event is None:
         answer, tool_calls = tool_calling.run_with_tools(messages, tool_list)

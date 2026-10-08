@@ -51,6 +51,7 @@ export type RagDebug = {
   keyword_results: KeywordResult[];
   strategy: string;
   tool_backend?: string; // Phase 24: "mcp" or "local"
+  warnings?: string[]; // Phase 27: fallbacks used while answering
   fused_results: FusedResult[];
 };
 

@@ -38,7 +38,8 @@ found, and why each decision went the way it did. The full plan is in [`EXECUTIO
 | 24 | MCP server: the 4 tools behind MCP (stdio), tested on its own, connected to LangChain | done |
 | 25 | Streaming: the answer appears while it is written (SSE), with progress, live tool calls and a Stop button | done |
 | 26 | Final UI: fixed header and input, sources shown under each answer, RAG process / tool calls / token usage as collapsible panels, example questions, dark mode, phone width | done |
-| 27–31 | Error handling, testing, final evaluation, README, review | to do |
+| 27 | Error handling: every failure in the plan's list gives a clear error or a fallback answer, a 90 s limit per question, "Try again" on the page | done |
+| 28–31 | Testing, final evaluation, README, review | to do |
 
 ## How it works today
 
@@ -419,12 +420,45 @@ Implementation choices that follow:
   low-level `Server` takes two handlers, list and call, so it serves our schemas exactly.
 - **Sync outside, async inside.** The MCP SDK is async and our pipeline is synchronous, so the client keeps its
   connection on an asyncio event loop in a background thread and each tool call waits for its result there.
-- **Failures never crash the chat.** If the server cannot be reached during a call, the tool result is `MCP_UNAVAILABLE`
-  and the model answers without it; if it cannot start at all, the request fails with `MCP_UNAVAILABLE` (503) and the
-  fix is `TOOL_BACKEND=local`.
+- **Failures never crash the chat.** In Phase 24 an unreachable server gave the model an `MCP_UNAVAILABLE` result, and a
+  server that could not start failed the request. Since Phase 27 both fall back to running the same tools in-process,
+  with a warning under the answer.
 - **Fourth tool.** `get_movie_metadata`, named in the plan, answers single-film facts (a film's IMDb rating had no tool
   before). Questions about director, cast or runtime are not forced through it: the movie's profile source states them
   exactly, and an extra tool round costs time.
+
+### Error handling: fail clearly, or answer anyway (Phase 27)
+
+**The rule.** Every failure ends in one of two ways. If an answer can still be produced honestly, it is produced and
+a warning under it says what was missing. Otherwise the user gets a short message in the standard shape
+`{"error": {"code", "message"}}` (for the stream: an `error` event), the exchange is not stored, and the log records
+the code. Messages never contain provider details, keys or the database address; the code says what happened.
+
+| Failure (the plan's list) | Result | Code |
+|---|---|---|
+| OpenRouter down / slow / rate limit / bad key | error | `LLM_UNAVAILABLE` 502 / `LLM_TIMEOUT` 504 / `LLM_RATE_LIMITED` 429 / `LLM_AUTH_FAILED` 502 |
+| Database down | error | `DATABASE_UNAVAILABLE` 503 (`RAG_RETRIEVAL_FAILED` if it fails during search) |
+| Embedding fails | **answer from keyword search**, with a warning; error only if the question has no keywords | `EMBEDDING_FAILED` / `_TIMEOUT` / `_RATE_LIMITED` |
+| No search results | an answer saying nothing relevant was found (not an error: the question was fine) | log status `no_results` |
+| Tool error | returned to the model, which explains or asks (e.g. which *Beauty and the Beast*) | `INVALID_ARGUMENTS`, `MOVIE_NOT_FOUND`, `AMBIGUOUS_TITLE`, `TOOL_FAILED` |
+| MCP server down | **the same tools run in-process**, with a warning | log warning; `MCP_UNAVAILABLE` only if both fail |
+| Invalid JSON / invalid input | error before anything runs | `INVALID_JSON` 400 / `INVALID_INPUT` 422 |
+| Timeout | error after 90 s for the whole question | `REQUEST_TIMEOUT` 504 (one model call: `LLM_TIMEOUT`) |
+| Anything unexpected (a bug) | error, details only in the server log | `INTERNAL_ERROR` 500 |
+
+Decisions, all made by the developer after the options were explained:
+
+| Decision | Chosen | Alternative and why not |
+|---|---|---|
+| MCP server down | **fall back to the in-process tools** (same functions), say so | fail every question with `MCP_UNAVAILABLE`, which was the Phase 24 behaviour, even for questions needing no tool |
+| Embedding down | **answer from keyword search** when the question has keywords, say so | fail: hybrid search already has a second search that does not need embeddings |
+| Time limit | **90 s per question**, all steps together | 60 s would have cut off the slowest measured answer (63 s); no limit allows minutes in theory (5 model calls × 30 s × a retry) |
+| After an error | **"Try again" button** resending the question | message only: most of these failures are temporary |
+
+How the time limit works: `app/deadline.py` puts a deadline in a context variable for each question (the same
+mechanism as the usage tracker). It is checked before every model call, on every streamed chunk, before every tool and
+between the retrieval steps. A call already waiting on the provider cannot be interrupted, so the true worst case is the
+deadline plus that call's own 30 s limit.
 
 ### Final UI: the plan's screen (Phase 26)
 
@@ -1175,6 +1209,28 @@ Measured through the stream endpoint with a small client (real answers, about $0
 - While measuring, one query translation failed and fell back to the original question (logged as `fallback`); that
   request then had no translation cost because the failed call reported none.
 
+### Error handling (Phase 27)
+
+An audit first forced each failure in-process (fakes, no API calls) and recorded what both endpoints returned. Already
+right: OpenRouter down and timeout, embedding, database, invalid JSON and input, tool errors, no results. Gaps found
+and fixed:
+- **A bug anywhere answered with plain-text "Internal Server Error"**, and without CORS headers, so the browser would have
+  reported "cannot reach the server". Now `INTERNAL_ERROR` JSON, readable by the page (a test checks the header).
+- **Unknown endpoints and wrong methods** answered `{"detail": "Not Found"}`; now `NOT_FOUND` / `METHOD_NOT_ALLOWED`.
+- **Rate limits and a bad key** were both "unavailable"; now `LLM_RATE_LIMITED` ("try again in a moment") and
+  `LLM_AUTH_FAILED`, so the log says which.
+- **MCP down failed every question**, and **embedding down failed every answer**; both now fall back (above).
+- **No overall time limit**; now 90 s.
+
+Checked in the running app:
+- **Database stopped** (`docker stop`): the page showed "Could not answer 'Who directed Zodiac?' · The database is
+  unavailable right now · Try again · DATABASE_UNAVAILABLE". After `docker start`, Try again answered normally.
+- **MCP server process killed** mid-session: the next tool call failed ("Connection closed" in the server log), ran
+  in-process instead, and the answer (Hereditary's critic average, 8.26 from 20 reviews) carried the warning "The MCP
+  tool server was unavailable, so the movie tools ran inside the backend instead." The first version still labelled
+  that call "via MCP server"; it now says "mcp, then local".
+- Questions that need no tool do not notice a dead MCP server at all; the next tool call restarts it.
+
 ### Final UI (Phase 26)
 
 - Seen while checking the page: for "Which is rated higher, Zodiac or Prisoners?" the vector search returned only Zodiac
@@ -1241,7 +1297,9 @@ cd backend
 pytest
 ```
 
-222 tests. They cover streaming (the SSE events and their order, errors after the start, invalid input, the
+240 tests. They cover error handling (every failure in the plan's list through both endpoints, the keyword-search
+and in-process-tool fallbacks, the time limit, provider details kept out of messages, the error shape for unknown
+routes and crashes), streaming (the SSE events and their order, errors after the start, invalid input, the
 pipeline stopping when the browser goes away, OpenRouter's cost kept from a streamed chunk), the MCP server (discovery, schemas, validation and errors in-process, a real stdio child
 process from client to database result, no API keys passed to it, a server that cannot start, the tool loop through
 MCP, both tool backends), the evaluation metrics and judge handling, hybrid fusion and the strategy switch, keyword search (phrases, stems, ranking, safety), security (no secrets in errors, injected tags cannot escape), the request log and its summary, token and cost tracking, the debug object, conversation history (storage, limits, prompts, endpoints), the four tools (validation, title matching, SQL safety), the tool-calling loop (with a scripted fake model), the chat endpoint and its sources, query translation (validation and fallbacks), the RAG prompt and its

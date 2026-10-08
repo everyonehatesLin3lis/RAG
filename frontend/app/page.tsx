@@ -35,6 +35,15 @@ const EXAMPLES = [
 
 type ErrorResponse = { error: { code: string; message: string } };
 
+// Phase 27: an error with the backend's code (LLM_TIMEOUT, DATABASE_UNAVAILABLE, ...), shown small under the message.
+class ApiError extends Error {
+  constructor(message: string, readonly code?: string) {
+    super(message);
+  }
+}
+
+type FailedQuestion = { question: string; message: string; code?: string };
+
 // Phase 25: the events of POST /api/chat/stream (backend/app/streaming.py).
 type StreamEvent =
   | { type: "status"; stage: string; message: string }
@@ -66,12 +75,12 @@ async function streamChat(
     });
   } catch (err) {
     if (signal.aborted) throw err;
-    throw new Error("Cannot reach the server. Is the backend running?");
+    throw new ApiError("Cannot reach the server. Is the backend running?", "NETWORK_ERROR");
   }
   if (!res.ok || !res.body) {
     // Invalid input is rejected before the stream starts, with the usual JSON error.
     const body = (await res.json().catch(() => null)) as ErrorResponse | null;
-    throw new Error(body?.error?.message ?? `Request failed (${res.status}).`);
+    throw new ApiError(body?.error?.message ?? `Request failed (${res.status}).`, body?.error?.code);
   }
 
   const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
@@ -129,7 +138,7 @@ export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<FailedQuestion | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -204,6 +213,7 @@ export default function Home() {
             case "metadata": {
               const d = event.data;
               updateAnswer((m) => ({ ...m, content: d.answer, toolCalls: d.tool_calls, debug: d.debug, usage: d.usage }));
+              // Phase 27: d.debug.warnings (a fallback was used) are shown under the answer from debug
               break;
             }
             case "done":
@@ -211,20 +221,25 @@ export default function Home() {
               updateAnswer((m) => ({ ...m, streaming: false, status: undefined }));
               break;
             case "error":
-              throw new Error(event.error.message);
+              throw new ApiError(event.error.message, event.error.code);
           }
         },
         controller.signal,
       );
-      if (!finished) throw new Error("The answer was cut off. Please try again.");
+      if (!finished) throw new ApiError("The answer was cut off. Please try again.", "STREAM_INTERRUPTED");
     } catch (err) {
       if (controller.signal.aborted) {
         // Stopped by the user: the server stops too and stores nothing, so say so under what was shown.
         updateAnswer((m) => ({ ...m, streaming: false, status: "Stopped. This answer was not saved." }));
       } else {
-        // Failed: drop the unfinished answer (the server did not store it) and show the error.
-        setMessages((prev) => (prev[prev.length - 1]?.streaming ? prev.slice(0, -1) : prev));
-        setError(err instanceof Error ? err.message : "Something went wrong.");
+        // Failed: the server stored nothing, so remove the question and the unfinished answer from the list too, and
+        // show the error with the question and a "Try again" button (most failures are temporary).
+        setMessages((prev) => (prev[prev.length - 1]?.streaming ? prev.slice(0, -2) : prev));
+        setError({
+          question: text,
+          message: err instanceof Error ? err.message : "Something went wrong.",
+          code: err instanceof ApiError ? err.code : undefined,
+        });
       }
     } finally {
       abortRef.current = null;
@@ -301,6 +316,14 @@ export default function Home() {
                     )}
                   </div>
                   {/* The plan's order: sources, then the collapsible RAG process, tool calls and token usage / cost. */}
+                  {(msg.debug?.warnings ?? []).map((w) => (
+                    <p
+                      key={w}
+                      className="mt-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200"
+                    >
+                      {w}
+                    </p>
+                  ))}
                   <SourceList sources={msg.sources ?? []} />
                   {!msg.restored && (msg.debug || msg.usage) && (
                     <div className="mt-3 overflow-hidden rounded-lg border border-line">
@@ -324,9 +347,21 @@ export default function Home() {
           {error && (
             <div
               role="alert"
-              className="rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300"
+              className="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-200"
             >
-              {error}
+              <p className="text-xs opacity-80">Could not answer &ldquo;{error.question}&rdquo;</p>
+              <p className="mt-0.5 font-medium">{error.message}</p>
+              <div className="mt-2 flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => send(error.question)}
+                  disabled={loading}
+                  className="rounded-md border border-red-300 bg-white px-3 py-1 text-sm font-medium hover:bg-red-100 disabled:opacity-50 dark:border-red-800 dark:bg-transparent dark:hover:bg-red-900"
+                >
+                  Try again
+                </button>
+                {error.code && <span className="font-mono text-xs opacity-70">{error.code}</span>}
+              </div>
             </div>
           )}
 

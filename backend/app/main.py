@@ -246,6 +246,7 @@ def to_debug(debug: rag.RagDebug) -> RagDebugOut:
             for rank, f in enumerate(debug.fused, start=1)
         ],
         tool_backend=debug.tool_backend,
+        warnings=debug.warnings,
     )
 
 

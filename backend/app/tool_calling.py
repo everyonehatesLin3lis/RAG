@@ -21,7 +21,7 @@ from dataclasses import asdict, dataclass
 from langchain_core.messages import AIMessage, BaseMessage, ToolMessage
 from langchain_core.tools import BaseTool
 
-from app import llm
+from app import deadline, llm
 
 # Implements: specs/10.md (proposal 2)
 MAX_TOOL_ROUNDS = 3
@@ -97,6 +97,7 @@ def run_with_tools(
 
         messages.append(reply)
         for call in reply.tool_calls:
+            deadline.check()  # Phase 27: no new tool after the question's time limit
             if on_event:
                 on_event({"type": "status", "stage": "tool", "message": f"Calling {call['name']}"})
             result = execute(call, tools_by_name)

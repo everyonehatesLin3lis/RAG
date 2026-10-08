@@ -63,6 +63,8 @@ def _call(fn, *args):
         return fn(*args)
     except openai.APITimeoutError as exc:
         raise AppError("EMBEDDING_TIMEOUT", "The embedding model took too long to respond.", 504) from exc
+    except openai.RateLimitError as exc:
+        raise AppError("EMBEDDING_RATE_LIMITED", "The embedding model is busy right now.", 429) from exc
     except openai.APIError as exc:
         raise AppError("EMBEDDING_FAILED", "The embedding model is unavailable right now.", 502) from exc
 
