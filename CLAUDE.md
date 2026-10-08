@@ -42,7 +42,7 @@ Defaults for this layout. If scaffolding ends up different, correct this section
 - Database (repo root): `docker compose up -d`. Needs `POSTGRES_PASSWORD` in the repo-root `.env` (see `.env.example`)
 - Migrations: `cd backend && alembic upgrade head`; new one: `alembic revision -m "..."`, then `alembic check` to confirm models and schema agree
 - Backend dev server: `cd backend && uvicorn app.main:app --reload --port 8000`
-- Backend tests: `cd backend && pytest` (database tests skip if the container is down)
+- Backend tests: `cd backend && pytest` (all but live tests, no API calls; database tests skip if the container is down). One group: `pytest -m backend|rag|tools|security|mcp` (Phase 28; every test file is assigned in `tests/conftest.py` `TEST_GROUPS`, a new file must be added there). Live tests with real models: `pytest -m live` (~$0.02). RAG question recording: `python scripts/record_rag_questions.py` (~$0.003) → `backend/tests/fixtures/rag_questions.json`
 - Frontend dev server: `cd frontend && npm run dev`
 - Frontend type and build check: `cd frontend && npm run build`
 - Data scripts (repo root, backend venv active): `python scripts/download_datasets.py`, `python scripts/inspect_dataset.py`, `python scripts/select_subset.py`, `python scripts/ingest.py [--movies N]`, `python scripts/embed_chunks.py [--dry-run] [--limit N]` (costs money; dry-run first), `python scripts/log_summary.py [--last N]` (monitoring), `python scripts/mcp_check.py` (MCP server on its own, no cost)
@@ -93,7 +93,7 @@ If time runs short, protect the core in this order: working chatbot → dataset 
 - [x] 25 Streaming over SSE
 - [x] 26 Final UI: chat, sources, collapsible RAG process, tool calls, token usage and cost
 - [x] 27 Error handling
-- [ ] 28 Testing: backend, RAG, tools, security, MCP
+- [x] 28 Testing: backend, RAG, tools, security, MCP
 - [ ] 29 Final evaluation
 - [ ] 30 README
 - [ ] 31 Review preparation
@@ -186,7 +186,7 @@ These apply from the first line of code. Phase 16 is where they are tested, not 
 - Secrets come from environment variables only: `OPENROUTER_API_KEY`, `DATABASE_URL`, `EMBEDDING_API_KEY`, later `GOOGLE_CLOUD_PROJECT`. Never commit `.env`; keep a `.env.example` with names only.
 - Own verdicts (Phase 21 follow-up, adopted 2026-10-07): the system prompt says report what critics and data say and, when they do not settle "which is better/scarier", say so rather than deciding. Measured: unsupported claims 3/21 → 1/21 on the repeated questions (`results/hybrid-fixA*.json`).
 - Off-topic questions: the system prompt says decline in one or two sentences and give no code, commands or tips (tightened in Phase 16 after the model refused a destructive script but then offered off-topic coding tips).
-- Tested (Phase 16): `python scripts/injection_tests.py [--only R1,U3]` runs 8 live attacks (5 poisoned reviews inserted and embedded inside a rolled-back transaction, 3 user attacks) with mechanical pass/fail checks; a poisoned review only counts if it was actually retrieved. Results in `docs/experiments/prompt_injection_results.json`. Deterministic checks in `tests/test_security.py` (provider/database errors never leak keys or the connection string; injected tags cannot leave their `<source>` block).
+- Tested (Phase 16): `python scripts/injection_tests.py [--only R1,U3]` runs 8 live attacks (5 poisoned reviews inserted and embedded inside a rolled-back transaction, 3 user attacks) with mechanical pass/fail checks; a poisoned review only counts if it was actually retrieved. Results in `docs/experiments/prompt_injection_results.json`. Deterministic checks in `tests/test_security.py` (provider/database errors never leak keys or the connection string; injected tags cannot leave their `<source>` block; the user's message and tool results cannot either) and `tests/test_malicious_arguments.py` (hostile tool arguments in-process and through MCP; titles with control characters are `INVALID_ARGUMENTS`). The same attacks run as `pytest -m live` (`test_live.py` calls `injection_tests.run_attack`). Since hybrid search, 3 of the 5 poisoned reviews are no longer retrieved, so those attacks are skipped: open, rewrite their questions.
 
 ## Logging and evaluation
 
@@ -203,6 +203,7 @@ These apply from the first line of code. Phase 16 is where they are tested, not 
 When a phase raises a new choice, list it here and ask before settling it.
 
 - (Decided 2026-10-07: Phase 21 follow-up (a), the no-own-verdict prompt rule, adopted; (b), per-film retrieval for comparison questions, skipped by the developer for now and still the main cause of incomplete comparisons. Hybrid stays the default.)
+- Phase 28 finding, not decided: 3 of the 5 poisoned-review injection attacks (`scripts/injection_tests.py`) are no longer retrieved under hybrid search, so `pytest -m live` skips them. Option: rewrite their questions (as R5 was in Phase 16) so the poison reaches the model again; costs ~$0.01 per check run.
 - Data quality, not decided: the TMDB/IMDb subset contains at least one TV series (*Vikings*, tt2306299, 45-minute runtime) listed as a war film. Filtering by runtime or title type at selection time would remove such rows; raise it with the developer at Phase 23 or 29.
 - (Decided 2026-10-06: query translation uses `google/gemini-3.1-flash-lite` via `QUERY_TRANSLATION_MODEL`; answers stay on MiMo. MiMo answer generation is now ~90% of latency; revisit with streaming in Phase 25 or a measured model comparison.)
 

@@ -39,7 +39,8 @@ found, and why each decision went the way it did. The full plan is in [`EXECUTIO
 | 25 | Streaming: the answer appears while it is written (SSE), with progress, live tool calls and a Stop button | done |
 | 26 | Final UI: fixed header and input, sources shown under each answer, RAG process / tool calls / token usage as collapsible panels, example questions, dark mode, phone width | done |
 | 27 | Error handling: every failure in the plan's list gives a clear error or a fallback answer, a 90 s limit per question, "Try again" on the page | done |
-| 28–31 | Testing, final evaluation, README, review | to do |
+| 28 | Testing: the plan's five groups, each runnable on its own; RAG questions on the real data; hostile tool arguments through MCP; live tests on request | done |
+| 29–31 | Final evaluation, README, review | to do |
 
 ## How it works today
 
@@ -426,6 +427,29 @@ Implementation choices that follow:
 - **Fourth tool.** `get_movie_metadata`, named in the plan, answers single-film facts (a film's IMDb rating had no tool
   before). Questions about director, cast or runtime are not forced through it: the movie's profile source states them
   exactly, and an extra tool round costs time.
+
+### Testing: the plan's five groups (Phase 28; spec and traceability in [`specs/28.md`](specs/28.md))
+
+The plan asks to test five things separately: backend, RAG, tools, security and MCP. Most of it had tests from the
+phases that built each part; this phase made each group runnable on its own, made the coverage visible (a table maps
+every plan item to its tests), and filled the gaps: real RAG behaviour (known, vague and no-answer questions), all four
+tools in one matrix, hostile tool arguments including through the MCP server, and live tests.
+
+Decisions, all made by the developer after the options were explained:
+
+| Decision | Chosen | Alternative and why not |
+|---|---|---|
+| How groups are defined | **pytest markers, assigned per file in `conftest.py`**; `pytest -m rag` | move files into folders per group: clearer on disk, but rewrites 22 files' history and imports |
+| RAG behaviour tests | **the real database with a recorded translation and embedding** per question: free, same result every run | call the APIs in every test run: costs money, results drift, and the paid-API guard would block it |
+| Tests that need real models | **opt-in, `pytest -m live`** (about $0.02) | always run them: every `pytest` would cost money and depend on the network |
+| Test questions | **new ones**, not from the evaluation or tuning sets | reuse known questions: passing would partly reflect tuning to them |
+| Hostile arguments through MCP | **in-process protocol messages for the matrix, one real stdio call** | stdio for every case: much slower, same messages |
+| Frontend tests | **none** (the plan lists none; checked by the build and in the browser) | add a test framework to the frontend |
+
+**What a "vague question" test means here.** Retrieval tests check which films reach the model, not the answer's
+wording: the answer depends on a model and varies, the chunks given to it do not. The answers themselves are checked
+by the live tests with mechanical rules (names the film, cites a retrieved critic, says "not in the data" and gives no
+facts from memory about *Parasite* or *Oppenheimer*).
 
 ### Error handling: fail clearly, or answer anyway (Phase 27)
 
@@ -1209,6 +1233,26 @@ Measured through the stream endpoint with a small client (real answers, about $0
 - While measuring, one query translation failed and fell back to the original question (logged as `fallback`); that
   request then had no translation cost because the failed call reported none.
 
+### Testing (Phase 28; details in [`specs/28.md`](specs/28.md))
+
+- **342 tests pass** without API calls (168 backend, 35 rag, 69 tools, 56 security, 14 mcp), plus 13 live tests.
+- **Bug found and fixed: a NUL byte in a title crashed three tools.** `"Zodiac\x00"` passed validation and reached
+  PostgreSQL, which rejects NUL in text, so `compare_movies`, `rating_summary` and `get_movie_metadata` answered
+  `TOOL_FAILED`. Titles with control characters are now rejected as `INVALID_ARGUMENTS`.
+- **All other hostile values were already handled:** SQL fragments stay bound parameters, `%` and `_` match only
+  themselves, 10,000-character titles and wrong types are rejected, extra fields are ignored, row counts unchanged.
+- **A test question was wrong, not the system.** "The film where a father hunts for his kidnapped daughter" brought
+  *Prisoners* to the model, but the model answered *Taken* (2008), which fits as well and is in the data. The question
+  now describes something only *Prisoners* has.
+- **Vague questions are often resolved by the translator's own knowledge:** Gemini adds the keyword "Black Swan" for "a
+  ballerina losing her grip on reality", "Up" for the balloon house, "Christopher Nolan" for Oppenheimer. So vague
+  questions work partly because the translation model recognises the film, not only through semantic search.
+- **3 of the 5 poisoned-review attacks no longer reach the model.** In Phase 16 (vector search) all 5 poisoned reviews
+  were retrieved; with hybrid search only 2 are, so those 3 attacks are skipped as untested. The 5 attacks that ran were
+  all defended. Open: rewrite those 3 questions so their poison is retrieved again.
+- **My mistake: the first `pytest -m rag` also ran the live tests** (a `-m` on the command line replaces the default),
+  about $0.02 unannounced. Live tests are now left out unless `live` is named, and a test checks it.
+
 ### Error handling (Phase 27)
 
 An audit first forced each failure in-process (fakes, no API calls) and recorded what both endpoints returned. Already
@@ -1294,20 +1338,27 @@ Prerequisites: Python 3.11, Node.js, Docker Desktop.
 
 ```bash
 cd backend
-pytest
+pytest                 # everything except live tests: 342 tests, about 20 s, no API calls
+pytest -m backend      # one of the plan's five groups: backend, rag, tools, security, mcp
+pytest -m live         # 13 tests with the real models (RAG answers, 8 injection attacks): about $0.02
 ```
 
-240 tests. They cover error handling (every failure in the plan's list through both endpoints, the keyword-search
-and in-process-tool fallbacks, the time limit, provider details kept out of messages, the error shape for unknown
-routes and crashes), streaming (the SSE events and their order, errors after the start, invalid input, the
-pipeline stopping when the browser goes away, OpenRouter's cost kept from a streamed chunk), the MCP server (discovery, schemas, validation and errors in-process, a real stdio child
-process from client to database result, no API keys passed to it, a server that cannot start, the tool loop through
-MCP, both tool backends), the evaluation metrics and judge handling, hybrid fusion and the strategy switch, keyword search (phrases, stems, ranking, safety), security (no secrets in errors, injected tags cannot escape), the request log and its summary, token and cost tracking, the debug object, conversation history (storage, limits, prompts, endpoints), the four tools (validation, title matching, SQL safety), the tool-calling loop (with a scripted fake model), the chat endpoint and its sources, query translation (validation and fallbacks), the RAG prompt and its
-injection defences, retrieval, records and chunking,
-the embedder and embedding job, and the database (schema, vector size, HNSW index, similarity order, top-K search,
-SQL-injection text, cascade deletes). The embedder, retrieval and LLM are replaced with fakes in the unit tests, and
-a guard in `conftest.py` makes any call that would reach a paid API fail the test. Database tests run inside a transaction that is rolled back, and are skipped when the container
-is down.
+| Group | Tests | What it covers |
+|---|---|---|
+| backend | 168 | every API route (success and failure), streaming, error handling, conversation history, database schema and queries, vector and keyword search, fusion, query translation, usage, logging, evaluation code |
+| rag | 35 | known, vague and no-answer questions against the real database (which films reach the model), the prompt and its rules, the debug object |
+| tools | 69 | all four tools with valid and invalid parameters, missing movies and duplicate titles; the tool-calling loop |
+| security | 56 | hostile tool arguments (SQL fragments, wildcards, huge strings, NUL bytes, wrong types, extra fields) in-process, through the MCP server and over stdio, with no data changed; injected tags and instructions in reviews, the user's message and tool results; no secrets in errors |
+| mcp | 14 | discovery, calling every tool, every error code through MCP, the stdio child process, no API keys passed to it |
+
+How the tests stay free and repeatable:
+- **Paid calls are blocked.** A guard in `conftest.py` makes any LLM or embedding call a test did not replace with a fake
+  fail the test; live tests are the one exception and only run with `-m live`.
+- **The RAG questions replay a recording.** `scripts/record_rag_questions.py` ran the real translation and embedding for
+  the 9 test questions once (about $0.003) and saved them in `backend/tests/fixtures/rag_questions.json`; the tests run
+  the real retrieval on the real database with them. Run the script again when the embedding model, the translation
+  prompt or the questions change (a test fails if the embedding model no longer matches).
+- **Database tests run inside a transaction that is rolled back**, and skip when the container is down.
 
 ## Repository layout
 

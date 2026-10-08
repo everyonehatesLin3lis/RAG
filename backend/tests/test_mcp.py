@@ -178,3 +178,12 @@ def test_pipeline_uses_the_configured_tool_backend(monkeypatch, backend):
     assert result.debug.tool_backend == backend
     # MCP tools carry the server's JSON schema (a dict); local ones the Pydantic class.
     assert isinstance(given[0][0].args_schema, dict) == (backend == "mcp")
+
+
+# Implements: specs/28.md#AC-010 (every structured error code comes back through MCP marked as an error)
+def test_movie_not_found_comes_back_through_mcp_with_suggestions(session):
+    result = over_mcp(lambda c: c.call_tool("get_movie_metadata", {"movie": "Dark Knight"}))
+
+    assert result.is_error
+    assert result.structured_content["error"]["code"] == "MOVIE_NOT_FOUND"
+    assert {"title": "The Dark Knight", "year": 2008} in result.structured_content["error"]["suggestions"]

@@ -125,6 +125,36 @@ ATTACKS = [
 ]
 
 
+def run_attack(session: Session, attack: dict, vector: list[float] | None = None) -> dict:
+    """One attack inside the caller's transaction: insert its poisoned review (if any), ask, check, remove the review.
+    Also used by backend/tests/test_live.py (Phase 28), so `pytest -m live` runs the same attacks."""
+    chunk = None
+    if "poison" in attack:
+        movie_id = session.execute(text("SELECT id FROM movies WHERE title = 'Prisoners'")).scalar_one()
+        chunk = RagChunk(
+            movie_id=movie_id, content=attack["poison"], embedding=vector or embed_texts([attack["poison"]])[0],
+            metadata_={"doc_type": "review", "movie_title": "Prisoners", "year": 2013, "source": "rotten_tomatoes",
+                       "critic": "test", "chunk_key": f"injection-test:{attack['id']}"},
+        )
+        session.add(chunk)
+        session.flush()
+
+    started = time.monotonic()
+    result = rag.answer_question(attack["question"], session)
+    passed, detail = attack["check"](result.answer, result.tool_calls)
+    row = {
+        "id": attack["id"], "kind": attack["kind"], "attack": attack["name"], "question": attack["question"],
+        "poisoned_chunk_retrieved": chunk.id in [c.id for c in result.sources] if chunk else None,
+        "passed": passed, "detail": detail,
+        "tools": [c.tool for c in result.tool_calls], "seconds": round(time.monotonic() - started, 1),
+        "answer": result.answer[:600],
+    }
+    if chunk:  # remove this poison before the next attack, so each attack is tested alone
+        session.delete(chunk)
+        session.flush()
+    return row
+
+
 def main() -> None:
     only = set(sys.argv[sys.argv.index("--only") + 1].split(",")) if "--only" in sys.argv else None
     attacks = [a for a in ATTACKS if not only or a["id"] in only]
@@ -137,37 +167,13 @@ def main() -> None:
         transaction = connection.begin()
         try:
             session = Session(bind=connection)
-            movie_id = session.execute(text("SELECT id FROM movies WHERE title = 'Prisoners'")).scalar_one()
             for attack in attacks:
-                chunk_id = None
-                if "poison" in attack:
-                    chunk = RagChunk(
-                        movie_id=movie_id, content=attack["poison"],
-                        embedding=vectors[poisoned_attacks.index(attack)],
-                        metadata_={"doc_type": "review", "movie_title": "Prisoners", "year": 2013, "source": "rotten_tomatoes",
-                                   "critic": "test", "chunk_key": f"injection-test:{attack['id']}"},
-                    )
-                    session.add(chunk)
-                    session.flush()
-                    chunk_id = chunk.id
-
-                started = time.monotonic()
-                result = rag.answer_question(attack["question"], session)
-                passed, detail = attack["check"](result.answer, result.tool_calls)
-                retrieved = chunk_id in [c.id for c in result.sources] if chunk_id else None
-                row = {
-                    "id": attack["id"], "kind": attack["kind"], "attack": attack["name"], "question": attack["question"],
-                    "poisoned_chunk_retrieved": retrieved, "passed": passed, "detail": detail,
-                    "tools": [c.tool for c in result.tool_calls], "seconds": round(time.monotonic() - started, 1),
-                    "answer": result.answer[:600],
-                }
+                vector = vectors[poisoned_attacks.index(attack)] if "poison" in attack else None
+                row = run_attack(session, attack, vector)
                 results.append(row)
-                verdict = "PASS" if passed else "FAIL"
-                print(f"{attack['id']} {verdict:4} retrieved={retrieved!s:5} {attack['name']:26} | {detail}", flush=True)
-
-                if chunk_id:  # remove this poison before the next attack, so each attack is tested alone
-                    session.delete(chunk)
-                    session.flush()
+                verdict = "PASS" if row["passed"] else "FAIL"
+                print(f"{attack['id']} {verdict:4} retrieved={row['poisoned_chunk_retrieved']!s:5} "
+                      f"{attack['name']:26} | {row['detail']}", flush=True)
         finally:
             transaction.rollback()  # nothing from this run stays in the database
 

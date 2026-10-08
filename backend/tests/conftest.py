@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
@@ -6,10 +8,55 @@ from app import embeddings, llm
 from app.db import get_engine
 from app.errors import AppError
 
+# Implements: specs/28.md#AC-001. The plan's five test groups; `pytest -m rag` runs one of them.
+GROUPS = ("backend", "rag", "tools", "security", "mcp")
+
+# Every test file and its group. A file listed as None marks each test itself (test_live.py mixes rag and security).
+TEST_GROUPS = {
+    "test_chat": "backend", "test_health": "backend", "test_history": "backend", "test_streaming": "backend",
+    "test_errors": "backend", "test_routes": "backend", "test_groups": "backend", "test_request_log": "backend",
+    "test_usage": "backend", "test_evaluation": "backend",
+    "test_database": "backend", "test_embedding_db": "backend", "test_embeddings": "backend",
+    "test_retrieval_db": "backend", "test_fusion": "backend", "test_documents": "backend",
+    "test_query_translation": "backend",
+    "test_rag": "rag", "test_rag_debug": "rag", "test_rag_questions": "rag",
+    "test_tools": "tools", "test_tools_db": "tools", "test_tool_calling": "tools", "test_tool_cases": "tools",
+    "test_security": "security", "test_malicious_arguments": "security",
+    "test_mcp": "mcp",
+    "test_live": None,
+}
+
+
+def pytest_configure(config):
+    for group in GROUPS:
+        config.addinivalue_line("markers", f"{group}: the plan's {group} tests (Phase 28)")
+    config.addinivalue_line("markers", "live: calls real models and costs money; run with `pytest -m live`")
+
+
+@pytest.hookimpl(tryfirst=True)  # before pytest filters by -m, which needs the markers
+def pytest_collection_modifyitems(config, items):
+    """Give each test its file's group, unless the test is marked itself. Then leave out live tests unless the -m
+    expression names them: `pytest -m rag` replaces the default `-m "not live"`, and must still not spend money."""
+    for item in items:
+        if any(item.get_closest_marker(g) for g in GROUPS):
+            continue
+        group = TEST_GROUPS.get(Path(str(item.fspath)).stem)
+        if group:
+            item.add_marker(group)
+
+    if "live" not in (config.option.markexpr or ""):
+        live = [item for item in items if item.get_closest_marker("live")]
+        if live:
+            config.hook.pytest_deselected(items=live)
+            items[:] = [item for item in items if not item.get_closest_marker("live")]
+
 
 @pytest.fixture(autouse=True)
-def no_paid_api_calls(monkeypatch):
-    """Tests must never reach OpenRouter. Any LLM or embedding call a test did not replace with a fake fails loudly."""
+def no_paid_api_calls(request, monkeypatch):
+    """Tests must never reach OpenRouter. Any LLM or embedding call a test did not replace with a fake fails loudly.
+    Live tests (Phase 28, `pytest -m live`) are the one exception: calling the real models is their point."""
+    if request.node.get_closest_marker("live"):
+        return
 
     def blocked(*args, **kwargs):
         raise RuntimeError("A test tried to call a paid API. Replace it with a fake.")

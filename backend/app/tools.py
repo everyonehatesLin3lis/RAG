@@ -16,6 +16,7 @@ Same functions, names and schemas either way.
 
 import json
 import re
+import unicodedata
 from collections.abc import Callable
 
 from langchain_core.tools import StructuredTool
@@ -34,7 +35,12 @@ TITLE_HELP = "Exact movie title. Add the year in brackets to pick between movies
 
 
 def _clean_title(value: str) -> str:
-    return " ".join(value.split())
+    title = " ".join(value.split())
+    # Implements: specs/28.md#AC-008. Control characters (a NUL byte, terminal escape codes) are never part of a title;
+    # PostgreSQL even rejects NUL in text, which would surface as a database failure instead of a clear answer.
+    if any(unicodedata.category(ch) == "Cc" for ch in title):
+        raise ValueError("title contains control characters")
+    return title
 
 
 class FilterMoviesInput(BaseModel):
