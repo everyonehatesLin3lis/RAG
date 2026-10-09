@@ -106,6 +106,7 @@ class RagDebugOut(BaseModel):
     # server failed mid-answer and the remaining calls ran in-process
     tool_backend: str = "local"
     warnings: list[str] = []  # Phase 27: what failed while the answer could still be produced
+    per_film: list[str] = []  # Phase 29: films retrieved separately (a question naming two or more)
 
 
 class ModelUsageOut(BaseModel):

@@ -13,6 +13,7 @@ parameters. PostgreSQL chooses how to run the vector query; at ~10k chunks it do
 use the HNSW index on its own as the table grows (specs/6.md, option 1).
 """
 
+import re
 from dataclasses import dataclass, field
 
 from sqlalchemy import BigInteger, func, select
@@ -22,7 +23,7 @@ from sqlalchemy.orm import Session
 from app import embeddings
 from app.config import get_settings
 from app.errors import AppError
-from app.models import RagChunk, Review
+from app.models import Movie, RagChunk, Review
 
 MAX_KEYWORDS_SEARCHED = 8
 
@@ -68,7 +69,10 @@ def _chunk(row, distance: float | None = None, keyword_score: float | None = Non
 
 
 # Implements: specs/6.md#AC-002, #AC-006, #AC-007
-def search_chunks(session: Session, query_vector: list[float], k: int) -> list[RetrievedChunk]:
+def search_chunks(
+    session: Session, query_vector: list[float], k: int, movie_ids: list[str] | None = None
+) -> list[RetrievedChunk]:
+    """movie_ids (Phase 29): search only those films' chunks (per-film retrieval for multi-film questions)."""
     distance = RagChunk.embedding.cosine_distance(query_vector).label("distance")
     join_on, url = _review_url()
     statement = (
@@ -78,6 +82,8 @@ def search_chunks(session: Session, query_vector: list[float], k: int) -> list[R
         .order_by(distance)
         .limit(k)
     )
+    if movie_ids:
+        statement = statement.where(RagChunk.movie_id.in_(movie_ids))
     return [_chunk(row, distance=float(row.distance)) for row in _run(session, statement)]
 
 
@@ -87,8 +93,33 @@ def retrieve(question: str, session: Session, k: int | None = None) -> list[Retr
     return search_chunks(session, query_vector, k or get_settings().retrieval_top_k)
 
 
-def keyword_search(session: Session, keywords: list[str], k: int | None = None) -> list[RetrievedChunk]:
-    """Chunks containing any of the keywords as a phrase, best full-text rank first. No keywords -> no results."""
+_TITLE_WITH_YEAR = re.compile(r"^(?P<title>.+?)\s*\((?P<year>\d{4})\)$")
+
+
+def named_movies(session: Session, titles: list[str]) -> list[tuple[str, list[str]]]:
+    """Phase 29: the films behind titles from query translation, as (label, movie ids), in the order given. Only
+    exact (case-insensitive) title matches count; "Title (Year)" picks one year, a shared title keeps all its films;
+    a title that is not in the database is dropped."""
+    found, seen = [], set()
+    for name in titles:
+        match = _TITLE_WITH_YEAR.match(name)
+        title, year = (match["title"], int(match["year"])) if match else (name, None)
+        statement = select(Movie.id, Movie.title, Movie.year).where(func.lower(Movie.title) == title.lower())
+        if year is not None:
+            statement = statement.where(Movie.year == year)
+        rows = [r for r in _run(session, statement.order_by(Movie.year)) if r.id not in seen]
+        if rows:
+            seen.update(r.id for r in rows)
+            label = rows[0].title if len(rows) > 1 else f"{rows[0].title} ({rows[0].year})"
+            found.append((label, [r.id for r in rows]))
+    return found
+
+
+def keyword_search(
+    session: Session, keywords: list[str], k: int | None = None, movie_ids: list[str] | None = None
+) -> list[RetrievedChunk]:
+    """Chunks containing any of the keywords as a phrase, best full-text rank first. No keywords -> no results.
+    movie_ids (Phase 29): only those films' chunks."""
     terms = [kw.strip() for kw in keywords if kw and kw.strip()][:MAX_KEYWORDS_SEARCHED]
     if not terms:
         return []
@@ -109,4 +140,6 @@ def keyword_search(session: Session, keywords: list[str], k: int | None = None) 
         .order_by(score.desc(), RagChunk.id)
         .limit(k or get_settings().keyword_top_k)
     )
+    if movie_ids:
+        statement = statement.where(RagChunk.movie_id.in_(movie_ids))
     return [_chunk(row, keyword_score=float(row.score)) for row in _run(session, statement)]

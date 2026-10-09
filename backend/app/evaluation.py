@@ -75,6 +75,9 @@ class RunRecord:
     usage: list[ModelUsage] = field(default_factory=list)
     latency_ms: int = 0
     error: str | None = None
+    # Phase 29: so a fallback (keyword-only search, in-process tools) or a failed translation shows in the results
+    warnings: list[str] = field(default_factory=list)
+    translation_origin: str | None = None
 
     @property
     def cost_usd(self) -> float:
@@ -96,6 +99,8 @@ def run_question(item: EvalItem, session: Session) -> RunRecord:
     return RunRecord(
         answer=result.answer, chunks=result.sources, tool_calls=result.tool_calls, usage=result.usage,
         latency_ms=round((perf_counter() - started) * 1000),
+        warnings=list(result.debug.warnings) if result.debug else [],
+        translation_origin=result.debug.translation.origin if result.debug else None,
     )
 
 

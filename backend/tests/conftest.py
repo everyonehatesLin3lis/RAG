@@ -19,7 +19,7 @@ TEST_GROUPS = {
     "test_database": "backend", "test_embedding_db": "backend", "test_embeddings": "backend",
     "test_retrieval_db": "backend", "test_fusion": "backend", "test_documents": "backend",
     "test_query_translation": "backend",
-    "test_rag": "rag", "test_rag_debug": "rag", "test_rag_questions": "rag",
+    "test_rag": "rag", "test_rag_debug": "rag", "test_rag_questions": "rag", "test_per_film": "rag",
     "test_tools": "tools", "test_tools_db": "tools", "test_tool_calling": "tools", "test_tool_cases": "tools",
     "test_security": "security", "test_malicious_arguments": "security",
     "test_mcp": "mcp",

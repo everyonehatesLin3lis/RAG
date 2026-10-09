@@ -247,6 +247,7 @@ def to_debug(debug: rag.RagDebug) -> RagDebugOut:
         ],
         tool_backend=debug.tool_backend,
         warnings=debug.warnings,
+        per_film=debug.per_film,
     )
 
 

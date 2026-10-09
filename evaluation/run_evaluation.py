@@ -8,6 +8,7 @@ Costs money: about $0.04 for the system's answers and about $0.25 for the judge 
     python evaluation/run_evaluation.py --strategy vector    # Phase 21 comparison
     python evaluation/run_evaluation.py --only F1,M3         # selected questions
     python evaluation/run_evaluation.py --only M6 --tag r2   # a repeat run, saved as <strategy>-r2.json
+    python evaluation/run_evaluation.py --tag r1 --out evaluation/results/final   # Phase 29 final runs
 
 Run from the repo root with the backend venv active. Results: evaluation/results/<strategy>.json (rewritten after
 every question, so an interrupted run keeps what it finished).
@@ -38,6 +39,7 @@ def main() -> None:
     parser.add_argument("--limit", type=int, help="only the first N questions (trial)")
     parser.add_argument("--only", help="comma-separated question ids")
     parser.add_argument("--tag", help="save as <strategy>-<tag>.json (e.g. repeat runs) instead of <strategy>.json")
+    parser.add_argument("--out", help="folder for the results (default evaluation/results; Phase 29: results/final)")
     args = parser.parse_args()
 
     settings = get_settings()
@@ -68,6 +70,7 @@ def main() -> None:
             "latency_ms": rec.latency_ms, "cost_usd": round(rec.cost_usd, 6), "tokens": rec.tokens,
             "chunks": [{"chunk_id": c.id, "movie": f"{c.movie_title} ({c.year})"} for c in rec.chunks],
             "tools": [{"tool": c.tool, "arguments": c.arguments} for c in rec.tool_calls],
+            "warnings": rec.warnings, "translation_origin": rec.translation_origin,
             "retrieval": evaluation.retrieval_metrics(item, rec.chunks),
             "rules": evaluation.rule_checks(item, rec),
             "judged": judgement is not None,
@@ -86,7 +89,7 @@ def main() -> None:
         summary = evaluation.summarise(strategy, rows, round(judge_cost, 6), settings.evaluation_judge_model)
         summary["started_at"] = started
         name = f"{strategy}-{args.tag}" if args.tag else strategy
-        path = evaluation.save_results(RESULTS_DIR, name, summary, rows)
+        path = evaluation.save_results(Path(args.out).resolve() if args.out else RESULTS_DIR, name, summary, rows)
 
     keys = ["retrieval_hit_rate", "retrieval_recall_at_5", "retrieval_precision_at_5", "answer_accuracy", "groundedness",
             "hallucination_rate", "relevance", "rule_must_contain_rate", "expected_tool_used_rate", "avg_latency_ms",
@@ -96,6 +99,8 @@ def main() -> None:
     print(f"{'errors':26} {summary['errors'] or 'none'}")
     print(f"{'not judged':26} {summary['not_judged'] or 'none'}")
     print(f"{'flagged for review':26} {summary['flagged_for_review'] or 'none'}")
+    print(f"{'fallbacks (warnings)':26} {[r['id'] for r in rows if r['warnings']] or 'none'}")
+    print(f"{'translation fallbacks':26} {[r['id'] for r in rows if r['translation_origin'] == 'fallback'] or 'none'}")
     print(f"saved {path.relative_to(ROOT)}")
 
 

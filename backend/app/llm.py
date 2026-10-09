@@ -84,6 +84,8 @@ def provider_error(exc: openai.APIError) -> AppError:
         return AppError("LLM_TIMEOUT", "The language model took too long to respond.", 504)
     if isinstance(exc, openai.RateLimitError):  # 429: too many requests, or the account is out of credit
         return AppError("LLM_RATE_LIMITED", "The language model is busy right now. Please try again in a moment.", 429)
+    if isinstance(exc, openai.APIStatusError) and exc.status_code == 402:  # found in Phase 29: the account ran dry
+        return AppError("LLM_OUT_OF_CREDIT", "The language model account has run out of credit.", 503)
     if isinstance(exc, (openai.AuthenticationError, openai.PermissionDeniedError)):  # 401/403: key wrong or revoked
         return AppError("LLM_AUTH_FAILED", "The language model is not configured correctly.", 502)
     return AppError("LLM_UNAVAILABLE", "The language model is unavailable right now.", 502)

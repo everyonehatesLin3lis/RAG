@@ -83,6 +83,8 @@ def assert_error(plain, events, code: str, status: int):
     (openai.APITimeoutError(request=REQUEST), "LLM_TIMEOUT", 504),
     (openai.RateLimitError("slow down", response=httpx.Response(429, request=REQUEST), body=None), "LLM_RATE_LIMITED", 429),
     (openai.AuthenticationError("bad key", response=httpx.Response(401, request=REQUEST), body=None), "LLM_AUTH_FAILED", 502),
+    (openai.APIStatusError("Insufficient credits", response=httpx.Response(402, request=REQUEST), body=None),
+     "LLM_OUT_OF_CREDIT", 503),
 ])
 def test_openrouter_failures_have_their_own_codes(pipeline, monkeypatch, exc, code, status):
     monkeypatch.setattr(llm, "get_chat_model", lambda: Model(fail=exc))

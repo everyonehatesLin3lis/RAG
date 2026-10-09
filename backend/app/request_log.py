@@ -59,6 +59,7 @@ def success_entry(conversation_id: str, query: str, result, latency_ms: int) -> 
         # Phase 25: how long the user waited for the first text of a streamed answer (absent for /api/chat)
         "first_token_ms": debug.timings_ms.get("first_token") if debug else None,
         "warnings": debug.warnings if debug else [],  # Phase 27: answered, but with a fallback
+        "per_film": debug.per_film if debug else [],  # Phase 29: films retrieved separately
         "status": "success" if result.sources else "no_results",
     }
 

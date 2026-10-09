@@ -52,6 +52,7 @@ export type RagDebug = {
   strategy: string;
   tool_backend?: string; // Phase 24: "mcp" or "local"
   warnings?: string[]; // Phase 27: fallbacks used while answering
+  per_film?: string[]; // Phase 29: films retrieved separately, each with an equal share of the chunks
   fused_results: FusedResult[];
 };
 
@@ -123,6 +124,12 @@ export default function RagPanel({ debug }: { debug: RagDebug | null | undefined
           <p className="text-xs text-muted">
             Similarity = 1 − cosine distance between the search query&apos;s embedding and each chunk&apos;s.
           </p>
+          {(debug.per_film ?? []).length > 1 && (
+            <p className="mt-1 text-xs text-muted">
+              The question names {debug.per_film!.length} films, so each was searched separately and gets an equal
+              share of the {debug.selected_chunks.length} chunks sent to the model: {debug.per_film!.join(", ")}.
+            </p>
+          )}
           <ol className="mt-1 flex flex-col gap-1">
             {debug.vector_results.map((r) => (
               <li key={r.chunk_id} className="flex items-start gap-2">

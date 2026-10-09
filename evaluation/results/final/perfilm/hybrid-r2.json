@@ -1,0 +1,1978 @@
+{
+  "summary": {
+    "strategy": "hybrid",
+    "questions": 13,
+    "retrieval_hit_rate": 1.0,
+    "retrieval_recall_at_5": 1.0,
+    "retrieval_recall_at_8": 1.0,
+    "retrieval_precision_at_5": 1.0,
+    "answer_accuracy": 0.9615,
+    "relevance": 0.9615,
+    "groundedness": 1.0,
+    "hallucination_rate": 0.0,
+    "rule_must_contain_rate": 1.0,
+    "expected_tool_used_rate": 1.0,
+    "avg_latency_ms": 29714,
+    "avg_cost_usd": 0.0008,
+    "errors": {},
+    "not_judged": [],
+    "flagged_for_review": [],
+    "judge": {
+      "model": "anthropic/claude-haiku-4.5",
+      "cost_usd": 0.079343
+    },
+    "by_type": {
+      "comparison": {
+        "questions": 9,
+        "answer_accuracy": 0.9444,
+        "relevance": 0.9444,
+        "groundedness": 1.0,
+        "hallucination_rate": 0.0,
+        "retrieval_hit_rate": 1.0,
+        "retrieval_recall_at_5": 1.0,
+        "retrieval_recall_at_8": 1.0,
+        "retrieval_precision_at_5": 1.0
+      },
+      "rating": {
+        "questions": 4,
+        "answer_accuracy": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination_rate": 0.0,
+        "retrieval_hit_rate": 1.0,
+        "retrieval_recall_at_5": 1.0,
+        "retrieval_recall_at_8": 1.0,
+        "retrieval_precision_at_5": 1.0
+      }
+    },
+    "started_at": "2026-10-08T13:21:17+00:00"
+  },
+  "questions": [
+    {
+      "id": "R2",
+      "type": "rating",
+      "question": "Which is rated higher on IMDb, Inception or Interstellar?",
+      "answer": "**Inception** is rated higher on IMDb: 8.8 vs. 8.7 for Interstellar.",
+      "error": null,
+      "latency_ms": 19504,
+      "cost_usd": 0.00044,
+      "tokens": 5799,
+      "chunks": [
+        {
+          "chunk_id": 49,
+          "movie": "Inception (2010)"
+        },
+        {
+          "chunk_id": 5213,
+          "movie": "Interstellar (2014)"
+        },
+        {
+          "chunk_id": 53,
+          "movie": "Inception (2010)"
+        },
+        {
+          "chunk_id": 5219,
+          "movie": "Interstellar (2014)"
+        },
+        {
+          "chunk_id": 56,
+          "movie": "Inception (2010)"
+        },
+        {
+          "chunk_id": 5228,
+          "movie": "Interstellar (2014)"
+        },
+        {
+          "chunk_id": 52,
+          "movie": "Inception (2010)"
+        },
+        {
+          "chunk_id": 5225,
+          "movie": "Interstellar (2014)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "compare_movies",
+          "arguments": {
+            "movie_a": "Inception (2010)",
+            "movie_b": "Interstellar (2014)"
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": true
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies that Inception is rated higher on IMDb with a rating of 8.8 compared to Interstellar's 8.7, which matches both the reference and the tool results.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Inception is rated 8.8 on IMDb",
+            "supported": true,
+            "evidence": "compare_movies tool result shows Inception IMDb rating of 8.8"
+          },
+          {
+            "claim": "Interstellar is rated 8.7 on IMDb",
+            "supported": true,
+            "evidence": "compare_movies tool result shows Interstellar IMDb rating of 8.7"
+          },
+          {
+            "claim": "Inception is rated higher on IMDb than Interstellar",
+            "supported": true,
+            "evidence": "compare_movies tool result indicates 'higher_imdb_rating': 'Inception'"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "R3",
+      "type": "rating",
+      "question": "Which has the higher IMDb rating, Alien or Aliens?",
+      "answer": "**Alien (1979)** has the higher IMDb rating: **8.5** (from 1,049,942 votes) versus **8.4** for **Aliens (1986)** (832,106 votes).",
+      "error": null,
+      "latency_ms": 19242,
+      "cost_usd": 0.000737,
+      "tokens": 6374,
+      "chunks": [
+        {
+          "chunk_id": 122,
+          "movie": "Alien (1979)"
+        },
+        {
+          "chunk_id": 1174,
+          "movie": "Aliens (1986)"
+        },
+        {
+          "chunk_id": 980,
+          "movie": "Alien (1979)"
+        },
+        {
+          "chunk_id": 176,
+          "movie": "Aliens (1986)"
+        },
+        {
+          "chunk_id": 991,
+          "movie": "Alien (1979)"
+        },
+        {
+          "chunk_id": 1186,
+          "movie": "Aliens (1986)"
+        },
+        {
+          "chunk_id": 988,
+          "movie": "Alien (1979)"
+        },
+        {
+          "chunk_id": 1176,
+          "movie": "Aliens (1986)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "compare_movies",
+          "arguments": {
+            "movie_a": "Alien (1979)",
+            "movie_b": "Aliens (1986)"
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": true
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies that Alien has the higher IMDb rating (8.5 vs 8.4), matching the reference exactly. The specific ratings and vote counts are accurate.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Alien (1979) has an IMDb rating of 8.5",
+            "supported": true,
+            "evidence": "chunk_id 122 and tool result compare_movies"
+          },
+          {
+            "claim": "Alien (1979) has 1,049,942 votes",
+            "supported": true,
+            "evidence": "chunk_id 122"
+          },
+          {
+            "claim": "Aliens (1986) has an IMDb rating of 8.4",
+            "supported": true,
+            "evidence": "chunk_id 176 and tool result compare_movies"
+          },
+          {
+            "claim": "Aliens (1986) has 832,106 votes",
+            "supported": true,
+            "evidence": "chunk_id 176"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "R6",
+      "type": "rating",
+      "question": "Is Heat rated higher than Joker on IMDb?",
+      "answer": "No — they're tied. According to the database, both **Heat (1995)** and **Joker (2019)** have an IMDb rating of **8.3**, so neither is rated higher than the other.",
+      "error": null,
+      "latency_ms": 16543,
+      "cost_usd": 0.000345,
+      "tokens": 5592,
+      "chunks": [
+        {
+          "chunk_id": 1977,
+          "movie": "Heat (1995)"
+        },
+        {
+          "chunk_id": 81,
+          "movie": "Joker (2019)"
+        },
+        {
+          "chunk_id": 1990,
+          "movie": "Heat (1995)"
+        },
+        {
+          "chunk_id": 10323,
+          "movie": "Joker (2019)"
+        },
+        {
+          "chunk_id": 1991,
+          "movie": "Heat (1995)"
+        },
+        {
+          "chunk_id": 10320,
+          "movie": "Joker (2019)"
+        },
+        {
+          "chunk_id": 1976,
+          "movie": "Heat (1995)"
+        },
+        {
+          "chunk_id": 10315,
+          "movie": "Joker (2019)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "compare_movies",
+          "arguments": {
+            "movie_a": "Heat (1995)",
+            "movie_b": "Joker (2019)"
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": true
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly states that Heat and Joker are tied at 8.3 on IMDb, which matches the reference answer exactly. The tool results confirm both films have an IMDb rating of 8.3 with a 'tie' result.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Heat (1995) has an IMDb rating of 8.3",
+            "supported": true,
+            "evidence": "compare_movies tool result shows Heat with imdb_rating: 8.3"
+          },
+          {
+            "claim": "Joker (2019) has an IMDb rating of 8.3",
+            "supported": true,
+            "evidence": "compare_movies tool result shows Joker with imdb_rating: 8.3; also source chunk_id 81 states 'IMDb rating: 8.3 (1,663,671 votes)'"
+          },
+          {
+            "claim": "Neither Heat nor Joker is rated higher than the other",
+            "supported": true,
+            "evidence": "compare_movies tool result shows 'higher_imdb_rating': 'tie'"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "R7",
+      "type": "rating",
+      "question": "Which is rated higher, Logan or Deadpool?",
+      "answer": "**Logan** is rated higher — IMDb 8.1 vs. 8.0 for Deadpool (2016).\n\nThe critic reviews also lean that way:\n- **Logan**: Cary Darling (Fort Worth Star-Telegram) calls it \"the best superhero-related movie since 'The Dark Knight'\"; Brian Tallerico (RogerEbert.com) gives 3.5/4.\n- **Deadpool**: Brian Tallerico (RogerEbert.com) writes it becomes \"a remarkably generic, by-the-numbers man-in-tights flick\" (2/4), and Kyle Smith (New York Post) gives 1.5/4.\n\nStill, both films have positive notices — Brian Truitt (USA Today) and Cary Darling praise Deadpool for successfully sending up the genre.",
+      "error": null,
+      "latency_ms": 21384,
+      "cost_usd": 0.000568,
+      "tokens": 5887,
+      "chunks": [
+        {
+          "chunk_id": 9347,
+          "movie": "Logan (2017)"
+        },
+        {
+          "chunk_id": 7093,
+          "movie": "Deadpool (2016)"
+        },
+        {
+          "chunk_id": 9352,
+          "movie": "Logan (2017)"
+        },
+        {
+          "chunk_id": 7098,
+          "movie": "Deadpool (2016)"
+        },
+        {
+          "chunk_id": 9353,
+          "movie": "Logan (2017)"
+        },
+        {
+          "chunk_id": 7104,
+          "movie": "Deadpool (2016)"
+        },
+        {
+          "chunk_id": 9346,
+          "movie": "Logan (2017)"
+        },
+        {
+          "chunk_id": 7096,
+          "movie": "Deadpool (2016)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "compare_movies",
+          "arguments": {
+            "movie_a": "Logan (2017)",
+            "movie_b": "Deadpool (2016)"
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": true
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies Logan as rated higher with the exact IMDb ratings of 8.1 vs 8.0, matching the reference answer. The answer also provides supporting evidence from critic reviews that align with this assessment.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Logan has an IMDb rating of 8.1",
+            "supported": true,
+            "evidence": "compare_movies tool result"
+          },
+          {
+            "claim": "Deadpool has an IMDb rating of 8.0",
+            "supported": true,
+            "evidence": "compare_movies tool result"
+          },
+          {
+            "claim": "Cary Darling (Fort Worth Star-Telegram) calls Logan 'the best superhero-related movie since The Dark Knight'",
+            "supported": true,
+            "evidence": "chunk_id 9353"
+          },
+          {
+            "claim": "Brian Tallerico (RogerEbert.com) gives Logan 3.5/4",
+            "supported": true,
+            "evidence": "chunk_id 9352"
+          },
+          {
+            "claim": "Brian Tallerico (RogerEbert.com) writes Deadpool becomes 'a remarkably generic, by-the-numbers man-in-tights flick' (2/4)",
+            "supported": true,
+            "evidence": "chunk_id 7096"
+          },
+          {
+            "claim": "Kyle Smith (New York Post) gives Deadpool 1.5/4",
+            "supported": true,
+            "evidence": "chunk_id 7104"
+          },
+          {
+            "claim": "Brian Truitt (USA Today) praises Deadpool",
+            "supported": true,
+            "evidence": "chunk_id 7093"
+          },
+          {
+            "claim": "Cary Darling praises Deadpool for successfully sending up the genre",
+            "supported": true,
+            "evidence": "chunk_id 7098"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "M1",
+      "type": "comparison",
+      "question": "Compare Arrival and Interstellar as science-fiction films.",
+      "answer": "## Arrival (2016) vs. Interstellar (2014)\n\n**Data**\n\n| | Arrival | Interstellar |\n|---|---|---|\n| IMDb rating | 7.9 | **8.7** |\n| Genres | Drama, Science Fiction, Mystery | Adventure, Drama, Science Fiction |\n| Critics' average (this database) | **7.86** (20 reviews) | 6.92 (20 reviews) |\n| Reviews in database | 20 | 20 |\n\nSo Interstellar is the more popular film by IMDb vote, while Arrival scores higher with the critics in this dataset.\n\n**What the critics say**\n\n*Arrival* — all quoted reviews are fresh:\n- Dan Jolin (Empire Magazine), 5/5: calls it \"Villeneuve's The Day The Earth Stood Still or Close Encounters Of The Third Kind,\" praising how it stays \"true to the tropes while also feeling like something new.\"\n- Britton Peele (Dallas Morning News), A: \"a beautiful narrative that you find has been telling you things about itself without you ever realizing it.\"\n- Leah Greenblatt (Entertainment Weekly), A-: \"large-scale movie-star sci-fi filtered through the tricky, esoteric lens of art-house cinema\" — a film that works within the genre \"at the same time as it subverts it.\"\n- Adam Woodward (Little White Lies), 3/5, notes personal trauma as a familiar Villeneuve motif.\n\n*Interstellar* — mixed reactions:\n- Nicholas Barber (BBC.com), 4/5, fresh: ranks it alongside \"2001: A Space Odyssey\" and \"Solaris\" as mind-bending epic sci-fi.\n- Jake Wilson (Sydney Morning Herald), 3/5, fresh: compares its puzzle-like structure to *Memento* and *Upstream Colour*.\n- Kate Muir (Times UK), 3/5, fresh: admires the ambition but finds its attempt to cover \"life, the universe and everything in nearly three hours... rather enervating.\"\n- Henry Barnes (Guardian), 3/5, rotten: dismisses it as \"a science report\" rather than a space adventure.\n\n**Summary:** critics in this database rate Arrival higher and praise its genre-bending, emotionally layered storytelling; Interstellar earns admirers for its grand ambition (Barber even invokes Kubrick and Tarkovsky) but draws complaints about length and dryness. Audiences, per IMDb, favour Interstellar (8.7 vs 7.9). The sources don't settle which is \"better\" overall — it depends on whether you weigh critic averages or IMDb scores.",
+      "error": null,
+      "latency_ms": 45442,
+      "cost_usd": 0.000893,
+      "tokens": 6616,
+      "chunks": [
+        {
+          "chunk_id": 8933,
+          "movie": "Arrival (2016)"
+        },
+        {
+          "chunk_id": 5228,
+          "movie": "Interstellar (2014)"
+        },
+        {
+          "chunk_id": 8936,
+          "movie": "Arrival (2016)"
+        },
+        {
+          "chunk_id": 5225,
+          "movie": "Interstellar (2014)"
+        },
+        {
+          "chunk_id": 8927,
+          "movie": "Arrival (2016)"
+        },
+        {
+          "chunk_id": 5212,
+          "movie": "Interstellar (2014)"
+        },
+        {
+          "chunk_id": 8928,
+          "movie": "Arrival (2016)"
+        },
+        {
+          "chunk_id": 5213,
+          "movie": "Interstellar (2014)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "compare_movies",
+          "arguments": {
+            "movie_a": "Arrival (2016)",
+            "movie_b": "Interstellar (2014)"
+          }
+        },
+        {
+          "tool": "rating_summary",
+          "arguments": {
+            "movie": "Arrival (2016)"
+          }
+        },
+        {
+          "tool": "rating_summary",
+          "arguments": {
+            "movie": "Interstellar (2014)"
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer provides a comprehensive comparison of both films covering multiple dimensions: IMDb ratings, critic averages from the database, genres, and detailed critical perspectives. All numerical data matches the tool results (Arrival 7.9 IMDb/7.86 critics, Interstellar 8.7 IMDb/6.92 critics). The answer includes specific quotes from the sources and accurately represents the critical reception of both films. It addresses the comparison question fully by covering both films' strengths and weaknesses as science-fiction works.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Interstellar has an IMDb rating of 8.7",
+            "supported": true,
+            "evidence": "compare_movies tool result"
+          },
+          {
+            "claim": "Arrival has an IMDb rating of 7.9",
+            "supported": true,
+            "evidence": "compare_movies tool result"
+          },
+          {
+            "claim": "Arrival's average critic rating in this database is 7.86 based on 20 reviews",
+            "supported": true,
+            "evidence": "rating_summary tool for Arrival"
+          },
+          {
+            "claim": "Interstellar's average critic rating in this database is 6.92 based on 20 reviews",
+            "supported": true,
+            "evidence": "rating_summary tool for Interstellar"
+          },
+          {
+            "claim": "Arrival has genres Drama, Science Fiction, Mystery",
+            "supported": true,
+            "evidence": "chunk_id 8933"
+          },
+          {
+            "claim": "Interstellar has genres Adventure, Drama, Science Fiction",
+            "supported": true,
+            "evidence": "chunk_id 5228"
+          },
+          {
+            "claim": "Dan Jolin (Empire Magazine) gave Arrival 5/5 and called it 'Villeneuve's The Day The Earth Stood Still or Close Encounters Of The Third Kind'",
+            "supported": true,
+            "evidence": "chunk_id 8927"
+          },
+          {
+            "claim": "Britton Peele (Dallas Morning News) gave Arrival an A and described it as 'a beautiful narrative that you find has been telling you things about itself without you ever realizing it'",
+            "supported": true,
+            "evidence": "chunk_id 8936"
+          },
+          {
+            "claim": "Leah Greenblatt (Entertainment Weekly) gave Arrival an A- and described it as 'large-scale movie-star sci-fi filtered through the tricky, esoteric lens of art-house cinema'",
+            "supported": true,
+            "evidence": "chunk_id 8933"
+          },
+          {
+            "claim": "Adam Woodward (Little White Lies) gave Arrival 3/5 and noted personal trauma as a Villeneuve motif",
+            "supported": true,
+            "evidence": "chunk_id 8928"
+          },
+          {
+            "claim": "Nicholas Barber (BBC.com) gave Interstellar 4/5 and ranked it alongside '2001: A Space Odyssey' and 'Solaris'",
+            "supported": true,
+            "evidence": "chunk_id 5228"
+          },
+          {
+            "claim": "Jake Wilson (Sydney Morning Herald) gave Interstellar 3/5 and compared its structure to Memento and Upstream Colour",
+            "supported": true,
+            "evidence": "chunk_id 5225"
+          },
+          {
+            "claim": "Kate Muir (Times UK) gave Interstellar 3/5 and found its attempt to cover 'life, the universe and everything in nearly three hours... rather enervating'",
+            "supported": true,
+            "evidence": "chunk_id 5213"
+          },
+          {
+            "claim": "Henry Barnes (Guardian) gave Interstellar 3/5 (rotten) and dismissed it as 'a science report' rather than a space adventure",
+            "supported": true,
+            "evidence": "chunk_id 5212"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "M2",
+      "type": "comparison",
+      "question": "How do critics compare Get Out and Us, both directed by Jordan Peele?",
+      "answer": "## Get Out (2017) vs. Us (2019) — as critics and the data compare them\n\n**Ratings**\n- **Critics:** Get Out averages **8.0/10** (20 reviews) vs. **Us** at **7.39/10** (20 reviews) — Get Out edges it.\n- **IMDb:** Get Out **7.8** (797,032 votes) vs. Us **6.8** (384,131 votes) — Get Out is rated higher.\n\n**On scares vs. laughs** — the most direct comparison comes from **Max Weiss (Baltimore Magazine)** on *Us*: \"Us is much scarier than Get Out, but less funny. Peele occasionally disrupts the tension with a few jokes but he wants to keep you freaked out, not laughing.\"\n\n**Get Out** draws strong praise for balancing horror, humor and politics:\n- **Peter Travers (Rolling Stone), 3.5/4:** \"A jolt-a-minute horrorshow laced with racial tension and stinging satirical wit.\"\n- **Richard Roeper (Chicago Sun-Times), 3.5/4:** Peele \"addresses the myriad levels of racism, pays homage to some great horror films, carves out its own creative path... and is flat-out funny as well.\"\n- **Jack Shepherd (Independent (UK)), 5/5:** \"perfectly balance[s] suspense, humour, and horror while making a hard-hitting political statement about liberal America.\"\n\n**Us** gets more mixed but still positive notices, noting ambition and craft alongside flaws:\n- **Peter Rainer (Christian Science Monitor), B:** \"the overreach in this movie detracts from both the horror and the ambition. Having said that, Peele shows a marked advance in filmmaking skills here and, in her dual role, Nyong'o is ferociously good.\"\n- **David Stratton (The Australian), 3.5/5:** \"Even if his screenplay has flaws, Us confirms that Peele is an accomplished director with a wicked sense of humour.\"\n\n**Summary of what the sources show:** critics rate Get Out higher overall (8.0 vs. 7.39; IMDb 7.8 vs. 6.8), Us is described as scarier but funnier-deficient compared to Get Out, and both films are praised for Peele's directorial craft — with Get Out seen as the better-balanced of the two.",
+      "error": null,
+      "latency_ms": 20211,
+      "cost_usd": 0.001014,
+      "tokens": 7178,
+      "chunks": [
+        {
+          "chunk_id": 9989,
+          "movie": "Get Out (2017)"
+        },
+        {
+          "chunk_id": 10246,
+          "movie": "Us (2019)"
+        },
+        {
+          "chunk_id": 185,
+          "movie": "Get Out (2017)"
+        },
+        {
+          "chunk_id": 528,
+          "movie": "Us (2019)"
+        },
+        {
+          "chunk_id": 9992,
+          "movie": "Get Out (2017)"
+        },
+        {
+          "chunk_id": 10258,
+          "movie": "Us (2019)"
+        },
+        {
+          "chunk_id": 9999,
+          "movie": "Get Out (2017)"
+        },
+        {
+          "chunk_id": 10253,
+          "movie": "Us (2019)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "compare_movies",
+          "arguments": {
+            "movie_a": "Get Out (2017)",
+            "movie_b": "Us (2019)"
+          }
+        },
+        {
+          "tool": "rating_summary",
+          "arguments": {
+            "movie": "Get Out (2017)"
+          }
+        },
+        {
+          "tool": "rating_summary",
+          "arguments": {
+            "movie": "Us (2019)"
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer provides a comprehensive comparison of Get Out and Us covering multiple dimensions: critic ratings (8.0 vs 7.39), IMDb ratings (7.8 vs 6.8), the key distinction about scares vs. laughs from Max Weiss, and specific praise for both films from multiple critics. All numerical claims and quotes are supported by the sources and tool results provided.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Get Out averages 8.0/10 from critics (20 reviews)",
+            "supported": true,
+            "evidence": "tool_results: rating_summary for Get Out shows average_critic_rating of 8.0 with 20 reviews"
+          },
+          {
+            "claim": "Us averages 7.39/10 from critics (20 reviews)",
+            "supported": true,
+            "evidence": "tool_results: rating_summary for Us shows average_critic_rating of 7.39 with 20 reviews"
+          },
+          {
+            "claim": "Get Out has IMDb rating of 7.8 (797,032 votes)",
+            "supported": true,
+            "evidence": "source chunk_id 185"
+          },
+          {
+            "claim": "Us has IMDb rating of 6.8 (384,131 votes)",
+            "supported": true,
+            "evidence": "source chunk_id 528"
+          },
+          {
+            "claim": "Get Out is rated higher on IMDb",
+            "supported": true,
+            "evidence": "tool_results: compare_movies shows higher_imdb_rating is Get Out"
+          },
+          {
+            "claim": "Max Weiss said 'Us is much scarier than Get Out, but less funny'",
+            "supported": true,
+            "evidence": "source chunk_id 10246"
+          },
+          {
+            "claim": "Peter Travers gave Get Out 3.5/4 and called it 'A jolt-a-minute horrorshow laced with racial tension and stinging satirical wit'",
+            "supported": true,
+            "evidence": "source chunk_id 9989"
+          },
+          {
+            "claim": "Richard Roeper gave Get Out 3.5/4 and praised it for addressing racism and being funny",
+            "supported": true,
+            "evidence": "source chunk_id 9992"
+          },
+          {
+            "claim": "Jack Shepherd gave Get Out 5/5 and said it 'perfectly balance[s] suspense, humour, and horror'",
+            "supported": true,
+            "evidence": "source chunk_id 9999"
+          },
+          {
+            "claim": "Peter Rainer gave Us a B rating and noted Peele shows 'marked advance in filmmaking skills'",
+            "supported": true,
+            "evidence": "source chunk_id 10258"
+          },
+          {
+            "claim": "David Stratton gave Us 3.5/5 and called Peele 'an accomplished director with a wicked sense of humour'",
+            "supported": true,
+            "evidence": "source chunk_id 10253"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "M3",
+      "type": "comparison",
+      "question": "Compare Whiplash and La La Land, both by Damien Chazelle.",
+      "answer": "## Whiplash (2014) vs. La La Land (2016)\n\n**Basics** — Both are directed and written by Damien Chazelle.\n\n| | Whiplash | La La Land |\n|---|---|---|\n| Year | 2014 | 2016 |\n| Genres | Drama, Music | Comedy, Drama, Romance, Music |\n| Runtime | 107 min | 129 min |\n| IMDb rating | **8.5** (1,126,514 votes) | 8.0 (745,959 votes) |\n| Critic average | 8.6/10 (20 reviews) | **8.86/10** (20 reviews) |\n| Reviews in database | 20 | 20 |\n\n**Data:** Whiplash is rated higher on IMDb (8.5 vs. 8.0), while La La Land has the slightly higher critic average in this database (8.86 vs. 8.6). Both drew 20 reviews; Whiplash's scores are concentrated in the 8–10 bucket (16 of 20), while La La Land has 3 reviews in the 4–6 range and 1 in 6–8 alongside its 16 in 8–10.\n\n**Plots:** *Whiplash* follows a talented young drummer pursuing perfection under a ruthless instructor \"at any cost, even his humanity.\" *La La Land* follows an aspiring actress and a jazz musician whose rising success threatens their romance and dreams.\n\n**What critics say:**\n\n*Whiplash:*\n- **Peter Travers (Rolling Stone, 3.5/4):** \"Damien Chazelle stages S&M drum duels with strafing mastery... It's electrifying.\"\n- **Jim Slotek (Toronto Sun, 4/4):** Chazelle \"has created a remarkably economical and claustrophobic piece of storytelling,\" based on his own experience as a student jazz drummer.\n- **Michael Phillips (Chicago Tribune, 4/4):** \"It throws you around with impunity, yet Chazelle exerts tight, exacting control over his increasingly feverish and often weirdly comic melodrama.\"\n\n*La La Land:*\n- **Peter Travers (Rolling Stone, 4/4):** \"La La does nothing less than jolt the movie musical to life for the 21st century... thrilled how they made movies magic again.\"\n- **Mick LaSalle (San Francisco Chronicle, 4/4):** After an impersonal splashy opening, the film \"slowly dawns as a film of great intimacy. It's as if it were whispering to us.\"\n- **Amy Nicholson (MTV, C, rotten):** Wishes it felt more like \"Chazelle's personal vision... instead of this eager-to-please mash-up, the movie equivalent of samba tapas.\"\n\n**Summary of sources:** The reviews show Whiplash praised for its taut, claustrophobic intensity, and La La Land for reenergizing the movie musical — though one critic found it too eager-to-please. On the numbers: Whiplash leads on IMDb, La La Land slightly on the critic average in this database.",
+      "error": null,
+      "latency_ms": 15739,
+      "cost_usd": 0.000831,
+      "tokens": 7394,
+      "chunks": [
+        {
+          "chunk_id": 117,
+          "movie": "Whiplash (2014)"
+        },
+        {
+          "chunk_id": 221,
+          "movie": "La La Land (2016)"
+        },
+        {
+          "chunk_id": 8950,
+          "movie": "Whiplash (2014)"
+        },
+        {
+          "chunk_id": 9631,
+          "movie": "La La Land (2016)"
+        },
+        {
+          "chunk_id": 8962,
+          "movie": "Whiplash (2014)"
+        },
+        {
+          "chunk_id": 9633,
+          "movie": "La La Land (2016)"
+        },
+        {
+          "chunk_id": 8952,
+          "movie": "Whiplash (2014)"
+        },
+        {
+          "chunk_id": 9635,
+          "movie": "La La Land (2016)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "compare_movies",
+          "arguments": {
+            "movie_a": "Whiplash (2014)",
+            "movie_b": "La La Land (2016)"
+          }
+        },
+        {
+          "tool": "rating_summary",
+          "arguments": {
+            "movie": "Whiplash (2014)"
+          }
+        },
+        {
+          "tool": "rating_summary",
+          "arguments": {
+            "movie": "La La Land (2016)"
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer provides a comprehensive comparison of both films by Damien Chazelle, covering key aspects: basic information (year, genres, runtime, ratings), plot summaries, and critical reception. All factual claims are supported by the provided sources and tool results. The comparison addresses the reference requirement to cover both films.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Both films are directed and written by Damien Chazelle",
+            "supported": true,
+            "evidence": "chunk_id 117 and 221 both list Damien Chazelle as Director and Writer"
+          },
+          {
+            "claim": "Whiplash was released in 2014",
+            "supported": true,
+            "evidence": "chunk_id 117"
+          },
+          {
+            "claim": "La La Land was released in 2016",
+            "supported": true,
+            "evidence": "chunk_id 221"
+          },
+          {
+            "claim": "Whiplash genres are Drama, Music",
+            "supported": true,
+            "evidence": "chunk_id 117"
+          },
+          {
+            "claim": "La La Land genres are Comedy, Drama, Romance, Music",
+            "supported": true,
+            "evidence": "chunk_id 221"
+          },
+          {
+            "claim": "Whiplash runtime is 107 minutes",
+            "supported": true,
+            "evidence": "chunk_id 117"
+          },
+          {
+            "claim": "La La Land runtime is 129 minutes",
+            "supported": true,
+            "evidence": "chunk_id 221"
+          },
+          {
+            "claim": "Whiplash IMDb rating is 8.5 with 1,126,514 votes",
+            "supported": true,
+            "evidence": "chunk_id 117"
+          },
+          {
+            "claim": "La La Land IMDb rating is 8.0 with 745,959 votes",
+            "supported": true,
+            "evidence": "chunk_id 221"
+          },
+          {
+            "claim": "Whiplash has a critic average of 8.6/10 from 20 reviews",
+            "supported": true,
+            "evidence": "tool_results rating_summary for Whiplash"
+          },
+          {
+            "claim": "La La Land has a critic average of 8.86/10 from 20 reviews",
+            "supported": true,
+            "evidence": "tool_results rating_summary for La La Land"
+          },
+          {
+            "claim": "Whiplash is rated higher on IMDb (8.5 vs. 8.0)",
+            "supported": true,
+            "evidence": "tool_results compare_movies"
+          },
+          {
+            "claim": "La La Land has the slightly higher critic average (8.86 vs. 8.6)",
+            "supported": true,
+            "evidence": "tool_results rating_summary for both films"
+          },
+          {
+            "claim": "Whiplash follows a talented young drummer pursuing perfection under a ruthless instructor at any cost, even his humanity",
+            "supported": true,
+            "evidence": "chunk_id 117 overview"
+          },
+          {
+            "claim": "La La Land follows an aspiring actress and a jazz musician whose rising success threatens their romance and dreams",
+            "supported": true,
+            "evidence": "chunk_id 221 overview"
+          },
+          {
+            "claim": "Peter Travers gave Whiplash 3.5/4 and called it electrifying",
+            "supported": true,
+            "evidence": "chunk_id 8950"
+          },
+          {
+            "claim": "Jim Slotek gave Whiplash 4/4 and noted Chazelle based it on his own experience as a student jazz drummer",
+            "supported": true,
+            "evidence": "chunk_id 8962"
+          },
+          {
+            "claim": "Michael Phillips gave Whiplash 4/4",
+            "supported": true,
+            "evidence": "chunk_id 8952"
+          },
+          {
+            "claim": "Peter Travers gave La La Land 4/4",
+            "supported": true,
+            "evidence": "chunk_id 9631"
+          },
+          {
+            "claim": "Mick LaSalle gave La La Land 4/4",
+            "supported": true,
+            "evidence": "chunk_id 9635"
+          },
+          {
+            "claim": "Amy Nicholson gave La La Land a C rating (rotten)",
+            "supported": true,
+            "evidence": "chunk_id 9633"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "M4",
+      "type": "comparison",
+      "question": "Is Black Swan more disturbing than Hereditary?",
+      "answer": "The available reviews don't settle this directly — none of the critics compare the two films — but they describe different kinds of disturbance:\n\n**Hereditary** is framed more explicitly as deeply unsettling:\n- Wenlei Ma (News.com.au) praises its \"deeper psychological level\" paired with \"some of the most disturbing visuals projected on screen.\"\n- A.A. Dowd (AV Club) calls it \"pure emotional terrorism... gripping you with real horror, the unspeakable kind.\"\n- Cary Darling (Houston Chronicle) notes its dread comes \"not from what you see but what you think you might see,\" in the vein of *The Babadook* and *It Follows*.\n- Joshua Rothkopf (Time Out) calls it \"a new generation's The Exorcist.\"\n\n**Black Swan** disturbs through psychological hysteria and excess rather than horror:\n- Kenneth Turan (LA Times) calls it \"high-art trash\" that \"prizes hysteria over sanity.\"\n- Ed Gonzalez (Slant Magazine) says Aronofsky \"makes trashy what David Lynch made poignant.\"\n- Stephanie Zacharek (Movieline) even finds it \"hokier, more obvious, more hilarious than it's intended to be.\"\n- Lee Marshall (London Evening Standard), 5/5, focuses on its narrative thrust rather than disturbance.\n\nIn short: the reviews position *Hereditary* as the more deliberately disturbing film (visual and psychological horror), while *Black Swan*'s provocativeness divided critics, some finding it thrilling and others overwrought. On the objective data, *Black Swan* rates higher (IMDb 8.0 vs. 7.3), but rating isn't the same as disturbing. The sources contain no head-to-head comparison, so a definitive verdict isn't available.",
+      "error": null,
+      "latency_ms": 24664,
+      "cost_usd": 0.000661,
+      "tokens": 6373,
+      "chunks": [
+        {
+          "chunk_id": 5551,
+          "movie": "Black Swan (2010)"
+        },
+        {
+          "chunk_id": 10370,
+          "movie": "Hereditary (2018)"
+        },
+        {
+          "chunk_id": 5555,
+          "movie": "Black Swan (2010)"
+        },
+        {
+          "chunk_id": 10367,
+          "movie": "Hereditary (2018)"
+        },
+        {
+          "chunk_id": 5557,
+          "movie": "Black Swan (2010)"
+        },
+        {
+          "chunk_id": 10377,
+          "movie": "Hereditary (2018)"
+        },
+        {
+          "chunk_id": 5553,
+          "movie": "Black Swan (2010)"
+        },
+        {
+          "chunk_id": 10366,
+          "movie": "Hereditary (2018)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "compare_movies",
+          "arguments": {
+            "movie_a": "Black Swan (2010)",
+            "movie_b": "Hereditary (2018)"
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "partially_correct",
+        "correctness_reason": "The answer appropriately acknowledges that the sources don't directly compare the two films' relative disturbing qualities, which is accurate. It correctly synthesizes the available review quotes to characterize how each film disturbs audiences differently. However, the reference asks for 'a comparison of Black Swan (2010) and Hereditary (2018) that covers both films,' and while the answer does cover both films, it stops short of making a clear comparative judgment about which is more disturbing—it instead concludes that 'a definitive verdict isn't available.' This is a reasonable interpretation given the sources, but it doesn't fully satisfy the reference's request for a comparison that addresses the question directly.",
+        "relevance": "partly",
+        "claims": [
+          {
+            "claim": "Wenlei Ma (News.com.au) praises Hereditary's 'deeper psychological level' paired with 'some of the most disturbing visuals projected on screen'",
+            "supported": true,
+            "evidence": "chunk_id=\"10370\""
+          },
+          {
+            "claim": "A.A. Dowd (AV Club) calls Hereditary 'pure emotional terrorism... gripping you with real horror, the unspeakable kind'",
+            "supported": true,
+            "evidence": "chunk_id=\"10366\""
+          },
+          {
+            "claim": "Cary Darling (Houston Chronicle) notes Hereditary's dread comes 'not from what you see but what you think you might see'",
+            "supported": true,
+            "evidence": "chunk_id=\"10377\""
+          },
+          {
+            "claim": "Joshua Rothkopf (Time Out) calls Hereditary 'a new generation's The Exorcist'",
+            "supported": true,
+            "evidence": "chunk_id=\"10367\""
+          },
+          {
+            "claim": "Kenneth Turan (LA Times) calls Black Swan 'high-art trash' that 'prizes hysteria over sanity'",
+            "supported": true,
+            "evidence": "chunk_id=\"5557\""
+          },
+          {
+            "claim": "Ed Gonzalez (Slant Magazine) says Aronofsky 'makes trashy what David Lynch made poignant'",
+            "supported": true,
+            "evidence": "chunk_id=\"5553\""
+          },
+          {
+            "claim": "Stephanie Zacharek (Movieline) finds Black Swan 'hokier, more obvious, more hilarious than it's intended to be'",
+            "supported": true,
+            "evidence": "chunk_id=\"5555\""
+          },
+          {
+            "claim": "Lee Marshall (London Evening Standard) gives Black Swan 5/5 and focuses on its narrative thrust rather than disturbance",
+            "supported": true,
+            "evidence": "chunk_id=\"5551\""
+          },
+          {
+            "claim": "Black Swan rates higher on IMDb (8.0 vs. 7.3)",
+            "supported": true,
+            "evidence": "compare_movies tool result"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 0.5,
+        "relevance": 0.5,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "M5",
+      "type": "comparison",
+      "question": "Compare Heat and Nightcrawler as crime films.",
+      "answer": "## Heat vs. Nightcrawler as crime films\n\n**The films**\n- **Heat (1995)** — Michael Mann's 170-minute Action/Crime/Drama epic: obsessive thief Neil McCauley (Robert De Niro) and detective Vincent Hanna (Al Pacino) play a cat-and-mouse game across Los Angeles that \"may end in violence.\" Keywords include heist, bank robbery, neo-noir and crime epic.\n- **Nightcrawler (2014)** — Dan Gilroy's 118-minute Crime/Drama/Thriller: Lou Bloom muscles into L.A. crime journalism and \"blurs the line between observer and participant,\" aided by TV-news veteran Nina. Keywords include sociopath, character study, neo-noir and ethics.\n\n**Critical reception** (20 reviews each in the database)\n- **Heat**: average critic score **8.0/10**, with 11 of 20 reviews in the 8–10 range. Ian Nathan (Empire Magazine, 5/5) writes it \"packs more into one cop movie than the entire genre output of the last five years,\" and Mike Clark (USA Today, 4/4) praises its photography, editing, sound and \"unforgettable subcharacters.\" The dissenter is Steven Rea (Philadelphia Inquirer, 2.5/4): despite the \"elaborately staged, tautly edited robberies\" and \"killer cast,\" he finds \"It's the script, stupid.\"\n- **Nightcrawler**: average critic score **7.6/10**, with 9 of 20 reviews in the 8–10 range. Geoffrey Macnab (Independent (UK), 4/5) says it \"deliberately blurs the lines between David Cronenberg-like satire, crime thriller and horror\" while posing as \"a twisted version of the traditional story about the all-American entrepreneur.\" Christy Lemire (ChristyLemire.com, 3/4) calls Lou Bloom \"a monster — a fiend who preys on people at their weakest and worst moments.\" Tim Robey (Daily Telegraph (UK), 3/5) frames it as \"the acrid TV satire of Network, lit up by the sodium glare of an LA crime flick from the 1980s.\"\n\n**Data**\n- IMDb: **Heat 8.3** (787,187 votes) vs. **Nightcrawler 7.8** (656,813 votes) — Heat rated higher.\n- Critics' average: **Heat 8.0** vs. **Nightcrawler 7.6**.\n\n**As crime films**, the sources show Heat as a large-scale cat-and-mouse heist/police procedural (Action/Crime/Drama), while Nightcrawler is an intimate, satirical character study of a sociopathic stringer (Crime/Drama/Thriller, with thriller and horror undertones per Macnab). On both IMDb and the critics' average in this database, Heat edges ahead, though both are positively reviewed.",
+      "error": null,
+      "latency_ms": 47062,
+      "cost_usd": 0.000778,
+      "tokens": 10138,
+      "chunks": [
+        {
+          "chunk_id": 187,
+          "movie": "Heat (1995)"
+        },
+        {
+          "chunk_id": 9146,
+          "movie": "Nightcrawler (2014)"
+        },
+        {
+          "chunk_id": 1990,
+          "movie": "Heat (1995)"
+        },
+        {
+          "chunk_id": 263,
+          "movie": "Nightcrawler (2014)"
+        },
+        {
+          "chunk_id": 1975,
+          "movie": "Heat (1995)"
+        },
+        {
+          "chunk_id": 9161,
+          "movie": "Nightcrawler (2014)"
+        },
+        {
+          "chunk_id": 1977,
+          "movie": "Heat (1995)"
+        },
+        {
+          "chunk_id": 9163,
+          "movie": "Nightcrawler (2014)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "compare_movies",
+          "arguments": {
+            "movie_a": "Heat (1995)",
+            "movie_b": "Nightcrawler (2014)"
+          }
+        },
+        {
+          "tool": "rating_summary",
+          "arguments": {
+            "movie": "Heat (1995)"
+          }
+        },
+        {
+          "tool": "rating_summary",
+          "arguments": {
+            "movie": "Nightcrawler (2014)"
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer provides a comprehensive comparison of Heat and Nightcrawler as crime films, covering both films with details about their plots, genres, critical reception, and IMDb ratings. It addresses the reference requirement to compare both films and covers key aspects like their different approaches to crime storytelling (heist/police procedural vs. satirical character study), critical scores, and thematic elements.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Heat is a 1995 Action/Crime/Drama film directed by Michael Mann",
+            "supported": true,
+            "evidence": "chunk_id 187"
+          },
+          {
+            "claim": "Heat has a runtime of 170 minutes",
+            "supported": true,
+            "evidence": "chunk_id 187"
+          },
+          {
+            "claim": "Heat stars Al Pacino and Robert De Niro",
+            "supported": true,
+            "evidence": "chunk_id 187"
+          },
+          {
+            "claim": "Heat's plot involves obsessive thief Neil McCauley and detective Vincent Hanna in a cat-and-mouse game",
+            "supported": true,
+            "evidence": "chunk_id 187"
+          },
+          {
+            "claim": "Nightcrawler is a 2014 Crime/Drama/Thriller film directed by Dan Gilroy",
+            "supported": true,
+            "evidence": "chunk_id 263"
+          },
+          {
+            "claim": "Nightcrawler has a runtime of 118 minutes",
+            "supported": true,
+            "evidence": "chunk_id 263"
+          },
+          {
+            "claim": "Nightcrawler stars Jake Gyllenhaal",
+            "supported": true,
+            "evidence": "chunk_id 263"
+          },
+          {
+            "claim": "Nightcrawler's plot involves Lou Bloom blurring the line between observer and participant in L.A. crime journalism",
+            "supported": true,
+            "evidence": "chunk_id 263"
+          },
+          {
+            "claim": "Heat has an IMDb rating of 8.3 with 787,187 votes",
+            "supported": true,
+            "evidence": "chunk_id 187"
+          },
+          {
+            "claim": "Nightcrawler has an IMDb rating of 7.8 with 656,813 votes",
+            "supported": true,
+            "evidence": "chunk_id 263"
+          },
+          {
+            "claim": "Heat has an average critic score of 8.0/10 based on 20 reviews",
+            "supported": true,
+            "evidence": "rating_summary tool for Heat"
+          },
+          {
+            "claim": "Nightcrawler has an average critic score of 7.6/10 based on 20 reviews",
+            "supported": true,
+            "evidence": "rating_summary tool for Nightcrawler"
+          },
+          {
+            "claim": "Ian Nathan (Empire Magazine) gave Heat 5/5 and wrote it 'packs more into one cop movie than the entire genre output of the last five years'",
+            "supported": true,
+            "evidence": "chunk_id 1975"
+          },
+          {
+            "claim": "Mike Clark (USA Today) gave Heat 4/4 and praised its photography, editing, sound and 'unforgettable subcharacters'",
+            "supported": true,
+            "evidence": "chunk_id 1977"
+          },
+          {
+            "claim": "Steven Rea (Philadelphia Inquirer) gave Heat 2.5/4 and criticized the script",
+            "supported": true,
+            "evidence": "chunk_id 1990"
+          },
+          {
+            "claim": "Geoffrey Macnab (Independent (UK)) gave Nightcrawler 4/5 and said it 'deliberately blurs the lines between David Cronenberg-like satire, crime thriller and horror'",
+            "supported": true,
+            "evidence": "chunk_id 9161"
+          },
+          {
+            "claim": "Christy Lemire (ChristyLemire.com) gave Nightcrawler 3/4 and called Lou Bloom 'a monster — a fiend who preys on people at their weakest and worst moments'",
+            "supported": true,
+            "evidence": "chunk_id 9163"
+          },
+          {
+            "claim": "Tim Robey (Daily Telegraph (UK)) gave Nightcrawler 3/5 and framed it as 'the acrid TV satire of Network, lit up by the sodium glare of an LA crime flick from the 1980s'",
+            "supported": true,
+            "evidence": "chunk_id 9146"
+          },
+          {
+            "claim": "Heat rated higher than Nightcrawler on IMDb",
+            "supported": true,
+            "evidence": "compare_movies tool result"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "M6",
+      "type": "comparison",
+      "question": "Which do critics like more, Up or Inside Out?",
+      "answer": "By the numbers in this database, the critics are essentially split — nearly a dead heat:\n\n| | Up (2009) | Inside Out (2015) |\n|---|---|---|\n| Average critic score (0–10) | **8.76** | **8.81** |\n| Reviews in database | 20 | 20 |\n| IMDb rating | **8.3** | 8.1 |\n\n**Inside Out** edges the critic average by 0.05 points (statistically negligible), while **Up** leads on IMDb rating.\n\nWhat the reviews themselves say:\n\n**Up** — overwhelmingly positive:\n- Matthew De Abaitua (Film4), 5/5: Pixar's creative leadership sets \"a daunting gold standard for family films.\"\n- Perry Seibert (TV Guide), 4/4: continues \"the studio's remarkable hot streak.\"\n- Ian Freer (Empire), 4/5: \"the best animated flick of 2009... a funny, moving, beautifully made argument that dreamers can move mountains\" — though he adds that after its first five minutes it could have been \"the film of the decade,\" implying it slightly underdelivers.\n- Giovanni Fazio (Japan Times), 3.5/5: its only fault is following Wall-E.\n\n**Inside Out** — also positive, with a few caveats:\n- Kimberley Jones (Austin Chronicle), 4/5: \"Its audacity is entirely matched by its artistry.\"\n- Mick LaSalle (San Francisco Chronicle), 3/4: likely the year's most inward-looking American film.\n- Liam Lacey (Globe and Mail), 3/4: \"imaginative and ambitious,\" though \"a bit manically overstuffed.\"\n- Jessica Kiang (The Playlist), B+: \"not quite the perfection of Pixar's greatest output,\" but you \"will be disarmed.\"\n\n**Verdict:** the data doesn't settle it clearly. Inside Out has a hair higher critic average; Up has the higher IMDb score and some of the strongest individual praise (a 5/5 and a 4/4). The mild criticisms of Up are about comparison to Wall-E, while Inside Out's are about pacing and not reaching Pixar's peak — so both are held against very high standards.",
+      "error": null,
+      "latency_ms": 29017,
+      "cost_usd": 0.000813,
+      "tokens": 6462,
+      "chunks": [
+        {
+          "chunk_id": 5835,
+          "movie": "Up (2009)"
+        },
+        {
+          "chunk_id": 8435,
+          "movie": "Inside Out (2015)"
+        },
+        {
+          "chunk_id": 5834,
+          "movie": "Up (2009)"
+        },
+        {
+          "chunk_id": 8448,
+          "movie": "Inside Out (2015)"
+        },
+        {
+          "chunk_id": 5849,
+          "movie": "Up (2009)"
+        },
+        {
+          "chunk_id": 8441,
+          "movie": "Inside Out (2015)"
+        },
+        {
+          "chunk_id": 5841,
+          "movie": "Up (2009)"
+        },
+        {
+          "chunk_id": 8431,
+          "movie": "Inside Out (2015)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "compare_movies",
+          "arguments": {
+            "movie_a": "Up",
+            "movie_b": "Inside Out"
+          }
+        },
+        {
+          "tool": "rating_summary",
+          "arguments": {
+            "movie": "Up"
+          }
+        },
+        {
+          "tool": "rating_summary",
+          "arguments": {
+            "movie": "Inside Out"
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer provides a comprehensive comparison of both films using the available data. It correctly reports the average critic ratings (Up: 8.76, Inside Out: 8.81), the number of reviews (20 each), and IMDb ratings (Up: 8.3, Inside Out: 8.1). It accurately summarizes the individual reviews from the sources and correctly concludes that the comparison is very close, with Inside Out having a marginally higher critic average while Up has a higher IMDb rating. The answer addresses the question directly by comparing critical reception of both films.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Inside Out has an average critic score of 8.81",
+            "supported": true,
+            "evidence": "rating_summary tool for Inside Out"
+          },
+          {
+            "claim": "Up has an average critic score of 8.76",
+            "supported": true,
+            "evidence": "rating_summary tool for Up"
+          },
+          {
+            "claim": "Both films have 20 reviews in the database",
+            "supported": true,
+            "evidence": "rating_summary tools for both films"
+          },
+          {
+            "claim": "Up has an IMDb rating of 8.3",
+            "supported": true,
+            "evidence": "compare_movies tool"
+          },
+          {
+            "claim": "Inside Out has an IMDb rating of 8.1",
+            "supported": true,
+            "evidence": "compare_movies tool"
+          },
+          {
+            "claim": "Matthew De Abaitua (Film4) gave Up 5/5 and said it sets 'a daunting gold standard for family films'",
+            "supported": true,
+            "evidence": "chunk_id 5834"
+          },
+          {
+            "claim": "Perry Seibert (TV Guide) gave Up 4/4 and said it continues 'the studio's remarkable hot streak'",
+            "supported": true,
+            "evidence": "chunk_id 5849"
+          },
+          {
+            "claim": "Ian Freer (Empire) gave Up 4/5 and called it 'the best animated flick of 2009'",
+            "supported": true,
+            "evidence": "chunk_id 5835"
+          },
+          {
+            "claim": "Giovanni Fazio (Japan Times) gave Up 3.5/5",
+            "supported": true,
+            "evidence": "chunk_id 5841"
+          },
+          {
+            "claim": "Kimberley Jones (Austin Chronicle) gave Inside Out 4/5 and said 'Its audacity is entirely matched by its artistry'",
+            "supported": true,
+            "evidence": "chunk_id 8441"
+          },
+          {
+            "claim": "Mick LaSalle (San Francisco Chronicle) gave Inside Out 3/4",
+            "supported": true,
+            "evidence": "chunk_id 8435"
+          },
+          {
+            "claim": "Liam Lacey (Globe and Mail) gave Inside Out 3/4 and called it 'imaginative and ambitious'",
+            "supported": true,
+            "evidence": "chunk_id 8448"
+          },
+          {
+            "claim": "Jessica Kiang (The Playlist) gave Inside Out B+ and said it's 'not quite the perfection of Pixar's greatest output'",
+            "supported": true,
+            "evidence": "chunk_id 8431"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "M7",
+      "type": "comparison",
+      "question": "Compare Gravity with The Martian as survival-in-space films.",
+      "answer": "## Gravity (2013) vs. The Martian (2015)\n\n**Data**\n| | Gravity | The Martian |\n|---|---|---|\n| IMDb rating | 7.7 (893,206 votes) | 8.0 (992,686 votes) — higher |\n| Critics' average (database) | 8.97 / 10 (20 reviews) | 7.66 / 10 (20 reviews) |\n| Genres | Science Fiction, Thriller, Drama | Drama, Adventure, Science Fiction |\n| Runtime | 91 min | 141 min |\n| Director | Alfonso Cuarón | Ridley Scott |\n\n**Premises**\n- *Gravity*: Dr. Ryan Stone and veteran astronaut Matt Kowalsky are left \"completely alone—tethered to nothing but each other and spiraling out into the blackness of space\" after a shuttle destruction, with dwindling oxygen and no link to Earth.\n- *The Martian*: Mark Watney is \"presumed dead... left behind by his crew\" on Mars and must \"draw upon his ingenuity, wit and spirit to subsist and find a way to signal to Earth.\"\n\n**What critics say**\n\n*Gravity:*\n- Michael Sragow (Orange County Register, A/fresh): calls it an \"enthra­lling tale of survival in space\" that evokes \"the wonder they felt at 2001: A Space Odyssey.\"\n- Jocelyn Noveck (Associated Press, 4/4, fresh): says it leaves you \"remembering that feeling of awe at how man ever developed the technology to explore space.\"\n- Matt Zoller Seitz (RogerEbert.com, 4/4, fresh): argues the film's most impressive quality is that \"it is not primarily a film about astronauts, or space, or even a specific catastrophe.\"\n\n*The Martian:*\n- Demetrios Matheou (The Arts Desk, 4/5, fresh): \"fabulously entertaining\" and unbothered by \"space fatigue\" or comparison to *Gravity*, *Interstellar* and *Prometheus*.\n- Jason Best (Movie Talk, 4/5, fresh): likens it to *Robinson Crusoe on Mars*, highlighting \"Crusoe-like ingenuity in a bid to survive.\"\n- Blake Howard (Graffiti With Punctuation, 2/5, rotten): wanted it \"far weirder and more cerebral,\" preferring more unusual stranded-in-space stories.\n\n**In short:** critics in this database rate *Gravity* higher (8.97 vs. 7.66), while audiences on IMDb rate *The Martian* higher (8.0 vs. 7.7). The reviews frame *Gravity* as an awe-inspiring, emotional survival thriller and *The Martian* as a witty, ingenuity-driven castaway tale — though Blake Howard found the latter too conventional.",
+      "error": null,
+      "latency_ms": 29792,
+      "cost_usd": 0.001005,
+      "tokens": 7399,
+      "chunks": [
+        {
+          "chunk_id": 161,
+          "movie": "Gravity (2013)"
+        },
+        {
+          "chunk_id": 131,
+          "movie": "The Martian (2015)"
+        },
+        {
+          "chunk_id": 7182,
+          "movie": "Gravity (2013)"
+        },
+        {
+          "chunk_id": 9529,
+          "movie": "The Martian (2015)"
+        },
+        {
+          "chunk_id": 7173,
+          "movie": "Gravity (2013)"
+        },
+        {
+          "chunk_id": 9533,
+          "movie": "The Martian (2015)"
+        },
+        {
+          "chunk_id": 7183,
+          "movie": "Gravity (2013)"
+        },
+        {
+          "chunk_id": 9531,
+          "movie": "The Martian (2015)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "compare_movies",
+          "arguments": {
+            "movie_a": "Gravity (2013)",
+            "movie_b": "The Martian (2015)"
+          }
+        },
+        {
+          "tool": "rating_summary",
+          "arguments": {
+            "movie": "Gravity (2013)"
+          }
+        },
+        {
+          "tool": "rating_summary",
+          "arguments": {
+            "movie": "The Martian (2015)"
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer provides a comprehensive comparison of both Gravity (2013) and The Martian (2015) as survival-in-space films, covering key aspects including ratings, genres, runtime, directors, plot premises, and critical reception. All specific data points (IMDb ratings, critic averages, runtimes, cast/crew) match the sources and tool results provided. The answer addresses the comparison question fully by presenting both films' survival scenarios and how critics characterized them.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Gravity has an IMDb rating of 7.7 with 893,206 votes",
+            "supported": true,
+            "evidence": "chunk_id 161"
+          },
+          {
+            "claim": "The Martian has an IMDb rating of 8.0 with 992,686 votes",
+            "supported": true,
+            "evidence": "chunk_id 131"
+          },
+          {
+            "claim": "The Martian's IMDb rating is higher than Gravity's",
+            "supported": true,
+            "evidence": "compare_movies tool result"
+          },
+          {
+            "claim": "Gravity has a critics' average of 8.97/10 based on 20 reviews",
+            "supported": true,
+            "evidence": "rating_summary tool for Gravity"
+          },
+          {
+            "claim": "The Martian has a critics' average of 7.66/10 based on 20 reviews",
+            "supported": true,
+            "evidence": "rating_summary tool for The Martian"
+          },
+          {
+            "claim": "Gravity has a runtime of 91 minutes",
+            "supported": true,
+            "evidence": "chunk_id 161"
+          },
+          {
+            "claim": "The Martian has a runtime of 141 minutes",
+            "supported": true,
+            "evidence": "chunk_id 131"
+          },
+          {
+            "claim": "Gravity was directed by Alfonso Cuarón",
+            "supported": true,
+            "evidence": "chunk_id 161"
+          },
+          {
+            "claim": "The Martian was directed by Ridley Scott",
+            "supported": true,
+            "evidence": "chunk_id 131"
+          },
+          {
+            "claim": "In Gravity, Dr. Ryan Stone and Matt Kowalsky are left completely alone and spiraling into space after shuttle destruction",
+            "supported": true,
+            "evidence": "chunk_id 161"
+          },
+          {
+            "claim": "In The Martian, Mark Watney is presumed dead and left behind on Mars",
+            "supported": true,
+            "evidence": "chunk_id 131"
+          },
+          {
+            "claim": "Michael Sragow called Gravity an enthralling tale of survival in space",
+            "supported": true,
+            "evidence": "chunk_id 7182"
+          },
+          {
+            "claim": "Demetrios Matheou said The Martian is fabulously entertaining and unbothered by space fatigue or comparison to Gravity, Interstellar and Prometheus",
+            "supported": true,
+            "evidence": "chunk_id 9529"
+          },
+          {
+            "claim": "Jason Best compared The Martian to Robinson Crusoe on Mars and highlighted Crusoe-like ingenuity",
+            "supported": true,
+            "evidence": "chunk_id 9531"
+          },
+          {
+            "claim": "Blake Howard gave The Martian a 2/5 rating and wanted it to be weirder and more cerebral",
+            "supported": true,
+            "evidence": "chunk_id 9533"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "M8",
+      "type": "comparison",
+      "question": "How does Ex Machina compare to Her as films about artificial intelligence?",
+      "answer": "**The data:**\n\n| | Ex Machina (2015) | Her (2013) |\n|---|---|---|\n| IMDb rating | 7.7 (630,241 votes) | 8.0 (719,042 votes) |\n| Critics' average (this database) | 7.63/10 (20 reviews) | 8.47/10 (20 reviews) |\n| Genres | Drama, Science Fiction | Romance, Science Fiction, Drama |\n| Director | Alex Garland | Spike Jonze |\n| Runtime | 108 min | 126 min |\n\nOn both measures in the database, **Her rates higher** — by IMDb vote (8.0 vs 7.7) and by critic average (8.47 vs 7.63).\n\n**On how they treat AI, per the critics:**\n\n- **Ex Machina** is framed as a darker, more cerebral thriller. Wendy Ide (Times (UK), 4/5) calls it \"a smart, tricksy study of artificial intelligence and tech-sex that explores a credible near-future take on the man-machine relationship.\" Lindsey Bahr (Associated Press, 3.5/4) writes that \"by going deep on a simple construct, Ex Machina establishes itself as a unique and deeply unsettling psychological thriller that's both necessary and unforgettable.\" Its keywords reinforce that angle: turing test, manipulation, deception, isolation, consciousness, existentialism.\n\n- **Her** treats the human-AI bond as a romance about loneliness and connection. Claudia Puig (USA Today, 3.5/4) praises \"how it grounds the notion of a man falling for an artificially intelligent machine with reality — just how many clicks away is this from online dating?\" Ann Hornaday (Washington Post, 4/4) notes that Jonze \"teases out what's genuine emotion and what's just programming.\" Not every critic was won over: Mark Kermode (Observer, 3/5) says that despite the thought-provoking conceits \"there remains a Tin Man-shaped hole, leaving the viewer... remaining as emotionally isolated as the movie's protagonist.\"\n\n**In short:** the reviews position Ex Machina as an unsettling, trickster-ish AI thriller and Her as a grounded, warmly received AI love story — and in this database's numbers, Her is rated higher by both critics and IMDb voters.",
+      "error": null,
+      "latency_ms": 68454,
+      "cost_usd": 0.001288,
+      "tokens": 9251,
+      "chunks": [
+        {
+          "chunk_id": 4873,
+          "movie": "Ex Machina (2015)"
+        },
+        {
+          "chunk_id": 7975,
+          "movie": "Her (2013)"
+        },
+        {
+          "chunk_id": 281,
+          "movie": "Ex Machina (2015)"
+        },
+        {
+          "chunk_id": 234,
+          "movie": "Her (2013)"
+        },
+        {
+          "chunk_id": 280,
+          "movie": "Ex Machina (2015)"
+        },
+        {
+          "chunk_id": 7979,
+          "movie": "Her (2013)"
+        },
+        {
+          "chunk_id": 4875,
+          "movie": "Ex Machina (2015)"
+        },
+        {
+          "chunk_id": 7988,
+          "movie": "Her (2013)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "compare_movies",
+          "arguments": {
+            "movie_a": "Ex Machina (2015)",
+            "movie_b": "Her (2013)"
+          }
+        },
+        {
+          "tool": "rating_summary",
+          "arguments": {
+            "movie": "Ex Machina (2015)"
+          }
+        },
+        {
+          "tool": "rating_summary",
+          "arguments": {
+            "movie": "Her (2013)"
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer provides a comprehensive comparison of Ex Machina and Her as films about artificial intelligence, covering both films as requested in the reference. It includes accurate data comparisons (ratings, genres, directors, runtimes), supported critical perspectives on how each film treats AI, and specific quotes from critics about the different approaches each film takes to the subject matter.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Ex Machina has an IMDb rating of 7.7 with 630,241 votes",
+            "supported": true,
+            "evidence": "chunk_id 280"
+          },
+          {
+            "claim": "Her has an IMDb rating of 8.0 with 719,042 votes",
+            "supported": true,
+            "evidence": "chunk_id 234"
+          },
+          {
+            "claim": "Ex Machina has a critics' average of 7.63/10 based on 20 reviews",
+            "supported": true,
+            "evidence": "tool_results: rating_summary for Ex Machina"
+          },
+          {
+            "claim": "Her has a critics' average of 8.47/10 based on 20 reviews",
+            "supported": true,
+            "evidence": "tool_results: rating_summary for Her"
+          },
+          {
+            "claim": "Ex Machina is Drama and Science Fiction",
+            "supported": true,
+            "evidence": "chunk_id 280"
+          },
+          {
+            "claim": "Her is Romance, Science Fiction, and Drama",
+            "supported": true,
+            "evidence": "chunk_id 234"
+          },
+          {
+            "claim": "Ex Machina was directed by Alex Garland",
+            "supported": true,
+            "evidence": "chunk_id 280"
+          },
+          {
+            "claim": "Her was directed by Spike Jonze",
+            "supported": true,
+            "evidence": "chunk_id 234"
+          },
+          {
+            "claim": "Ex Machina has a runtime of 108 minutes",
+            "supported": true,
+            "evidence": "chunk_id 280"
+          },
+          {
+            "claim": "Her has a runtime of 126 minutes",
+            "supported": true,
+            "evidence": "chunk_id 234"
+          },
+          {
+            "claim": "Wendy Ide called Ex Machina 'a smart, tricksy study of artificial intelligence and tech-sex that explores a credible near-future take on the man-machine relationship'",
+            "supported": true,
+            "evidence": "chunk_id 4873"
+          },
+          {
+            "claim": "Lindsey Bahr wrote that 'by going deep on a simple construct, Ex Machina establishes itself as a unique and deeply unsettling psychological thriller that's both necessary and unforgettable'",
+            "supported": true,
+            "evidence": "chunk_id 4875"
+          },
+          {
+            "claim": "Claudia Puig praised Her for 'how it grounds the notion of a man falling for an artificially intelligent machine with reality'",
+            "supported": true,
+            "evidence": "chunk_id 7975"
+          },
+          {
+            "claim": "Ann Hornaday noted that Jonze 'teases out what's genuine emotion and what's just programming'",
+            "supported": true,
+            "evidence": "chunk_id 7979"
+          },
+          {
+            "claim": "Mark Kermode said there 'remains a Tin Man-shaped hole' in Her",
+            "supported": true,
+            "evidence": "chunk_id 7988"
+          },
+          {
+            "claim": "Her rates higher than Ex Machina by IMDb vote",
+            "supported": true,
+            "evidence": "tool_results: compare_movies"
+          },
+          {
+            "claim": "Her rates higher than Ex Machina by critic average",
+            "supported": true,
+            "evidence": "tool_results: rating_summary for both films"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "M9",
+      "type": "comparison",
+      "question": "Compare Dunkirk and 1917 as war films.",
+      "answer": "## Dunkirk (2017) vs. 1917 (2019)\n\n**The basics**\n\n| | Dunkirk | 1917 |\n|---|---|---|\n| Director | Christopher Nolan | Sam Mendes |\n| Genres | War, Action, Drama | War, History, Thriller |\n| Runtime | 107 min | 119 min |\n| IMDb rating | 7.8 (795,498 votes) | 8.2 (756,007 votes) |\n| Critics' average (this database) | **8.56**/10 (20 reviews) | **8.69**/10 (20 reviews) |\n\n**What the reviews say**\n\n*Dunkirk* — Christopher Hooton (Independent UK, 4/5) calls it \"an unbelievably assured and thrilling war film,\" with Nolan \"at the top of his game,\" though he wanted \"deeper or more oblique notes.\" Rafer Guzman (Newsday, 3.5/4) says few films have \"stripped war down to its terrifying, thrilling essence\" or made it \"such an overwhelming, almost physical experience.\" Peter Travers (Rolling Stone, 4/4) calls it \"a monumental achievement\" and \"a World War II epic of staggering visual spectacle.\"\n\n*1917* — Kent Garrison (Mad About Movies Podcast, A+) frames it as \"not as much a war story as it is a true showcase of the power of moving images,\" but expects it to be \"talked about for decades.\" Sheraz Farooqi (CinemaDebate, 4.5/5) says it \"has established itself as one of the best war films of all time,\" praising Deakins' cinematography and George MacKay's performance. Emmanuel Noisette (The Movie Blog, 8/10) calls it \"a phenomenal technical display of a captivating war-time drama.\"\n\n**Key differences the sources point to**\n\n- **Setting/scale:** Dunkirk depicts the 1940 evacuation (Action/Drama, survival and rescue); 1917 follows two soldiers crossing enemy trenches in WWI (History/Thriller, race against time).\n- **Craft emphasis:** Critics praise both on technical grounds — Dunkirk's \"grand scale filmmaking\" (Hooton) and IMAX spectacle (Travers) versus 1917's cinematography and \"power of moving images\" (Garrison, Farooqi, Noisette).\n- **Numbers:** 1917 edges ahead on both IMDb (8.2 vs. 7.8) and the critics' average here (8.69 vs. 8.56), but the margin is small and based on only 20 reviews per film in this database.\n\nBoth films are held in very high regard by the critics cited; the reviews emphasize different qualities (Dunkirk's visceral, large-scale immersion vs. 1917's technical/visual storytelling) rather than declaring one clearly superior.",
+      "error": null,
+      "latency_ms": 29229,
+      "cost_usd": 0.000709,
+      "tokens": 6828,
+      "chunks": [
+        {
+          "chunk_id": 9950,
+          "movie": "Dunkirk (2017)"
+        },
+        {
+          "chunk_id": 10446,
+          "movie": "1917 (2019)"
+        },
+        {
+          "chunk_id": 9965,
+          "movie": "Dunkirk (2017)"
+        },
+        {
+          "chunk_id": 10450,
+          "movie": "1917 (2019)"
+        },
+        {
+          "chunk_id": 186,
+          "movie": "Dunkirk (2017)"
+        },
+        {
+          "chunk_id": 210,
+          "movie": "1917 (2019)"
+        },
+        {
+          "chunk_id": 9951,
+          "movie": "Dunkirk (2017)"
+        },
+        {
+          "chunk_id": 10457,
+          "movie": "1917 (2019)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "compare_movies",
+          "arguments": {
+            "movie_a": "Dunkirk (2017)",
+            "movie_b": "1917 (2019)"
+          }
+        },
+        {
+          "tool": "rating_summary",
+          "arguments": {
+            "movie": "Dunkirk (2017)"
+          }
+        },
+        {
+          "tool": "rating_summary",
+          "arguments": {
+            "movie": "1917 (2019)"
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer provides a comprehensive comparison of both Dunkirk (2017) and 1917 (2019) as war films, covering multiple dimensions: basic information (directors, genres, runtime, ratings), critical reception with specific quotes, key differences in setting/scale and craft emphasis, and numerical comparisons. All factual claims are supported by the provided sources and tool results.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Dunkirk was directed by Christopher Nolan",
+            "supported": true,
+            "evidence": "chunk_id 186"
+          },
+          {
+            "claim": "1917 was directed by Sam Mendes",
+            "supported": true,
+            "evidence": "chunk_id 210"
+          },
+          {
+            "claim": "Dunkirk has genres War, Action, Drama",
+            "supported": true,
+            "evidence": "chunk_id 186"
+          },
+          {
+            "claim": "1917 has genres War, History, Thriller",
+            "supported": true,
+            "evidence": "chunk_id 210"
+          },
+          {
+            "claim": "Dunkirk runtime is 107 minutes",
+            "supported": true,
+            "evidence": "chunk_id 186"
+          },
+          {
+            "claim": "1917 runtime is 119 minutes",
+            "supported": true,
+            "evidence": "chunk_id 210"
+          },
+          {
+            "claim": "Dunkirk IMDb rating is 7.8 with 795,498 votes",
+            "supported": true,
+            "evidence": "chunk_id 186"
+          },
+          {
+            "claim": "1917 IMDb rating is 8.2 with 756,007 votes",
+            "supported": true,
+            "evidence": "chunk_id 210"
+          },
+          {
+            "claim": "Dunkirk critics' average is 8.56/10 based on 20 reviews",
+            "supported": true,
+            "evidence": "rating_summary tool for Dunkirk"
+          },
+          {
+            "claim": "1917 critics' average is 8.69/10 based on 20 reviews",
+            "supported": true,
+            "evidence": "rating_summary tool for 1917"
+          },
+          {
+            "claim": "Christopher Hooton called Dunkirk 'an unbelievably assured and thrilling war film'",
+            "supported": true,
+            "evidence": "chunk_id 9950"
+          },
+          {
+            "claim": "Hooton said Nolan is 'at the top of his game'",
+            "supported": true,
+            "evidence": "chunk_id 9950"
+          },
+          {
+            "claim": "Rafer Guzman said few films have 'stripped war down to its terrifying, thrilling essence'",
+            "supported": true,
+            "evidence": "chunk_id 9965"
+          },
+          {
+            "claim": "Peter Travers called Dunkirk 'a monumental achievement' and 'a World War II epic of staggering visual spectacle'",
+            "supported": true,
+            "evidence": "chunk_id 9951"
+          },
+          {
+            "claim": "Kent Garrison said 1917 is 'not as much a war story as it is a true showcase of the power of moving images'",
+            "supported": true,
+            "evidence": "chunk_id 10446"
+          },
+          {
+            "claim": "Sheraz Farooqi said 1917 'has established itself as one of the best war films of all time'",
+            "supported": true,
+            "evidence": "chunk_id 10450"
+          },
+          {
+            "claim": "Farooqi praised Deakins' cinematography and George MacKay's performance in 1917",
+            "supported": true,
+            "evidence": "chunk_id 10450"
+          },
+          {
+            "claim": "Emmanuel Noisette called 1917 'a phenomenal technical display of a captivating war-time drama'",
+            "supported": true,
+            "evidence": "chunk_id 10457"
+          },
+          {
+            "claim": "Dunkirk depicts the 1940 evacuation",
+            "supported": true,
+            "evidence": "chunk_id 186"
+          },
+          {
+            "claim": "1917 follows two soldiers crossing enemy trenches in WWI",
+            "supported": true,
+            "evidence": "chunk_id 210"
+          },
+          {
+            "claim": "1917 edges ahead on both IMDb and critics' average",
+            "supported": true,
+            "evidence": "compare_movies tool and rating_summary tools"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    }
+  ]
+}

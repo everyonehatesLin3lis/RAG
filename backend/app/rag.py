@@ -19,7 +19,7 @@ from time import perf_counter
 from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 from sqlalchemy.orm import Session
 
-from app import deadline, fusion, mcp_client, query_translation, retrieval, tool_calling, tools
+from app import deadline, embeddings, fusion, mcp_client, query_translation, retrieval, tool_calling, tools
 from app.config import get_settings
 from app.errors import AppError
 from app.fusion import FusedChunk
@@ -100,6 +100,8 @@ class RagDebug:
     tool_backend: str = "local"  # Phase 24: "mcp" or "local"
     # Phase 27: parts that failed while the answer could still be produced (shown under the answer, logged)
     warnings: list[str] = field(default_factory=list)
+    # Phase 29: the films retrieved separately, when the question names two or more (empty: one search for all)
+    per_film: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -166,25 +168,59 @@ def _answer(
     status("search", "Searching reviews and movie data")
     deadline.check()
     strategy = settings.retrieval_strategy
-    step = perf_counter()
-    try:
-        vector_chunks = retrieval.retrieve(translation.semantic_query, session, k=candidates)  # embed, then pgvector
-    except AppError as exc:
+
+    def no_embedding(exc: AppError) -> None:
         # Phase 27: without an embedding there is no vector search, but keyword search still works. Answer from it
         # when the question has keywords; otherwise there is nothing to search with, and the error stands.
+        nonlocal strategy
         if not exc.code.startswith("EMBEDDING_") or not translation.keywords:
-            raise
-        vector_chunks, strategy = [], "hybrid"  # fusing one list = the keyword ranking
+            raise exc
+        strategy = "hybrid"  # fusing one list = the keyword ranking
         warn(f"Semantic search was unavailable ({exc.code}), so this answer is based on keyword search only.")
-    timings["embedding_and_search"] = _ms_since(step)
+
+    # Phase 29: a question naming two or more films in the data ("Compare Gravity with The Martian") is retrieved per
+    # film, each with an equal share of the chunks. One search over everything let the film with more matching
+    # reviews, and keyword noise, crowd out the other (measured: hybrid comparisons 0.65 vs vector 0.76).
+    per_film = retrieval.named_movies(session, translation.movies) if len(translation.movies) >= 2 else []
+    if len(per_film) < 2:
+        per_film = []
 
     step = perf_counter()
-    keyword_chunks = retrieval.keyword_search(session, translation.keywords, k=candidates)
-    timings["keyword_search"] = _ms_since(step)
-    deadline.check()
+    if not per_film:
+        try:
+            vector_chunks = retrieval.retrieve(translation.semantic_query, session, k=candidates)  # embed, pgvector
+        except AppError as exc:
+            no_embedding(exc)
+            vector_chunks = []
+        timings["embedding_and_search"] = _ms_since(step)
 
-    selection = fusion.select(vector_chunks, keyword_chunks, strategy, settings.retrieval_top_k, k=settings.rrf_k)
-    chunks = selection.chunks  # what the model receives and what `sources` lists
+        step = perf_counter()
+        keyword_chunks = retrieval.keyword_search(session, translation.keywords, k=candidates)
+        timings["keyword_search"] = _ms_since(step)
+        deadline.check()
+        selection = fusion.select(vector_chunks, keyword_chunks, strategy, settings.retrieval_top_k, k=settings.rrf_k)
+        chunks = selection.chunks  # what the model receives and what `sources` lists
+    else:
+        try:
+            query_vector = embeddings.embed_query(translation.semantic_query)  # embedded once, searched per film
+        except AppError as exc:
+            no_embedding(exc)
+            query_vector = None
+        quotas = _shares(settings.retrieval_top_k, len(per_film))
+        vector_parts, keyword_parts, selections = [], [], []
+        for (_, ids), quota in zip(per_film, quotas):
+            vector_parts.append(retrieval.search_chunks(session, query_vector, candidates, movie_ids=ids)
+                                if query_vector is not None else [])
+            keyword_parts.append(retrieval.keyword_search(session, translation.keywords, k=candidates, movie_ids=ids))
+            selections.append(fusion.select(vector_parts[-1], keyword_parts[-1], strategy, quota, k=settings.rrf_k))
+        timings["embedding_and_search"] = _ms_since(step)
+        timings["keyword_search"] = 0  # included above: each film's searches run together
+        deadline.check()
+        vector_chunks = [c for part in vector_parts for c in part]
+        keyword_chunks = [c for part in keyword_parts for c in part]
+        selection = fusion.Selection(chunks=_interleave([s.chunks for s in selections]),
+                                     fused=[f for s in selections for f in s.fused])
+        chunks = selection.chunks
     tool_backend = settings.tool_backend
 
     def debug() -> RagDebug:
@@ -201,6 +237,7 @@ def _answer(
             fused=selection.fused,
             tool_backend=tool_backend,
             warnings=warnings,
+            per_film=[label for label, _ in per_film],
         )
 
     if not chunks:
@@ -244,6 +281,19 @@ def _answer(
     timings["generation"] = _ms_since(step)  # includes any tool calls and the extra model rounds they cause
 
     return RagAnswer(answer=answer, sources=chunks, tool_calls=tool_calls, debug=debug())
+
+
+def _shares(total: int, parts: int) -> list[int]:
+    """Split the chunk budget evenly: 8 over 2 films = 4 + 4; over 3 films = 3 + 3 + 2."""
+    return [total // parts + (1 if i < total % parts else 0) for i in range(parts)]
+
+
+def _interleave(lists: list[list[RetrievedChunk]]) -> list[RetrievedChunk]:
+    """Film A's best, film B's best, film A's second ... so the order of `sources` alternates between the films."""
+    merged = []
+    for rank in range(max((len(x) for x in lists), default=0)):
+        merged.extend(x[rank] for x in lists if rank < len(x))
+    return merged
 
 
 EXCERPT_CHARS = 240
