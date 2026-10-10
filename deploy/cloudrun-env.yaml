@@ -1,0 +1,15 @@
+# Plain (non-secret) settings for the Cloud Run backend, passed with --env-vars-file (docs/deployment.md).
+# Secrets (OPENROUTER_API_KEY, DATABASE_URL) are NOT here: they come from Secret Manager via --set-secrets.
+# Replace <project-id> with your Google Cloud / Firebase project id. Every value must be a string.
+OPENROUTER_MODEL: "xiaomi/mimo-v2.6-flash"
+QUERY_TRANSLATION_MODEL: "google/gemini-3.1-flash-lite"
+EMBEDDING_MODEL: "openai/text-embedding-3-small"
+TOOL_BACKEND: "mcp"
+CHAT_TIMEOUT_S: "90"
+# Cloud Run keeps what the container prints (Cloud Logging), not files it writes.
+REQUEST_LOG_PATH: "stdout"
+# app/rate_limit.py: questions per visitor IP per minute, and from everyone per day (per instance, max 2 instances).
+RATE_LIMIT_PER_MINUTE: "10"
+RATE_LIMIT_PER_DAY: "200"
+# Only the deployed site (and the local dev page) may call the API from a browser. A JSON list.
+CORS_ORIGINS: '["https://<project-id>.web.app", "https://<project-id>.firebaseapp.com", "http://localhost:3000"]'

@@ -60,13 +60,18 @@ class Settings(BaseSettings):
     # Error handling (Phase 27): the time limit for answering one question, all steps together (app/deadline.py).
     chat_timeout_s: float = Field(default=90, gt=0, le=600)
 
-    # Web
+    # Web. Deployed: CORS_ORIGINS='["https://<project>.web.app"]', only the site's own address (docs/deployment.md).
     cors_origins: list[str] = ["http://localhost:3000"]
+    # Public deployment (app/rate_limit.py): questions per client IP per minute, and from everyone per UTC day.
+    # 0 = no limit, the local default; Cloud Run sets both.
+    rate_limit_per_minute: int = Field(default=0, ge=0)
+    rate_limit_per_day: int = Field(default=0, ge=0)
 
     # Evaluation (Phase 20): the LLM judge, from a different vendor than the answer (MiMo) and translation (Gemini) models.
     evaluation_judge_model: str = "anthropic/claude-haiku-4.5"
 
     # Logging (Phase 15): one JSON line per chat request. Relative paths are relative to the repo root.
+    # "stdout" prints the lines instead (Cloud Run: its disk is thrown away, Cloud Logging keeps what is printed).
     request_log_path: str = str(Path(__file__).resolve().parents[2] / "logs" / "requests.jsonl")
 
 

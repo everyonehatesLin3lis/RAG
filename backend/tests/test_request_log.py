@@ -154,3 +154,15 @@ def test_damaged_lines_are_skipped(tmp_path):
     path = tmp_path / "log.jsonl"
     path.write_text('{"status": "success", "latency_ms": 5}\n{not json\n', encoding="utf-8")
     assert len(request_log.read(path)) == 1
+
+
+def test_stdout_target_prints_the_line_instead_of_writing_a_file(monkeypatch, capsys, temporary_request_log):
+    """Deployment: REQUEST_LOG_PATH=stdout, because Cloud Run keeps what a container prints, not its files."""
+    from app.config import get_settings
+
+    monkeypatch.setattr(get_settings(), "request_log_path", "stdout")
+    request_log.write(request_log.error_entry("c1", "Who directed Zodiac?", "LLM_TIMEOUT", 12))
+    entry = json.loads(capsys.readouterr().out)
+    assert PLAN_FIELDS - {"translated_query", "retrieved_chunks", "tools", "tokens", "cost"} <= set(entry)
+    assert (entry["status"], entry["error_code"], entry["message"]) == ("error", "LLM_TIMEOUT", "chat error")
+    assert not temporary_request_log.exists()

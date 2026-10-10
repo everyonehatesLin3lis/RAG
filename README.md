@@ -33,7 +33,7 @@ found, and why each decision went the way it did. The full plan is in [`EXECUTIO
 | 19 | Evaluation dataset: 49 new questions, every expected answer read from the database | done |
 | 20 | RAG evaluation: retrieval metrics, rule checks and an LLM judge on 49 questions | done |
 | 21 | Comparison of vector-only and hybrid search on the evaluation set, with repeat runs | done |
-| 22 | PostgreSQL moved to Google Cloud SQL | postponed by the developer |
+| 22 | Cloud deployment: PostgreSQL + pgvector on Neon, FastAPI + MCP server on Cloud Run, static frontend on Firebase Hosting, rate limits ([`docs/deployment.md`](docs/deployment.md)) | code ready, container tested; cloud steps to run |
 | 23 | Dataset scaled to 50k–100k+ reviews | postponed by the developer |
 | 24 | MCP server: the 4 tools behind MCP (stdio), tested on its own, connected to LangChain | done |
 | 25 | Streaming: the answer appears while it is written (SSE), with progress, live tool calls and a Stop button | done |
@@ -101,7 +101,8 @@ Still to come from the target architecture: the move to Cloud SQL (postponed); s
 | Chat model (answers) | `xiaomi/mimo-v2.6-flash` through OpenRouter |
 | Query translation model | `google/gemini-3.1-flash-lite` through OpenRouter |
 | Embeddings | `openai/text-embedding-3-small` through OpenRouter, 1,536 dimensions |
-| Database | PostgreSQL 17 + pgvector 0.8.7 in Docker, SQLAlchemy, psycopg, Alembic migrations |
+| Database | PostgreSQL 17 + pgvector 0.8.7 (local: Docker; deployed: Neon), SQLAlchemy, psycopg, Alembic migrations |
+| Hosting | Backend container on Google Cloud Run, static Next.js export on Firebase Hosting, secrets in Secret Manager |
 | Data | Hugging Face: Rotten Tomatoes critic reviews + TMDB/IMDb movie metadata |
 | Tools protocol | MCP Python SDK 2.3 (`mcp`): our own server over stdio, our own small LangChain adapter |
 
@@ -155,6 +156,38 @@ No single Hugging Face dataset had both reviews and full movie metadata. Options
   installed on the machine.
 - Pinned to PostgreSQL 17 because Google Cloud SQL supports it with pgvector, which keeps the Phase 22 move simple.
 - Host port 5433, because another local project's container uses 5432.
+
+### Cloud deployment: Neon + Cloud Run + Firebase Hosting (Phase 22; steps in [`docs/deployment.md`](docs/deployment.md))
+
+The plan says Google Cloud SQL. The assignment brief asks only for a cloud database, so the developer compared:
+
+| Option | Cost a month | Who runs PostgreSQL | Notes |
+|---|---|---|---|
+| Google Cloud SQL, smallest shared-core instance | ~$8–12 (published prices, not a bill) | Google | Exactly the plan; always on unless stopped by hand |
+| Own PostgreSQL in Docker on a free e2-micro VM | ~$0 (+ a few $ for the public IPv4 address) | we do: updates, backups, the open port | Same image as locally; 1 GB RAM; US regions only |
+| **Neon free plan** | $0 (0.5 GB storage, 100 compute-hours) | Neon | Managed PostgreSQL 17 + pgvector; sleeps after 5 min idle |
+
+- **Chosen: Neon for the database, Cloud Run for the backend, Firebase Hosting for the frontend**, decided by the
+  developer (2026-10-10). Neon is the same PostgreSQL + pgvector as locally, managed, and free at this size, so no
+  code changes: only `DATABASE_URL` differs. A database port we run ourselves would be found by internet scanners within
+  minutes, and the image's database user is a superuser who can run shell commands on the server; a managed service
+  takes that off our hands.
+- Nothing is embedded again: the schema comes from our Alembic migrations, then only the data is copied with
+  `pg_dump`/`pg_restore`. The data pipeline, tests and evaluation stay local; the cloud runs only the chat path.
+- One container holds FastAPI and the MCP server, which runs as a child process over stdio exactly as locally, so
+  `TOOL_BACKEND=mcp` needs no second service. The container installs only `requirements-runtime.txt`.
+- The frontend is a static export: the page runs in the browser and calls the API, so it needs no server of its own.
+- Logs: Cloud Run's disk is thrown away with the instance, so `REQUEST_LOG_PATH=stdout` prints each request line and
+  Cloud Logging keeps it.
+- Protecting the OpenRouter credit on a public site, three layers: a separate OpenRouter key with a credit limit
+  (the hard ceiling), rate limits in the backend (10 questions per visitor IP per minute, 200 per day in total;
+  `app/rate_limit.py`, off locally), and the existing caps (2,000 characters, 3 tool rounds, 90 s, output tokens).
+  The visitor's IP is the rightmost `X-Forwarded-For` entry, because a client can write the others itself.
+  The counts are in memory per instance (with max 2 instances the real caps are up to twice the settings): simple and
+  enough for a demo, which is why the key's credit limit is the real ceiling.
+- Checked in a container (2026-10-10, empty database): migrations run in the image, the MCP server starts and answers
+  tool calls, idle memory ~210 MB, image ~100 MB compressed, the rate limit and stdout logs work. The cloud steps
+  themselves have not been run yet.
 
 ### Migrations: Alembic
 
@@ -1334,6 +1367,8 @@ Prerequisites: Python 3.11, Node.js, Docker Desktop.
    Then open http://localhost:3000. The page uses the streaming endpoint; to watch the raw events:
    `curl -N -X POST http://127.0.0.1:8000/api/chat/stream -H "Content-Type: application/json" -d '{"message": "Which is rated higher, Zodiac or Prisoners?"}'`
 
+Deploying (Neon, Cloud Run, Firebase Hosting): step by step in [`docs/deployment.md`](docs/deployment.md).
+
 ## Tests
 
 ```bash
@@ -1367,7 +1402,8 @@ frontend/     Next.js chat app
 backend/      FastAPI app (app/), Alembic migrations (migrations/), tests (tests/)
 scripts/      download, inspect, select, ingest and embed jobs
 data/         raw downloads and the selected subset (git-ignored)
-docs/         dataset findings and inspection summary
+docs/         dataset findings, inspection summary, deployment guide
+deploy/       Cloud Run settings (no secrets)
 specs/        acceptance criteria for test-first phases, with traceability
 evaluation/   evaluation dataset and results (Phase 19 onwards)
 ```

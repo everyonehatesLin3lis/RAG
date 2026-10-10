@@ -13,7 +13,7 @@ from pydantic import BaseModel
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from app import history, mcp_client, rag, request_log, streaming
+from app import history, mcp_client, rag, rate_limit, request_log, streaming
 from app.config import get_settings
 from app.db import get_session
 from app.errors import AppError, ClientDisconnected, register_error_handlers
@@ -77,14 +77,15 @@ def health() -> HealthResponse:
 
 # A plain `def` (not async): embedding, database and LLM calls are blocking, and FastAPI runs sync
 # endpoints in a worker thread so they don't stall other requests.
-@app.post("/api/chat", response_model=ChatResponse)
+# The endpoints that ask the model are rate limited when deployed (app/rate_limit.py); off locally.
+@app.post("/api/chat", response_model=ChatResponse, dependencies=[Depends(rate_limit.check)])
 def chat(request: ChatRequest, session: Session = Depends(get_session)) -> ChatResponse:
     return answer_in_conversation(session, request.conversation_id, request.message)
 
 
 # Phase 25: the same answer as /api/chat, sent as Server-Sent Events while it is produced (app/streaming.py).
 # Invalid input is still rejected with the normal JSON error before the stream starts.
-@app.post("/api/chat/stream")
+@app.post("/api/chat/stream", dependencies=[Depends(rate_limit.check)])
 async def chat_stream(request: ChatRequest, session: Session = Depends(get_session)) -> StreamingResponse:
     def run(emit):
         return answer_in_conversation(session, request.conversation_id, request.message, on_event=emit)
@@ -119,7 +120,9 @@ def get_conversation(conversation_id: UUID, session: Session = Depends(get_sessi
     )
 
 
-@app.post("/api/conversations/{conversation_id}/messages", response_model=ChatResponse)
+@app.post(
+    "/api/conversations/{conversation_id}/messages", response_model=ChatResponse, dependencies=[Depends(rate_limit.check)]
+)
 def post_message(conversation_id: UUID, request: MessageRequest, session: Session = Depends(get_session)) -> ChatResponse:
     return answer_in_conversation(session, conversation_id, request.message)
 

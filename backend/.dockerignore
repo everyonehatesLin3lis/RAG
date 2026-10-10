@@ -1,0 +1,9 @@
+# Keep the image small and free of secrets: only app/, migrations/ and alembic.ini are copied anyway,
+# but the whole folder is sent to the builder (Cloud Build uploads it), so leave out what must never travel.
+.env
+.env.*
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+tests/

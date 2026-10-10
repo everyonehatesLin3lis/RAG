@@ -1,0 +1,9 @@
+# Local development: the runtime dependencies plus data scripts and tests. Never installed in the container.
+-r requirements-runtime.txt
+
+# Data scripts (Phase 2): Hugging Face download + pandas
+datasets>=5.0
+
+# Tests
+pytest>=8.3
+httpx>=0.27

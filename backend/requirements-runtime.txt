@@ -1,0 +1,21 @@
+# What the deployed backend needs (backend/Dockerfile installs only this file).
+# Dependencies are added in the phase that first uses them.
+fastapi>=0.115
+uvicorn[standard]>=0.30
+pydantic>=2.8
+pydantic-settings>=2.4
+
+# LLM (Phase 1): LangChain talking to OpenRouter through the OpenAI-compatible client
+langchain-core>=1.6
+langchain-openai>=1.6
+# Chunking (Phase 4)
+langchain-text-splitters>=1.1
+
+# Database (Phase 3): PostgreSQL + pgvector through SQLAlchemy, schema via Alembic migrations
+sqlalchemy>=2.1
+psycopg[binary]>=3.3
+pgvector>=0.5
+alembic>=1.20
+
+# MCP (Phase 24): the tool server (app/mcp_server.py) and client (app/mcp_client.py)
+mcp>=2.3,<3

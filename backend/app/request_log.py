@@ -13,6 +13,7 @@ logged because the plan asks for it; on a shared deployment that would need a pr
 
 import json
 import statistics
+import sys
 import threading
 from collections import Counter
 from datetime import UTC, datetime
@@ -28,9 +29,17 @@ def log_path() -> Path:
 
 
 def write(entry: dict) -> None:
-    """Append one line. A logging failure must never break the chat, so errors here are swallowed."""
+    """Append one line. A logging failure must never break the chat, so errors here are swallowed.
+
+    REQUEST_LOG_PATH=stdout (the deployment) prints the line instead: Cloud Run sends everything a container prints
+    to Cloud Logging, which reads a JSON line as a structured entry. "message" is the one-line summary it shows."""
     entry = {"timestamp": datetime.now(UTC).isoformat(timespec="milliseconds"), **entry}
     try:
+        if get_settings().request_log_path == "stdout":
+            line = json.dumps({"message": f"chat {entry.get('status')}", **entry}, ensure_ascii=False, default=str)
+            with _lock:
+                print(line, file=sys.stdout, flush=True)
+            return
         path = log_path()
         path.parent.mkdir(parents=True, exist_ok=True)
         line = json.dumps(entry, ensure_ascii=False, default=str)
