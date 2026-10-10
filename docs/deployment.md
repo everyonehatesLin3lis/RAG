@@ -153,15 +153,21 @@ gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregi
 
 ## 7. Secrets
 
-The two secrets go into Secret Manager, never into the image, the repo or `deploy/cloudrun-env.yaml`. Write each
-to a file without a trailing newline (PowerShell's pipe would add one and break the key), upload, delete the file:
+The two secrets go into Secret Manager, never into the image, the repo, `deploy/cloudrun-env.yaml` or the
+frontend. Cloud Run hands them to the container as environment variables when it starts; the deploy command only
+names them (`openrouter-api-key:latest`), so it contains nothing secret.
+
+Create them in the browser, so the values are never typed into a terminal (PowerShell saves every command line in
+its history file, `(Get-PSReadLineOption).HistorySavePath`, and a key in a command would stay there):
+
+1. Console → Security → **Secret Manager** → **Create secret**.
+2. Name `openrouter-api-key`, secret value: the deployment key from step 5. Create.
+3. Again: name `database-url`, value `<neon-sqlalchemy-url>`. Create.
+
+Check the names (this shows names, not values):
 
 ```powershell
-Set-Content -NoNewline -Path secret.txt -Value "<openrouter-deployment-key>"
-gcloud secrets create openrouter-api-key --data-file=secret.txt
-Set-Content -NoNewline -Path secret.txt -Value "<neon-sqlalchemy-url>"
-gcloud secrets create database-url --data-file=secret.txt
-Remove-Item secret.txt
+gcloud secrets list
 ```
 
 A service account of its own for the backend, allowed to read exactly these two secrets and nothing else:
