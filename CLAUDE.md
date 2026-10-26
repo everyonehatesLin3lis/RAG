@@ -97,8 +97,8 @@ If time runs short, protect the core in this order: working chatbot → dataset 
 - [x] 26 Final UI: chat, sources, collapsible RAG process, tool calls, token usage and cost
 - [x] 27 Error handling
 - [x] 28 Testing: backend, RAG, tools, security, MCP
-- [ ] 29 Final evaluation
-- [ ] 30 README
+- [x] 29 Final evaluation (2026-10-26: 2 runs per strategy with today's code in `evaluation/results/final2/`, plus analytics in `evaluation/results/analytics.json`)
+- [x] 30 README (2026-10-26: reader section on top covering the plan's 8 topics, the project log below)
 - [ ] 31 Review preparation
 
 ## Target architecture
@@ -200,11 +200,16 @@ These apply from the first line of code. Phase 16 is where they are tested, not 
 - Save results as JSON per strategy with `strategy`, `retrieval_recall_at_5`, `answer_accuracy`, `groundedness`, `avg_latency_ms` and `avg_cost_usd`, and compare vector-only with hybrid.
 - Implemented (Phase 20, `specs/20.md`): `app/evaluation.py` + `python evaluation/run_evaluation.py [--strategy hybrid|vector] [--limit N] [--only F1,M3]` → `evaluation/results/<strategy>.json` (summary, by type, every question). Retrieval metrics and rule checks need no LLM; correctness, relevance and claim-level groundedness come from an LLM judge, `EVALUATION_JUDGE_MODEL` = `anthropic/claude-haiku-4.5` (a different vendor than MiMo and Gemini), which sees exactly the sources and tool results the system saw. Failed judgements are "not judged", pipeline errors count as incorrect, judge cost is reported separately. A full run costs ~$0.04 (answers) + ~$0.23 (judge) and takes ~12 min.
 - Strategy comparison (Phase 21): `python evaluation/compare_strategies.py` reads `results/vector.json` and `results/hybrid.json` (+ any `<strategy>-rN.json` repeat runs made with `--tag`) and writes `results/comparison.json`. Answer scores vary between runs by ±0.5 on single comparison questions even with identical retrieval, so differences of one or two questions are not evidence; repeat the changed questions before concluding.
+- Final evaluation (Phase 29, 2026-10-26): `python evaluation/run_evaluation.py --tag r1 --out evaluation/results/final2` (r1, r2 per strategy), `python evaluation/final_report.py evaluation/results/final2` → `summary.json`. Hybrid 0.985 / vector 0.980 answer accuracy, hit rate 1.000 / 0.978; hybrid stays the default. Rows record `timings_ms`, `input_tokens`, `output_tokens`; summaries record `settings`. `--resume` re-runs only errored or missing questions (same settings required).
+- Analytics (Phase 29): experiments with one setting changed, `--top-k 5|10`, `--no-translation`, `--model <id>` → `evaluation/results/experiments/hybrid-<tag>.json`; `python evaluation/analytics_report.py` → `results/analytics.json` (time per step, context size, translation on/off, answer models, cold start). `python scripts/cold_start_check.py <api-url>` measures the deployed site cold and warm (~$0.002). The judge is ~87 % of an evaluation run's cost.
 - Every number in the README comes from a real run. Never write a metric that was not measured.
 
 ## Open decisions
 
 When a phase raises a new choice, list it here and ask before settling it.
+
+- Phase 29 finding, not decided: the deployed site's cold start shows the first words after ~33 s (16.7 s container start and imports, 5.1 s app + MCP server startup, then Neon waking) vs ~5.5 s warm. Options: leave it, `--cpu-boost` (faster startup), or `--min-instances 1` for the review week (no cold start, costs money while idle).
+- OpenRouter key (2026-10-26): the deployed site and local evaluation runs share the developer's key (limit raised to $8/month); an evaluation run that hits the limit takes the demo down. The planned separate demo key with its own limit is not in place.
 
 - (Decided 2026-10-07: Phase 21 follow-up (a), the no-own-verdict prompt rule, adopted; (b), per-film retrieval for comparison questions, skipped by the developer for now and still the main cause of incomplete comparisons. Hybrid stays the default.)
 - Phase 28 finding, not decided: 3 of the 5 poisoned-review injection attacks (`scripts/injection_tests.py`) are no longer retrieved under hybrid search, so `pytest -m live` skips them. Option: rewrite their questions (as R5 was in Phase 16) so the poison reaches the model again; costs ~$0.01 per check run.

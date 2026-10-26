@@ -1,14 +1,377 @@
 # Movie Research Copilot
 
-A movie research chatbot built for a Turing College AI Engineering assignment. It answers questions about
-movies from retrieved critic reviews and movie metadata, shows its sources, explains what retrieval did,
-uses tools for questions with exact answers, and serves those tools from an MCP server.
+A movie research chatbot built for a Turing College AI Engineering assignment. Ask it about films ("What did critics
+say about Black Swan?", "Which is rated higher, Zodiac or Prisoners?", "Recommend a well-rated thriller from the
+2010s") and it answers from about 10,000 real critic reviews and the films' metadata, not from the model's memory.
+Every answer shows the reviews it used, what retrieval did, which tools ran, and what the answer cost.
 
-This README is a living document: it is updated at the end of every phase with what was built, what we
-found, and why each decision went the way it did. The full plan is in [`EXECUTION_PLAN.md`](EXECUTION_PLAN.md).
+**Live demo:** https://ai-devops-508221.web.app. The first question after a quiet spell waits up to about 30 s while
+the backend and database wake up; after that, the first words appear in about 5 s.
 
-**Live demo:** https://ai-devops-508221.web.app (the first question after a quiet spell takes a few seconds longer
-while the backend and database wake up).
+The top of this README explains the system. Below it, the [project log](#project-log) records every phase: what was
+built, what was measured, and why each decision went the way it did. The full plan is in
+[`EXECUTION_PLAN.md`](EXECUTION_PLAN.md).
+
+**Contents:** [Project](#project) · [Architecture](#architecture) · [Stack](#stack) · [RAG flow](#rag-flow) ·
+[Tools](#tools) · [Evaluation](#evaluation) · [Security](#security) · [Running locally](#running-locally) ·
+[Tests](#tests) · [Project log](#project-log)
+
+## Project
+
+General chatbots answer movie questions from memory: they mix films up, invent quotes and can't say where a claim
+came from. This copilot is a specialised research assistant instead:
+
+- **Grounded answers.** It retrieves the relevant critic reviews and film profiles (RAG) and answers only from them,
+  saying so when the evidence isn't there.
+- **Exact facts from the database.** Ratings, comparisons, filters and credits come from SQL through tools, never
+  from the model's memory.
+- **Transparent.** Under each answer: the sources (with links to the original reviews), a "RAG process" panel (the
+  rewritten query, vector and keyword results, the fusion), the tool calls with their results, and tokens and cost.
+- **Measured.** A 49-question evaluation set checks retrieval and answers; every number in this README comes from a
+  real run.
+
+Data: 9,987 English Rotten Tomatoes critic reviews of 500 films, joined to TMDB/IMDb metadata (director, cast,
+runtime, IMDb rating, overview, keywords). See [`docs/dataset.md`](docs/dataset.md).
+
+## Architecture
+
+```mermaid
+flowchart TD
+  B["Browser: Next.js chat page<br/>(Firebase Hosting)"] -->|"POST /api/chat/stream<br/>Server-Sent Events back"| F["FastAPI backend<br/>(Google Cloud Run)"]
+  F --> T["1 Query translation<br/>Gemini 3.1 Flash Lite"]
+  T --> V["2a Vector search<br/>embedding of the rewritten question, pgvector HNSW"]
+  T --> K["2b Keyword search<br/>PostgreSQL full-text"]
+  V --> RRF["3 Reciprocal Rank Fusion<br/>top 8 chunks"]
+  K --> RRF
+  RRF --> L["4 Answer model: MiMo v2.6 Flash<br/>LangChain → OpenRouter, sources + 4 tools"]
+  L -->|"tool call"| MC["MCP client"]
+  MC --> MS["MCP server (child process, stdio)<br/>validates arguments, runs fixed SQL"]
+  MS -->|"tool result"| L
+  L -->|"answer, sources, debug, usage"| B
+  DB[("PostgreSQL 17 + pgvector<br/>Neon (deployed) / Docker (local)<br/>movies, reviews, chunks, conversations")]
+  V --- DB
+  K --- DB
+  MS --- DB
+  F ---|"conversation history"| DB
+```
+
+Offline, once: Hugging Face files → inspect → select the subset → ingest into PostgreSQL → build and chunk documents
+→ embed every chunk into pgvector (`scripts/`).
+
+Deployed: the static page on Firebase Hosting, the backend container (FastAPI with the MCP server inside it) on Cloud
+Run in Belgium, the database on Neon in Frankfurt, the two secrets in Google Secret Manager
+([`docs/deployment.md`](docs/deployment.md)).
+
+## Stack
+
+| Layer | Choice | Why it is here |
+|---|---|---|
+| Frontend | **Next.js** 16, TypeScript, Tailwind, `react-markdown` | The chat page. Exported as static files, so it is hosted for free with no server; it reads the answer stream with `fetch` and renders Markdown without raw HTML. |
+| Backend | **FastAPI**, Uvicorn, Pydantic, Python 3.11 | The API. Pydantic validates every request and response body; FastAPI streams the answer as Server-Sent Events. |
+| LLM orchestration | **LangChain** (`langchain-openai`) | One interface for every model call: tool binding (`bind_tools`), structured output for query translation, the text splitter for chunking, and callbacks that count tokens and cost. |
+| Model access | **OpenRouter** | One key and one OpenAI-compatible API for every model; switching models is a config change, and OpenRouter reports the real cost of each call. |
+| Answer model | `xiaomi/mimo-v2.6-flash` | Cheap ($0.14 / $0.28 per million tokens in / out), supports tool calling; chosen over Claude Haiku 4.5 (about 7× cheaper input). |
+| Query translation | `google/gemini-3.1-flash-lite` | Rewrites the question before search; the most accurate of the fast models compared (16/16). |
+| Embeddings | `openai/text-embedding-3-small`, 1,536 dimensions | The same model embeds the chunks and the questions, so their vectors are comparable. |
+| Database | **PostgreSQL** 17, SQLAlchemy, psycopg, Alembic | One database for movies, reviews, chunks and conversations. SQL answers the tools' exact questions; full-text search is built in. Schema changes go through migrations. |
+| Vector search | **pgvector** 0.8, HNSW index, cosine distance | Vectors live next to the data they describe, searched in SQL with an index; no separate vector database to run or sync. |
+| Tools protocol | **MCP** Python SDK (`mcp`) | The 4 tools run behind a standard protocol in their own process; any MCP client can use them, and our backend uses them through a small adapter. |
+| Hosting | Firebase Hosting, Cloud Run, Neon, Secret Manager | Free tiers, scale to zero, secrets never in the image or the repo. |
+
+## RAG flow
+
+What happens to one question (`backend/app/rag.py`):
+
+1. **History.** The last 6 messages of this conversation are loaded from PostgreSQL, so follow-ups like "who directed
+   it?" make sense.
+2. **Query translation** (`query_translation.py`). People ask casually ("joker movie with heath ledger, why is
+   everyone obsessed"). One structured-output LLM call rewrites the question, using the history, into
+   `{"semantic_query", "keywords", "filters", "movies"}`. Only retrieval uses the rewrite; the answer is written for the
+   user's own words. The output is validated, and any failure falls back to the original question.
+3. **Retrieval** (`retrieval.py`, `fusion.py`):
+   - *Semantic (vector) search:* the `semantic_query` is embedded and pgvector returns the 10 chunks closest in
+     meaning (cosine distance), even when they share no words with the question.
+   - *Keyword search:* PostgreSQL full-text search returns the 10 chunks that contain the keywords (names, titles,
+     terms) as phrases, which catches exact names that embeddings blur.
+   - *Fusion:* Reciprocal Rank Fusion scores each chunk by its rank in both lists, Σ 1 / (60 + rank), and the top 8 go
+     to the model. When a question names two or more films, each film is searched separately and gets an equal share,
+     so a comparison sees evidence for both.
+4. **Generation** (`tool_calling.py`). The prompt holds the system rules, the earlier messages, the 8 chunks inside
+   `<source chunk_id=… movie=…>` tags and the question. The rules: answer only from the sources, say when they are not
+   enough, report what critics say rather than give a verdict of its own, use a tool for any exact fact. The model can
+   call tools (up to 3 rounds) before it answers.
+5. **Response.** The answer streams to the page token by token, followed by the sources, the debug object (every
+   retrieval step, timings) and token usage with cost. The question and answer are stored for the next follow-up, and
+   one JSON line goes to the request log.
+
+The documents behind it (`documents.py`): one **review** document per critic review (title, year, genres, critic,
+score, text) and one **profile** document per film (director, writers, cast, runtime, IMDb rating, overview,
+keywords). Bodies are split with LangChain's `RecursiveCharacterTextSplitter` at 1,000 characters with 150 overlap;
+reviews (at most about 360 characters) stay whole, long profiles are split, and the title header is repeated on every
+chunk. 10,540 chunks in total.
+
+## Tools
+
+The model decides when to call a tool; our code validates the arguments (Pydantic) and runs a fixed, parameterised
+SQL query, through the MCP server by default (`backend/app/tools.py`, `mcp_server.py`).
+
+| Tool | Arguments | Returns | Example question |
+|---|---|---|---|
+| `filter_movies` | `year_min`, `genre`, `rating_min` (at least one), `limit` | the best matches by IMDb rating (10 by default), plus how many matched | "Well-rated thrillers since 2010?" |
+| `compare_movies` | `movie_a`, `movie_b` | year, IMDb rating, genres and review count for each, and which is rated higher | "Which is rated higher, Zodiac or Prisoners?" |
+| `rating_summary` | `movie` | average critic score (0–10), number of reviews, score distribution | "How did critics score Black Swan?" |
+| `get_movie_metadata` | `movie` | director, writers, cast, runtime, genres, IMDb rating, language, overview, keywords | "Who directed Prisoners?" |
+
+Errors are returned to the model, never raised: `MOVIE_NOT_FOUND` (with suggestions), `AMBIGUOUS_TITLE` (with the
+candidates, e.g. *Beauty and the Beast* 1991 and 2017), `INVALID_ARGUMENTS`, `TOOL_FAILED`.
+
+**Tool calling vs MCP.** Tool calling is the model asking for a function by name with arguments; the model never runs
+anything. MCP is how those functions are offered: a separate server process lists them with their JSON schemas and
+runs them when asked, over a standard protocol. If the MCP server cannot start or a call fails, the same functions run
+inside the backend and the answer carries a warning.
+
+## Evaluation
+
+**How it is measured.** 49 questions written for evaluation only
+([`evaluation/evaluation_dataset.jsonl`](evaluation/evaluation_dataset.jsonl)): 8 factual, 7 rating, 8 opinion,
+8 plot ("which film is about…"), 5 recommendation, 9 two-film comparisons and 4 about films that are not in the data.
+Every expected answer was read from the database. Each question goes through the real system
+([`evaluation/run_evaluation.py`](evaluation/run_evaluation.py)), and then:
+
+- **Retrieval**, with no LLM: did the expected film reach the model, Recall@5 / @8 (share of the expected films in the
+  top 5 / 8 chunks), Precision@5 (share of the top 5 chunks that are about an expected film).
+- **Answers**, judged by Claude Haiku 4.5 (a different company's model than the ones answering), which sees exactly the
+  sources and tool results the system saw: correctness (1 / 0.5 / 0), relevance, and groundedness checked claim by
+  claim (is every claim in the answer supported by a source or tool result?).
+- **Speed and cost** per answer, from the system's own timings and OpenRouter's reported cost.
+
+Answers vary between identical runs, so each strategy ran twice; the range shows how much.
+
+**Final results** (2026-10-26, today's code; [`evaluation/results/final2/summary.json`](evaluation/results/final2/summary.json)):
+
+| Metric | Vector only | Hybrid (default) |
+|---|---|---|
+| Expected film reached the model | 0.978 | **1.000** |
+| Recall@5 | 0.924 | **0.944** |
+| Precision@5 | **0.927** | 0.807 |
+| Answer accuracy | 0.980 | 0.985 (0.980–0.990) |
+| Groundedness (supported claims) | 1.000 | 0.999 |
+| Answers with an unsupported claim | 0 of 49 | 1 of 49 per run |
+| Relevance | 0.990 | 0.990 |
+| Expected tool used | 0.955 | 0.955 |
+| Average latency | 7.1 s | 9.0 s |
+| Average cost per answer | $0.0007 | $0.0006 |
+
+The plan's result shape, hybrid:
+
+```json
+{"strategy": "hybrid", "retrieval_recall_at_5": 0.944, "answer_accuracy": 0.985, "groundedness": 0.999,
+ "avg_latency_ms": 8968, "avg_cost_usd": 0.0006}
+```
+
+- Every question type scores 1.0 in both strategies except comparisons (0.94 both) and recommendations (vector 0.90,
+  hybrid 0.95). The two questions not fully right in every run: "Is *Black Swan* more disturbing than *Hereditary*?"
+  (the reviews do not settle it, and the answer is judged half right) and an animated-family-films list that also
+  included *Spider-Man: Into the Spider-Verse*, which the data does not tag as a family film.
+- **Hybrid stays the default.** The expected film always reached the model (vector missed it on 1 question in 45), and
+  recall is higher; answer accuracy is equal within the run-to-run range. Precision is lower because keyword search
+  also brings in other films' reviews that share a name or term; the model sees those as extra sources and ignores them.
+- **What changed since the first final runs** (2026-10-09, [`evaluation/results/final/`](evaluation/results/final/)):
+  those showed hybrid behind vector on answers (0.92 vs 0.95), all on comparison questions, where one film's reviews
+  crowded out the other's. Per-film retrieval (each named film searched separately) fixed that: answer accuracy is now
+  0.985 hybrid / 0.980 vector, and Recall@5 rose from 0.87 / 0.82 to 0.94 / 0.92.
+- Latency is not comparable between days: the same system averaged 22 s on 2026-10-09 and 7–9 s on 2026-10-26, because
+  the answer model's speed on OpenRouter varies. Comparisons below are all from the same day.
+
+### Analytics: what makes it better, faster or cheaper
+
+Each experiment ran the same 49 questions with one setting changed from the default (hybrid, 8 chunks, translation
+on, MiMo answers): [`evaluation/analytics_report.py`](evaluation/analytics_report.py) →
+[`evaluation/results/analytics.json`](evaluation/results/analytics.json). Experiments ran once each; a difference
+smaller than the default's own range between its two runs (accuracy 0.980–0.990) is noise, not evidence.
+
+**1. Where the time goes** (98 answers): median 5.5 s.
+
+| Step | Median | Share of the time |
+|---|---|---|
+| Query translation (Gemini Flash Lite) | 1.1 s | 12 % |
+| Embedding + vector search | 0.6 s | 7 % |
+| Keyword search | 0.007 s | 0 % |
+| Answer generation, incl. tool rounds (MiMo) | 3.6 s | 81 % |
+
+The database is not the bottleneck; the answer model is. Recommendation questions are the slowest (median 11.8 s:
+a filter tool call, then a long list to write), rating questions the fastest (3.4 s).
+
+**2. Context size vs cost** (chunks sent to the model; the plan allows 5–10):
+
+| | 5 chunks | 8 chunks (default) | 10 chunks |
+|---|---|---|---|
+| Answer accuracy | 0.980 | 0.985 | 0.990 |
+| Input tokens per answer | 4,781 | 5,218 | 5,753 |
+| Cost per 1,000 answers | $0.71 | $0.67 | $0.75 |
+| Median latency | 5.7 s | 5.5 s | 6.3 s |
+
+Every chunk is input tokens, about 190 per chunk here, and they are paid again on every model call of the answer,
+including each tool round, which re-sends the whole conversation. Here the effect is small: reviews are short (at most
+about 360 characters), and the fixed parts (system prompt, tool schemas, the translation call) dominate, so 5, 8 and 10
+chunks differ by less than the noise in accuracy and cost. With 1,000-character chunks, or 50 of them, context would
+be most of the bill. 8 stays.
+
+**3. Query translation on vs off:**
+
+| | Translation on (default) | Off (raw question) |
+|---|---|---|
+| Expected film reached the model | 1.000 | 0.933 |
+| Recall@5 | 0.944 | 0.791 |
+| Answer accuracy | 0.985 | 0.949 |
+| Relevance | 0.990 | 0.959 |
+| Median latency | 5.5 s | 2.6 s |
+| Cost per 1,000 answers | $0.67 | $0.37 |
+
+Translation is worth it: it is what gets the right film to the model for vague and plot-style questions (without it,
+hybrid search also loses its keyword half, since the keywords come from the translation). It costs about a second and
+$0.30 per 1,000 answers (the translation call, plus answers that are longer when the sources are better).
+
+**4. Answer model** (same sources and tools, only the model that writes the answer changed):
+
+| | MiMo v2.6 Flash (default) | GPT-6 Luna | Gemini 3.1 Flash Lite |
+|---|---|---|---|
+| Answer accuracy | **0.985** | 0.949 | 0.948 |
+| Groundedness | 0.999 | 0.996 | 1.000 |
+| Relevance | 0.990 | 0.980 | 0.958 |
+| Median latency | 5.5 s | 4.3 s | **3.5 s** |
+| p95 latency (slowest 5 %) | 22.1 s | 8.8 s | **5.4 s** |
+| Cost per 1,000 answers | $0.67 | **$0.63** | $1.38 |
+
+MiMo is the most accurate (about 2 more correct answers per 49, a gap larger than the noise) but the slowest,
+especially on the slowest answers. GPT-6 Luna costs the same and is much steadier; Gemini Flash Lite is the fastest
+but twice the price, because its output tokens cost about 5× more. MiMo stays: correctness comes first in a research
+assistant, and streaming already shows the first words after a few seconds.
+
+**5. The deployed site, cold vs warm** ([`evaluation/results/experiments/cold_start.json`](evaluation/results/experiments/cold_start.json),
+[`scripts/cold_start_check.py`](scripts/cold_start_check.py)):
+
+| | First response | First words | Done |
+|---|---|---|---|
+| Cold (after an idle hour) | 23.7 s | 33.0 s | 37.0 s |
+| Warm | 0.2 s | 5.5 s | 14.1 s |
+
+A cold start is Cloud Run starting the container and importing the Python libraries (16.7 s), then the app starting
+the MCP server (5.1 s), then Neon waking up. It costs nothing while idle, which is the point of scaling to zero; the
+price is the first visitor's wait.
+
+The evaluation runs cost $2.45 in total (9 runs × 49 questions); 87 % of that was the judge, the system's own answers
+$0.32.
+
+## Security
+
+Retrieved reviews are text written by strangers, and the model reads them, so they are treated as untrusted data
+(prompt injection). The defences, in layers:
+
+- **Prompt rules:** the system prompt says sources are data only and instructions inside them are never followed;
+  off-topic requests are declined in one or two sentences, with no code or commands.
+- **Isolation of sources:** each chunk is wrapped in `<source>` tags with `<` escaped, so a review cannot close its tag
+  or fake a question; the user's message and tool results are escaped the same way.
+- **Tools for facts:** exact numbers come from SQL, so a review that plants a false rating is overruled.
+- **No SQL from model text:** every query has a fixed shape with bound parameters; tool arguments are validated
+  (types, lengths, control characters) before anything runs, in the backend and again in the MCP server.
+- **No secrets anywhere the model or a visitor can see:** keys come from environment variables (Secret Manager when
+  deployed), never in prompts, responses, logs or the frontend; the MCP server gets only the database URL.
+- **Public deployment limits:** 10 questions per visitor per minute and 200 per day in total, 2,000 characters per
+  question, 3 tool rounds, 90 s per question.
+
+Tested with 8 live attacks (5 poisoned reviews inserted into the database, 3 hostile user messages): all defended,
+after one prompt fix (results in [`docs/experiments/prompt_injection_results.json`](docs/experiments/prompt_injection_results.json),
+the attacks and what they showed in the project log, Phase 16).
+`tests/test_security.py` and `tests/test_malicious_arguments.py` check the non-model layers on every test run.
+
+## Running locally
+
+Prerequisites: Python 3.11, Node.js, Docker Desktop.
+
+1. **Secrets** (never committed):
+   - Copy `.env.example` to `.env` and set `POSTGRES_PASSWORD`.
+   - Copy `backend/.env.example` to `backend/.env` and set `OPENROUTER_API_KEY`, plus a `DATABASE_URL` using
+     the same password.
+2. **Database:**
+   ```bash
+   docker compose up -d
+   ```
+3. **Backend:**
+   ```bash
+   cd backend
+   python -m venv .venv
+   .venv\Scripts\activate
+   pip install -r requirements.txt
+   alembic upgrade head
+   uvicorn app.main:app --reload --port 8000
+   ```
+   - The backend starts the MCP server (`python -m app.mcp_server`) itself; nothing else to run. `TOOL_BACKEND=local`
+     in `backend/.env` runs the tools in-process instead.
+   - To test the MCP server on its own (no LLM, no cost): `python scripts/mcp_check.py` from the repo root.
+4. **Data pipeline** (from the repo root, backend venv active):
+   ```bash
+   python scripts/download_datasets.py
+   python scripts/select_subset.py
+   python scripts/ingest.py
+   python scripts/embed_chunks.py --dry-run
+   python scripts/embed_chunks.py
+   ```
+   - The download is about 670 MB.
+   - `embed_chunks.py` costs money, so the `--dry-run` line prints the plan first. Try `--limit 5` before a full run.
+5. **Frontend:**
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
+   Then open http://localhost:3000. The page uses the streaming endpoint; to watch the raw events:
+   `curl -N -X POST http://127.0.0.1:8000/api/chat/stream -H "Content-Type: application/json" -d '{"message": "Which is rated higher, Zodiac or Prisoners?"}'`
+
+Deploying (Neon, Cloud Run, Firebase Hosting): step by step in [`docs/deployment.md`](docs/deployment.md).
+
+## Tests
+
+```bash
+cd backend
+pytest                 # everything except live tests: 359 tests, about 20 s, no API calls
+pytest -m backend      # one of the plan's five groups: backend, rag, tools, security, mcp
+pytest -m live         # 13 tests with the real models (RAG answers, 8 injection attacks): about $0.02
+```
+
+| Group | Tests | What it covers |
+|---|---|---|
+| backend | 170 | every API route (success and failure), streaming, error handling, conversation history, database schema and queries, vector and keyword search, fusion, query translation, usage, logging, evaluation code |
+| rag | 43 | known, vague and no-answer questions against the real database (which films reach the model), the prompt and its rules, the debug object |
+| tools | 69 | all four tools with valid and invalid parameters, missing movies and duplicate titles; the tool-calling loop |
+| security | 63 | hostile tool arguments (SQL fragments, wildcards, huge strings, NUL bytes, wrong types, extra fields) in-process, through the MCP server and over stdio, with no data changed; injected tags and instructions in reviews, the user's message and tool results; no secrets in errors |
+| mcp | 14 | discovery, calling every tool, every error code through MCP, the stdio child process, no API keys passed to it |
+
+How the tests stay free and repeatable:
+- **Paid calls are blocked.** A guard in `conftest.py` makes any LLM or embedding call a test did not replace with a fake
+  fail the test; live tests are the one exception and only run with `-m live`.
+- **The RAG questions replay a recording.** `scripts/record_rag_questions.py` ran the real translation and embedding for
+  the 9 test questions once (about $0.003) and saved them in `backend/tests/fixtures/rag_questions.json`; the tests run
+  the real retrieval on the real database with them. Run the script again when the embedding model, the translation
+  prompt or the questions change (a test fails if the embedding model no longer matches).
+- **Database tests run inside a transaction that is rolled back**, and skip when the container is down.
+
+## Repository layout
+
+```text
+frontend/     Next.js chat app
+backend/      FastAPI app (app/), Alembic migrations (migrations/), tests (tests/)
+scripts/      download, inspect, select, ingest and embed jobs
+data/         raw downloads and the selected subset (git-ignored)
+docs/         dataset findings, inspection summary, deployment guide
+deploy/       Cloud Run settings (no secrets)
+specs/        acceptance criteria for test-first phases, with traceability
+evaluation/   evaluation dataset, runner, reports and results (final2/, experiments/, analytics.json)
+```
+
+## Project log
+
+Everything below is the record of how the project was built, phase by phase: the status, every key decision (the options, what was chosen, why and by whom) and what each phase measured. Numbers are from real runs; estimates are labelled.
 
 ## Status
 
@@ -43,71 +406,9 @@ while the backend and database wake up).
 | 26 | Final UI: fixed header and input, sources shown under each answer, RAG process / tool calls / token usage as collapsible panels, example questions, dark mode, phone width | done |
 | 27 | Error handling: every failure in the plan's list gives a clear error or a fallback answer, a 90 s limit per question, "Try again" on the page | done |
 | 28 | Testing: the plan's five groups, each runnable on its own; RAG questions on the real data; hostile tool arguments through MCP; live tests on request | done |
-| 29–31 | Final evaluation, README, review | to do |
-
-## How it works today
-
-```text
-Browser (Next.js chat page, conversation id kept in localStorage)
-  → POST /api/chat/stream {"message", "conversation_id"}   (POST /api/chat: the same answer as one JSON response)
-  → FastAPI validates the request (Pydantic)
-  → load the last 6 messages of this conversation from PostgreSQL
-  → query translation: one LLM call rewrites it (using that history to resolve "it") to
-    {"semantic_query", "keywords", "filters"}
-  → embed the semantic_query (openai/text-embedding-3-small, same model as the chunks)
-  → pgvector: 10 chunks with the smallest cosine distance to the question
-  → full-text keyword search: 10 chunks containing the translation's keywords
-  → Reciprocal Rank Fusion of the two lists → the top 8 go to the model
-  → prompt = system rules + the earlier messages + the 8 chunks in <source> tags + the user's original question
-  → LangChain ChatOpenAI → OpenRouter → xiaomi/mimo-v2.6-flash, with the 4 tools attached
-      ↺ the model may ask for a tool → MCP client → MCP server (child process, stdio) → validates, runs the
-        SQL query → result back to the model (max 3 rounds)
-  → save the question and answer to PostgreSQL, append one line to logs/requests.jsonl
-  → Server-Sent Events while this happens: status ("Searching reviews…"), tool_call, token (answer text as it is
-    written), then sources, metadata (debug, usage, tool calls) and done
-  → the page grows the answer as Markdown, shows the sources under it (3 cards, "Show all 8"), then the
-    collapsible "RAG process", "Tool calls" and "Token usage / cost" panels, each with a one-line summary
-
-Offline pipeline (scripts/):
-  Hugging Face files → inspect → select subset → ingest into PostgreSQL → chunk → embed into pgvector
-```
-
-**What RAG does here.** The model doesn't answer from memory. The system finds the 8 chunks most related to
-the question and puts them in the prompt, with rules: answer only from these sources, don't invent anything,
-say when the evidence is not enough. The model's job becomes reading and summarising evidence we can check.
-
-**What query translation does.** People ask casually ("joker movie with heath ledger, why is everyone obsessed").
-Embedding that text as typed mixes the part that identifies the film with chatter that matches nothing useful.
-A first LLM call rewrites it into a clean, descriptive `semantic_query` (that is what gets embedded), plus
-`keywords` for keyword search later and `filters` (genre, years, minimum rating) when the user asks for them.
-Only retrieval uses the rewrite; the answer is written for the user's original question, so their intent is
-never replaced. The rewrite is untrusted model output: it is validated, unknown genres are dropped, and any
-failure falls back to searching with the original words.
-
-**Prompt-injection defence from day one.** Retrieved reviews are text written by strangers, so they are
-treated as data:
-- The system prompt says instructions inside sources are never followed.
-- Each source is wrapped in `<source chunk_id=… movie=…>` tags with `<` escaped, so a review cannot close its
-  own tag or fake a question block.
-- The retrieval SQL only receives the question's embedding as a bound parameter, never the question text.
-
-Still to come from the target architecture: the move to Cloud SQL (postponed); see
-[`CLAUDE.md`](CLAUDE.md#target-architecture).
-
-## Stack
-
-| Layer | Choice |
-|---|---|
-| Frontend | Next.js 16, TypeScript, Tailwind, `react-markdown` |
-| Backend | Python 3.11, FastAPI, Uvicorn, Pydantic |
-| LLM orchestration | LangChain (`langchain-openai`) |
-| Chat model (answers) | `xiaomi/mimo-v2.6-flash` through OpenRouter |
-| Query translation model | `google/gemini-3.1-flash-lite` through OpenRouter |
-| Embeddings | `openai/text-embedding-3-small` through OpenRouter, 1,536 dimensions |
-| Database | PostgreSQL 17 + pgvector 0.8.7 (local: Docker; deployed: Neon), SQLAlchemy, psycopg, Alembic migrations |
-| Hosting | Backend container on Google Cloud Run, static Next.js export on Firebase Hosting, secrets in Secret Manager |
-| Data | Hugging Face: Rotten Tomatoes critic reviews + TMDB/IMDb movie metadata |
-| Tools protocol | MCP Python SDK 2.3 (`mcp`): our own server over stdio, our own small LangChain adapter |
+| 29 | Final evaluation: 2 runs per strategy with today's code, plus analytics (time per step, context size, translation on/off, answer models, cold start) | done |
+| 30 | README: a reader section on top (project, architecture, stack, RAG flow, tools, evaluation, security, running locally), this log below | done |
+| 31 | Review preparation | to do |
 
 ## Decision log
 
@@ -1349,6 +1650,22 @@ Checked in the running app:
   The answer was right because it came from `compare_movies`, but it shows both known retrieval weaknesses on one
   screen: comparisons dominated by one film (Phase 21's skipped fix B) and keyword noise (hybrid's lower precision).
 
+### Final evaluation and analytics (Phase 29; results in [Evaluation](#evaluation))
+
+- Developer's choices (2026-10-26): re-run the final evaluation with today's code, **2 runs per strategy** (about $1.10;
+  1 run cannot separate small differences from noise, 3 was judged not worth the extra cost), and add four analytics:
+  where the time goes (free), context size (5 / 8 / 10 chunks), query translation on/off, and two other answer models.
+- Context size used 5 and 10 chunks rather than 4 and 12, because the plan and `RETRIEVAL_TOP_K` allow 5–10.
+- Answer models compared: `openai/gpt-6-luna` ($0.10 / $0.50 per million tokens) and `google/gemini-3.1-flash-lite`
+  ($0.25 / $1.50), both with tool calling. Anthropic models were left out because the judge is Claude Haiku.
+- Tooling added: every evaluation row now records time per step and input / output tokens; `run_evaluation.py` takes
+  `--top-k`, `--no-translation`, `--model` (recorded in `summary.settings`) and `--resume`;
+  `evaluation/analytics_report.py` builds the comparison; `scripts/cold_start_check.py` measures the deployed site.
+- Budget stop: halfway through, OpenRouter refused every call ("Workspace monthly budget of $5.00 exceeded", then the
+  key's own $5 monthly limit). 5 of the 9 runs stopped, and **the live demo stopped answering too**, because it uses the
+  same key. The developer raised both limits to $8; `--resume` then ran only the 194 missing questions. Lesson: an
+  evaluation run and the public demo should not share a key and its limit.
+
 ### Environment (Windows)
 
 - On this machine, `localhost` tries IPv6 first and Docker's port listens only on IPv4, so connections hung
@@ -1357,86 +1674,3 @@ Checked in the running app:
 - The database container stopped by itself twice during development. `restart: unless-stopped` in
   `docker-compose.yml` now brings it back whenever Docker is running.
 
-## Running locally
-
-Prerequisites: Python 3.11, Node.js, Docker Desktop.
-
-1. **Secrets** (never committed):
-   - Copy `.env.example` to `.env` and set `POSTGRES_PASSWORD`.
-   - Copy `backend/.env.example` to `backend/.env` and set `OPENROUTER_API_KEY`, plus a `DATABASE_URL` using
-     the same password.
-2. **Database:**
-   ```bash
-   docker compose up -d
-   ```
-3. **Backend:**
-   ```bash
-   cd backend
-   python -m venv .venv
-   .venv\Scripts\activate
-   pip install -r requirements.txt
-   alembic upgrade head
-   uvicorn app.main:app --reload --port 8000
-   ```
-   - The backend starts the MCP server (`python -m app.mcp_server`) itself; nothing else to run. `TOOL_BACKEND=local`
-     in `backend/.env` runs the tools in-process instead.
-   - To test the MCP server on its own (no LLM, no cost): `python scripts/mcp_check.py` from the repo root.
-4. **Data pipeline** (from the repo root, backend venv active):
-   ```bash
-   python scripts/download_datasets.py
-   python scripts/select_subset.py
-   python scripts/ingest.py
-   python scripts/embed_chunks.py --dry-run
-   python scripts/embed_chunks.py
-   ```
-   - The download is about 670 MB.
-   - `embed_chunks.py` costs money, so the `--dry-run` line prints the plan first. Try `--limit 5` before a full run.
-5. **Frontend:**
-   ```bash
-   cd frontend
-   npm install
-   npm run dev
-   ```
-   Then open http://localhost:3000. The page uses the streaming endpoint; to watch the raw events:
-   `curl -N -X POST http://127.0.0.1:8000/api/chat/stream -H "Content-Type: application/json" -d '{"message": "Which is rated higher, Zodiac or Prisoners?"}'`
-
-Deploying (Neon, Cloud Run, Firebase Hosting): step by step in [`docs/deployment.md`](docs/deployment.md).
-
-## Tests
-
-```bash
-cd backend
-pytest                 # everything except live tests: 342 tests, about 20 s, no API calls
-pytest -m backend      # one of the plan's five groups: backend, rag, tools, security, mcp
-pytest -m live         # 13 tests with the real models (RAG answers, 8 injection attacks): about $0.02
-```
-
-| Group | Tests | What it covers |
-|---|---|---|
-| backend | 168 | every API route (success and failure), streaming, error handling, conversation history, database schema and queries, vector and keyword search, fusion, query translation, usage, logging, evaluation code |
-| rag | 35 | known, vague and no-answer questions against the real database (which films reach the model), the prompt and its rules, the debug object |
-| tools | 69 | all four tools with valid and invalid parameters, missing movies and duplicate titles; the tool-calling loop |
-| security | 56 | hostile tool arguments (SQL fragments, wildcards, huge strings, NUL bytes, wrong types, extra fields) in-process, through the MCP server and over stdio, with no data changed; injected tags and instructions in reviews, the user's message and tool results; no secrets in errors |
-| mcp | 14 | discovery, calling every tool, every error code through MCP, the stdio child process, no API keys passed to it |
-
-How the tests stay free and repeatable:
-- **Paid calls are blocked.** A guard in `conftest.py` makes any LLM or embedding call a test did not replace with a fake
-  fail the test; live tests are the one exception and only run with `-m live`.
-- **The RAG questions replay a recording.** `scripts/record_rag_questions.py` ran the real translation and embedding for
-  the 9 test questions once (about $0.003) and saved them in `backend/tests/fixtures/rag_questions.json`; the tests run
-  the real retrieval on the real database with them. Run the script again when the embedding model, the translation
-  prompt or the questions change (a test fails if the embedding model no longer matches).
-- **Database tests run inside a transaction that is rolled back**, and skip when the container is down.
-
-## Repository layout
-
-```text
-frontend/     Next.js chat app
-backend/      FastAPI app (app/), Alembic migrations (migrations/), tests (tests/)
-scripts/      download, inspect, select, ingest and embed jobs
-data/         raw downloads and the selected subset (git-ignored)
-docs/         dataset findings, inspection summary, deployment guide
-deploy/       Cloud Run settings (no secrets)
-specs/        acceptance criteria for test-first phases, with traceability
-evaluation/   evaluation dataset and results (Phase 19 onwards)
-```

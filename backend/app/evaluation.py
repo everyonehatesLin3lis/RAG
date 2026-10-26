@@ -78,10 +78,20 @@ class RunRecord:
     # Phase 29: so a fallback (keyword-only search, in-process tools) or a failed translation shows in the results
     warnings: list[str] = field(default_factory=list)
     translation_origin: str | None = None
+    # Analytics: where the time went (translation, search, generation incl. tool rounds) and how much text was sent
+    timings_ms: dict[str, int] = field(default_factory=dict)
 
     @property
     def cost_usd(self) -> float:
         return sum(m.cost_usd or 0.0 for m in self.usage)
+
+    @property
+    def input_tokens(self) -> int:
+        return sum(m.input_tokens for m in self.usage)
+
+    @property
+    def output_tokens(self) -> int:
+        return sum(m.output_tokens for m in self.usage)
 
     @property
     def tokens(self) -> int:
@@ -101,6 +111,7 @@ def run_question(item: EvalItem, session: Session) -> RunRecord:
         latency_ms=round((perf_counter() - started) * 1000),
         warnings=list(result.debug.warnings) if result.debug else [],
         translation_origin=result.debug.translation.origin if result.debug else None,
+        timings_ms=dict(result.debug.timings_ms) if result.debug else {},
     )
 
 

@@ -10,11 +10,18 @@ Costs money: about $0.04 for the system's answers and about $0.25 for the judge 
     python evaluation/run_evaluation.py --only M6 --tag r2   # a repeat run, saved as <strategy>-r2.json
     python evaluation/run_evaluation.py --tag r1 --out evaluation/results/final   # Phase 29 final runs
 
+Experiments (analytics; each run records the settings it used in summary.settings):
+
+    python evaluation/run_evaluation.py --top-k 5 --tag k5 --out evaluation/results/experiments   # context size
+    python evaluation/run_evaluation.py --no-translation --tag no-translation --out evaluation/results/experiments
+    python evaluation/run_evaluation.py --model <openrouter model> --tag <name> --out evaluation/results/experiments
+
 Run from the repo root with the backend venv active. Results: evaluation/results/<strategy>.json (rewritten after
 every question, so an interrupted run keeps what it finished).
 """
 
 import argparse
+import json
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
@@ -40,12 +47,32 @@ def main() -> None:
     parser.add_argument("--only", help="comma-separated question ids")
     parser.add_argument("--tag", help="save as <strategy>-<tag>.json (e.g. repeat runs) instead of <strategy>.json")
     parser.add_argument("--out", help="folder for the results (default evaluation/results; Phase 29: results/final)")
+    parser.add_argument("--top-k", type=int, choices=range(5, 11), metavar="5-10",
+                        help="chunks sent to the model (default RETRIEVAL_TOP_K, 8; the plan allows 5-10)")
+    parser.add_argument("--no-translation", action="store_true", help="search with the raw question")
+    parser.add_argument("--model", help="answer model instead of OPENROUTER_MODEL (translation model unchanged)")
+    parser.add_argument("--resume", action="store_true",
+                        help="keep the answered questions of an existing results file, re-run only those that errored "
+                             "or are missing (e.g. after the OpenRouter budget ran out mid-run)")
     args = parser.parse_args()
 
+    # The pipeline reads these from settings; they are set before any model client is built (llm.py caches them).
     settings = get_settings()
     if args.strategy:
-        settings.retrieval_strategy = args.strategy  # the pipeline reads the strategy from settings
+        settings.retrieval_strategy = args.strategy
+    if args.top_k:
+        settings.retrieval_top_k = args.top_k
+    if args.no_translation:
+        settings.query_translation_enabled = False
+    if args.model:
+        settings.openrouter_model = args.model
     strategy = settings.retrieval_strategy
+    run_settings = {
+        "strategy": strategy, "answer_model": settings.openrouter_model,
+        "translation": (settings.query_translation_model or settings.openrouter_model)
+        if settings.query_translation_enabled else None,
+        "top_k": settings.retrieval_top_k, "tool_backend": settings.tool_backend,
+    }
 
     items = evaluation.load_dataset(DATASET)
     if args.only:
@@ -58,6 +85,20 @@ def main() -> None:
 
     started = datetime.now(UTC).isoformat(timespec="seconds")
     rows, judge_cost = [], 0.0
+    name = f"{strategy}-{args.tag}" if args.tag else strategy
+    out_dir = Path(args.out).resolve() if args.out else RESULTS_DIR
+    if args.resume and (out_dir / f"{name}.json").exists():
+        previous = json.loads((out_dir / f"{name}.json").read_text(encoding="utf-8"))
+        if previous["summary"].get("settings") not in (None, run_settings):
+            raise SystemExit(f"--resume: {name}.json was made with other settings: {previous['summary']['settings']}")
+        done = {q["id"]: q for q in previous["questions"] if not q["error"]}
+        rows = [done[i.id] for i in items if i.id in done]
+        judge_cost = previous["summary"]["judge"]["cost_usd"]  # what the kept answers' judging cost
+        started = previous["summary"].get("started_at", started)
+        items = [i for i in items if i.id not in done]
+        print(f"resume: keeping {len(rows)} answered questions, running {len(items)}", flush=True)
+        if not items:
+            raise SystemExit("--resume: nothing left to run")
     for n, item in enumerate(items, start=1):
         with Session(get_engine()) as session:
             rec = evaluation.run_question(item, session)
@@ -68,6 +109,7 @@ def main() -> None:
         row = {
             "id": item.id, "type": item.type, "question": item.question, "answer": rec.answer, "error": rec.error,
             "latency_ms": rec.latency_ms, "cost_usd": round(rec.cost_usd, 6), "tokens": rec.tokens,
+            "input_tokens": rec.input_tokens, "output_tokens": rec.output_tokens, "timings_ms": rec.timings_ms,
             "chunks": [{"chunk_id": c.id, "movie": f"{c.movie_title} ({c.year})"} for c in rec.chunks],
             "tools": [{"tool": c.tool, "arguments": c.arguments} for c in rec.tool_calls],
             "warnings": rec.warnings, "translation_origin": rec.translation_origin,
@@ -88,8 +130,8 @@ def main() -> None:
 
         summary = evaluation.summarise(strategy, rows, round(judge_cost, 6), settings.evaluation_judge_model)
         summary["started_at"] = started
-        name = f"{strategy}-{args.tag}" if args.tag else strategy
-        path = evaluation.save_results(Path(args.out).resolve() if args.out else RESULTS_DIR, name, summary, rows)
+        summary["settings"] = run_settings
+        path = evaluation.save_results(out_dir, name, summary, rows)
 
     keys = ["retrieval_hit_rate", "retrieval_recall_at_5", "retrieval_precision_at_5", "answer_accuracy", "groundedness",
             "hallucination_rate", "relevance", "rule_must_contain_rate", "expected_tool_used_rate", "avg_latency_ms",

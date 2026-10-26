@@ -1,0 +1,18 @@
+{
+  "what": "One question ('What did critics say about Zodiac?') sent twice to the deployed API's stream endpoint: first after about an hour idle (Cloud Run scaled to zero, Neon compute idle), then straight after. Client times measured from Lithuania (the same steps as scripts/cold_start_check.py); startup stages from the Cloud Run log.",
+  "measured_at": "2026-10-26T11:34:10Z",
+  "service": "movie-copilot-api, Cloud Run europe-west1, 1 vCPU, 512 MiB, min instances 0; Neon free plan, Frankfurt",
+  "client_seconds": {
+    "cold": {"first_byte": 23.67, "tool_call": 31.59, "first_token": 32.98, "done": 36.96},
+    "warm": {"first_byte": 0.18, "tool_call": 3.86, "first_token": 5.48, "done": 14.08}
+  },
+  "server_ms": {
+    "cold": {"translation": 1896, "embedding_and_search": 865, "keyword_search": 401, "first_token": 9306, "generation": 10033, "total": 13195},
+    "warm": {"translation": 1495, "embedding_and_search": 533, "keyword_search": 49, "first_token": 5300, "generation": 11756, "total": 13835}
+  },
+  "cold_start_log": {
+    "instance_start_to_python_process_s": 16.7,
+    "app_startup_incl_mcp_server_s": 5.1,
+    "note": "Instance started 11:34:34.75, 'Started server process' 11:34:51.50, 'Application startup complete' 11:34:56.58, request handled from 11:34:57.33"
+  }
+}

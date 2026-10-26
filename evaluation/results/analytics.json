@@ -1,0 +1,566 @@
+{
+  "baseline": {
+    "runs": 2,
+    "settings": {
+      "strategy": "hybrid",
+      "answer_model": "xiaomi/mimo-v2.6-flash",
+      "translation": "google/gemini-3.1-flash-lite",
+      "top_k": 8,
+      "tool_backend": "mcp"
+    },
+    "answer_accuracy": {
+      "mean": 0.9847,
+      "min": 0.9796,
+      "max": 0.9898
+    },
+    "groundedness": {
+      "mean": 0.999,
+      "min": 0.9989,
+      "max": 0.999
+    },
+    "hallucination_rate": {
+      "mean": 0.0204,
+      "min": 0.0204,
+      "max": 0.0204
+    },
+    "relevance": {
+      "mean": 0.9898,
+      "min": 0.9898,
+      "max": 0.9898
+    },
+    "expected_tool_used_rate": {
+      "mean": 0.9546,
+      "min": 0.9091,
+      "max": 1.0
+    },
+    "retrieval_hit_rate": {
+      "mean": 1.0,
+      "min": 1.0,
+      "max": 1.0
+    },
+    "retrieval_recall_at_5": {
+      "mean": 0.9441,
+      "min": 0.9441,
+      "max": 0.9441
+    },
+    "errors": 0,
+    "latency_ms_median": 5468,
+    "latency_ms_p95": 22124,
+    "generation_ms_median": 3649,
+    "input_tokens_avg": 5218,
+    "output_tokens_avg": 409,
+    "cost_usd_per_answer": 0.00067,
+    "cost_usd_per_1000_answers": 0.67
+  },
+  "time_breakdown": {
+    "answers": 98,
+    "total_ms_mean": 8968,
+    "total_ms_median": 5468,
+    "steps": {
+      "translation": {
+        "median_ms": 1102,
+        "mean_ms": 1102,
+        "share_of_total": 0.123
+      },
+      "embedding_and_search": {
+        "median_ms": 567,
+        "mean_ms": 601,
+        "share_of_total": 0.067
+      },
+      "keyword_search": {
+        "median_ms": 7,
+        "mean_ms": 15,
+        "share_of_total": 0.002
+      },
+      "generation": {
+        "median_ms": 3649,
+        "mean_ms": 7248,
+        "share_of_total": 0.808
+      }
+    },
+    "generation_ms_median_with_tools": 3769,
+    "generation_ms_median_without_tools": 3427,
+    "answers_with_tools": 53,
+    "total_ms_median_by_type": {
+      "comparison": 5210,
+      "factual": 4268,
+      "no_answer": 4912,
+      "opinion": 8096,
+      "plot": 4496,
+      "rating": 3428,
+      "recommendation": 11764
+    }
+  },
+  "context_size": {
+    "5 chunks": {
+      "runs": 1,
+      "settings": {
+        "strategy": "hybrid",
+        "answer_model": "xiaomi/mimo-v2.6-flash",
+        "translation": "google/gemini-3.1-flash-lite",
+        "top_k": 5,
+        "tool_backend": "mcp"
+      },
+      "answer_accuracy": {
+        "mean": 0.9796,
+        "min": 0.9796,
+        "max": 0.9796
+      },
+      "groundedness": {
+        "mean": 0.9987,
+        "min": 0.9987,
+        "max": 0.9987
+      },
+      "hallucination_rate": {
+        "mean": 0.0204,
+        "min": 0.0204,
+        "max": 0.0204
+      },
+      "relevance": {
+        "mean": 0.9898,
+        "min": 0.9898,
+        "max": 0.9898
+      },
+      "expected_tool_used_rate": {
+        "mean": 0.9091,
+        "min": 0.9091,
+        "max": 0.9091
+      },
+      "retrieval_hit_rate": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "retrieval_recall_at_5": {
+        "mean": 0.9396,
+        "min": 0.9396,
+        "max": 0.9396
+      },
+      "errors": 0,
+      "latency_ms_median": 5677,
+      "latency_ms_p95": 24960,
+      "generation_ms_median": 3492,
+      "input_tokens_avg": 4781,
+      "output_tokens_avg": 379,
+      "cost_usd_per_answer": 0.000706,
+      "cost_usd_per_1000_answers": 0.71
+    },
+    "8 chunks (baseline)": {
+      "runs": 2,
+      "settings": {
+        "strategy": "hybrid",
+        "answer_model": "xiaomi/mimo-v2.6-flash",
+        "translation": "google/gemini-3.1-flash-lite",
+        "top_k": 8,
+        "tool_backend": "mcp"
+      },
+      "answer_accuracy": {
+        "mean": 0.9847,
+        "min": 0.9796,
+        "max": 0.9898
+      },
+      "groundedness": {
+        "mean": 0.999,
+        "min": 0.9989,
+        "max": 0.999
+      },
+      "hallucination_rate": {
+        "mean": 0.0204,
+        "min": 0.0204,
+        "max": 0.0204
+      },
+      "relevance": {
+        "mean": 0.9898,
+        "min": 0.9898,
+        "max": 0.9898
+      },
+      "expected_tool_used_rate": {
+        "mean": 0.9546,
+        "min": 0.9091,
+        "max": 1.0
+      },
+      "retrieval_hit_rate": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "retrieval_recall_at_5": {
+        "mean": 0.9441,
+        "min": 0.9441,
+        "max": 0.9441
+      },
+      "errors": 0,
+      "latency_ms_median": 5468,
+      "latency_ms_p95": 22124,
+      "generation_ms_median": 3649,
+      "input_tokens_avg": 5218,
+      "output_tokens_avg": 409,
+      "cost_usd_per_answer": 0.00067,
+      "cost_usd_per_1000_answers": 0.67
+    },
+    "10 chunks": {
+      "runs": 1,
+      "settings": {
+        "strategy": "hybrid",
+        "answer_model": "xiaomi/mimo-v2.6-flash",
+        "translation": "google/gemini-3.1-flash-lite",
+        "top_k": 10,
+        "tool_backend": "mcp"
+      },
+      "answer_accuracy": {
+        "mean": 0.9896,
+        "min": 0.9896,
+        "max": 0.9896
+      },
+      "groundedness": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "hallucination_rate": {
+        "mean": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "relevance": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "expected_tool_used_rate": {
+        "mean": 0.9091,
+        "min": 0.9091,
+        "max": 0.9091
+      },
+      "retrieval_hit_rate": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "retrieval_recall_at_5": {
+        "mean": 0.9441,
+        "min": 0.9441,
+        "max": 0.9441
+      },
+      "errors": 0,
+      "latency_ms_median": 6329,
+      "latency_ms_p95": 23538,
+      "generation_ms_median": 4624,
+      "input_tokens_avg": 5753,
+      "output_tokens_avg": 430,
+      "cost_usd_per_answer": 0.000749,
+      "cost_usd_per_1000_answers": 0.75
+    }
+  },
+  "translation": {
+    "translation on (baseline)": {
+      "runs": 2,
+      "settings": {
+        "strategy": "hybrid",
+        "answer_model": "xiaomi/mimo-v2.6-flash",
+        "translation": "google/gemini-3.1-flash-lite",
+        "top_k": 8,
+        "tool_backend": "mcp"
+      },
+      "answer_accuracy": {
+        "mean": 0.9847,
+        "min": 0.9796,
+        "max": 0.9898
+      },
+      "groundedness": {
+        "mean": 0.999,
+        "min": 0.9989,
+        "max": 0.999
+      },
+      "hallucination_rate": {
+        "mean": 0.0204,
+        "min": 0.0204,
+        "max": 0.0204
+      },
+      "relevance": {
+        "mean": 0.9898,
+        "min": 0.9898,
+        "max": 0.9898
+      },
+      "expected_tool_used_rate": {
+        "mean": 0.9546,
+        "min": 0.9091,
+        "max": 1.0
+      },
+      "retrieval_hit_rate": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "retrieval_recall_at_5": {
+        "mean": 0.9441,
+        "min": 0.9441,
+        "max": 0.9441
+      },
+      "errors": 0,
+      "latency_ms_median": 5468,
+      "latency_ms_p95": 22124,
+      "generation_ms_median": 3649,
+      "input_tokens_avg": 5218,
+      "output_tokens_avg": 409,
+      "cost_usd_per_answer": 0.00067,
+      "cost_usd_per_1000_answers": 0.67
+    },
+    "translation off": {
+      "runs": 1,
+      "settings": {
+        "strategy": "hybrid",
+        "answer_model": "xiaomi/mimo-v2.6-flash",
+        "translation": null,
+        "top_k": 8,
+        "tool_backend": "mcp"
+      },
+      "answer_accuracy": {
+        "mean": 0.949,
+        "min": 0.949,
+        "max": 0.949
+      },
+      "groundedness": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "hallucination_rate": {
+        "mean": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "relevance": {
+        "mean": 0.9592,
+        "min": 0.9592,
+        "max": 0.9592
+      },
+      "expected_tool_used_rate": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "retrieval_hit_rate": {
+        "mean": 0.9333,
+        "min": 0.9333,
+        "max": 0.9333
+      },
+      "retrieval_recall_at_5": {
+        "mean": 0.7911,
+        "min": 0.7911,
+        "max": 0.7911
+      },
+      "errors": 0,
+      "latency_ms_median": 2584,
+      "latency_ms_p95": 13513,
+      "generation_ms_median": 2033,
+      "input_tokens_avg": 4197,
+      "output_tokens_avg": 323,
+      "cost_usd_per_answer": 0.000369,
+      "cost_usd_per_1000_answers": 0.37
+    }
+  },
+  "answer_models": {
+    "mimo-v2.6-flash (baseline)": {
+      "runs": 2,
+      "settings": {
+        "strategy": "hybrid",
+        "answer_model": "xiaomi/mimo-v2.6-flash",
+        "translation": "google/gemini-3.1-flash-lite",
+        "top_k": 8,
+        "tool_backend": "mcp"
+      },
+      "answer_accuracy": {
+        "mean": 0.9847,
+        "min": 0.9796,
+        "max": 0.9898
+      },
+      "groundedness": {
+        "mean": 0.999,
+        "min": 0.9989,
+        "max": 0.999
+      },
+      "hallucination_rate": {
+        "mean": 0.0204,
+        "min": 0.0204,
+        "max": 0.0204
+      },
+      "relevance": {
+        "mean": 0.9898,
+        "min": 0.9898,
+        "max": 0.9898
+      },
+      "expected_tool_used_rate": {
+        "mean": 0.9546,
+        "min": 0.9091,
+        "max": 1.0
+      },
+      "retrieval_hit_rate": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "retrieval_recall_at_5": {
+        "mean": 0.9441,
+        "min": 0.9441,
+        "max": 0.9441
+      },
+      "errors": 0,
+      "latency_ms_median": 5468,
+      "latency_ms_p95": 22124,
+      "generation_ms_median": 3649,
+      "input_tokens_avg": 5218,
+      "output_tokens_avg": 409,
+      "cost_usd_per_answer": 0.00067,
+      "cost_usd_per_1000_answers": 0.67
+    },
+    "gpt-6-luna": {
+      "runs": 1,
+      "settings": {
+        "strategy": "hybrid",
+        "answer_model": "openai/gpt-6-luna",
+        "translation": "google/gemini-3.1-flash-lite",
+        "top_k": 8,
+        "tool_backend": "mcp"
+      },
+      "answer_accuracy": {
+        "mean": 0.949,
+        "min": 0.949,
+        "max": 0.949
+      },
+      "groundedness": {
+        "mean": 0.9955,
+        "min": 0.9955,
+        "max": 0.9955
+      },
+      "hallucination_rate": {
+        "mean": 0.0204,
+        "min": 0.0204,
+        "max": 0.0204
+      },
+      "relevance": {
+        "mean": 0.9796,
+        "min": 0.9796,
+        "max": 0.9796
+      },
+      "expected_tool_used_rate": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "retrieval_hit_rate": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "retrieval_recall_at_5": {
+        "mean": 0.9441,
+        "min": 0.9441,
+        "max": 0.9441
+      },
+      "errors": 0,
+      "latency_ms_median": 4344,
+      "latency_ms_p95": 8763,
+      "generation_ms_median": 2681,
+      "input_tokens_avg": 4340,
+      "output_tokens_avg": 247,
+      "cost_usd_per_answer": 0.000635,
+      "cost_usd_per_1000_answers": 0.63
+    },
+    "gemini-3.1-flash-lite": {
+      "runs": 1,
+      "settings": {
+        "strategy": "hybrid",
+        "answer_model": "google/gemini-3.1-flash-lite",
+        "translation": "google/gemini-3.1-flash-lite",
+        "top_k": 8,
+        "tool_backend": "mcp"
+      },
+      "answer_accuracy": {
+        "mean": 0.9479,
+        "min": 0.9479,
+        "max": 0.9479
+      },
+      "groundedness": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "hallucination_rate": {
+        "mean": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "relevance": {
+        "mean": 0.9583,
+        "min": 0.9583,
+        "max": 0.9583
+      },
+      "expected_tool_used_rate": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "retrieval_hit_rate": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "retrieval_recall_at_5": {
+        "mean": 0.9441,
+        "min": 0.9441,
+        "max": 0.9441
+      },
+      "errors": 0,
+      "latency_ms_median": 3471,
+      "latency_ms_p95": 5366,
+      "generation_ms_median": 1559,
+      "input_tokens_avg": 3995,
+      "output_tokens_avg": 257,
+      "cost_usd_per_answer": 0.00138,
+      "cost_usd_per_1000_answers": 1.38
+    }
+  },
+  "cold_start": {
+    "what": "One question ('What did critics say about Zodiac?') sent twice to the deployed API's stream endpoint: first after about an hour idle (Cloud Run scaled to zero, Neon compute idle), then straight after. Client times measured from Lithuania (the same steps as scripts/cold_start_check.py); startup stages from the Cloud Run log.",
+    "measured_at": "2026-10-26T11:34:10Z",
+    "service": "movie-copilot-api, Cloud Run europe-west1, 1 vCPU, 512 MiB, min instances 0; Neon free plan, Frankfurt",
+    "client_seconds": {
+      "cold": {
+        "first_byte": 23.67,
+        "tool_call": 31.59,
+        "first_token": 32.98,
+        "done": 36.96
+      },
+      "warm": {
+        "first_byte": 0.18,
+        "tool_call": 3.86,
+        "first_token": 5.48,
+        "done": 14.08
+      }
+    },
+    "server_ms": {
+      "cold": {
+        "translation": 1896,
+        "embedding_and_search": 865,
+        "keyword_search": 401,
+        "first_token": 9306,
+        "generation": 10033,
+        "total": 13195
+      },
+      "warm": {
+        "translation": 1495,
+        "embedding_and_search": 533,
+        "keyword_search": 49,
+        "first_token": 5300,
+        "generation": 11756,
+        "total": 13835
+      }
+    },
+    "cold_start_log": {
+      "instance_start_to_python_process_s": 16.7,
+      "app_startup_incl_mcp_server_s": 5.1,
+      "note": "Instance started 11:34:34.75, 'Started server process' 11:34:51.50, 'Application startup complete' 11:34:56.58, request handled from 11:34:57.33"
+    }
+  }
+}

@@ -5,14 +5,16 @@ moved by 0.5). For every metric this reports the mean of the runs and the range 
 per question type, then the plan's fields, and which questions were unstable or wrong in some run.
 
 No API calls: it only reads the result files. Run from the repo root: python evaluation/final_report.py
-Writes evaluation/results/final/summary.json.
+Writes evaluation/results/final/summary.json. The re-run with today's code (2026-10-26, per-film retrieval included):
+python evaluation/final_report.py evaluation/results/final2
 """
 
 import json
+import sys
 from pathlib import Path
 from statistics import mean
 
-FINAL = Path(__file__).resolve().parent / "results" / "final"
+FINAL = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path(__file__).resolve().parent / "results" / "final"
 STRATEGIES = ("vector", "hybrid")
 METRICS = [  # (key, label, higher is better)
     ("retrieval_hit_rate", "Correct source reached the model", True),
@@ -159,7 +161,7 @@ def main() -> None:
 
     out = FINAL / "summary.json"
     out.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
-    print(f"saved {out.relative_to(FINAL.parents[2])}")
+    print(f"saved {out}")
 
 
 if __name__ == "__main__":
