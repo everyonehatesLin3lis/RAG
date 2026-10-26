@@ -7,6 +7,9 @@ uses tools for questions with exact answers, and serves those tools from an MCP 
 This README is a living document: it is updated at the end of every phase with what was built, what we
 found, and why each decision went the way it did. The full plan is in [`EXECUTION_PLAN.md`](EXECUTION_PLAN.md).
 
+**Live demo:** https://ai-devops-508221.web.app (the first question after a quiet spell takes a few seconds longer
+while the backend and database wake up).
+
 ## Status
 
 | Phase | What | State |
@@ -33,7 +36,7 @@ found, and why each decision went the way it did. The full plan is in [`EXECUTIO
 | 19 | Evaluation dataset: 49 new questions, every expected answer read from the database | done |
 | 20 | RAG evaluation: retrieval metrics, rule checks and an LLM judge on 49 questions | done |
 | 21 | Comparison of vector-only and hybrid search on the evaluation set, with repeat runs | done |
-| 22 | Cloud deployment: PostgreSQL + pgvector on Neon, FastAPI + MCP server on Cloud Run, static frontend on Firebase Hosting, rate limits ([`docs/deployment.md`](docs/deployment.md)) | code ready, container tested; cloud steps to run |
+| 22 | Cloud deployment: PostgreSQL + pgvector on Neon, FastAPI + MCP server on Cloud Run, static frontend on Firebase Hosting, rate limits ([`docs/deployment.md`](docs/deployment.md)) | done (2026-10-26), live at https://ai-devops-508221.web.app |
 | 23 | Dataset scaled to 50k–100k+ reviews | postponed by the developer |
 | 24 | MCP server: the 4 tools behind MCP (stdio), tested on its own, connected to LangChain | done |
 | 25 | Streaming: the answer appears while it is written (SSE), with progress, live tool calls and a Stop button | done |
@@ -186,8 +189,38 @@ The plan says Google Cloud SQL. The assignment brief asks only for a cloud datab
   The counts are in memory per instance (with max 2 instances the real caps are up to twice the settings): simple and
   enough for a demo, which is why the key's credit limit is the real ceiling.
 - Checked in a container (2026-10-10, empty database): migrations run in the image, the MCP server starts and answers
-  tool calls, idle memory ~210 MB, image ~100 MB compressed, the rate limit and stdout logs work. The cloud steps
-  themselves have not been run yet.
+  tool calls, idle memory ~210 MB, image ~100 MB compressed, the rate limit and stdout logs work.
+- Local database before the copy (2026-10-10): 212 MB (`rag_chunks` 187 MB with embeddings and indexes), about 42 %
+  of Neon's free 0.5 GB.
+- Purpose, as the developer put it (2026-10-26): the deployment has to live for about a week, so a reviewer can open
+  the demo; no always-on or production needs. That ruled out an always-on Cloud SQL instance (~$10–15 a month,
+  estimate) and a self-managed free VM (US-only, own backups and security) in favour of free, scale-to-zero parts.
+- OpenRouter key (developer's choice, 2026-10-26): the deployment uses the developer's existing key from
+  `backend/.env`, not a separate key with a credit limit as planned. The rate limits still apply; a credit limit can be
+  set on that key at openrouter.ai at any time without redeploying.
+
+**Deployed and tested (2026-10-26):**
+
+- Neon (PostgreSQL 17.11, pgvector 0.8.0, Frankfurt): migrations 0001–0004 ran, `alembic check` clean; the data
+  copy (73 MB dump) loaded in 29 s; row counts match local exactly (500 movies, 9,987 reviews, 10,540 chunks, all
+  embedded); 199 MB on Neon. Vector search uses the HNSW index there too (~87 ms per search from Lithuania vs ~44 ms
+  locally). Both secrets went from the CLIs straight into Secret Manager, never shown or saved.
+- Cloud Run (`europe-west1`, 0–2 instances, 512 MiB): health 200; "Which is rated higher, Zodiac or Prisoners?"
+  answered in 8.7 s with `compare_movies` via the MCP server, $0.00076; the stream showed status 0.1 s → tool call
+  4.4 s → first token 5.6 s → done 9.6 s; CORS allows the Firebase site and refuses others; Cloud Logging has one
+  JSON line per question (`success`, latency, cost).
+- Found on the way: `gcloud run deploy --source` does not read `.dockerignore` for its upload, so it would have sent
+  `backend/.env` (the keys) and all of `.venv` (~19,700 files) to Cloud Build. `backend/.gcloudignore` now limits the
+  upload to 42 files.
+- Firebase Hosting: https://ai-devops-508221.web.app. In the browser: a review question streamed an answer with 8
+  sources and the RAG, tool and cost panels; the comparison question used the MCP server; the follow-up "Who directed
+  the first one?" was resolved from history; after a reload the conversation came back from Neon. No CORS errors.
+  Not run live: the 11-question rate-limit test and the wrong-key error test (both checked locally and in the
+  container).
+- Google Cloud project: the developer wanted a new project, but the account had reached its project quota (a shut-down
+  project keeps counting for ~30 days), so the backend and site go into the developer's existing `ai-devops-508221`
+  (billing already linked, APIs already enabled). Everything is named `movie-copilot-*`, and the backend's own service
+  account can read only its two secrets, so it stays separate from the project's other services.
 
 ### Migrations: Alembic
 

@@ -1,0 +1,11 @@
+# What `gcloud run deploy --source backend` may NOT upload to Cloud Build. gcloud reads this file, not
+# .dockerignore, when it packs the folder; without it the upload included .env (keys) and .venv (~19,700 files).
+# Keep in step with .dockerignore.
+.gcloudignore
+.env
+.env.*
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+tests/

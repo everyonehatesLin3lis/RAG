@@ -138,6 +138,10 @@ When this works, the database move is done.
 
 ## 6. Google Cloud project
 
+This deployment uses the existing project `ai-devops-508221` (the account's project quota was full), so below
+`<project-id>` is `ai-devops-508221`. Billing and the four APIs were already on there, and the service account below
+was created on 2026-10-10.
+
 Install the Google Cloud CLI, then:
 
 ```powershell
@@ -163,6 +167,17 @@ its history file, `(Get-PSReadLineOption).HistorySavePath`, and a key in a comma
 1. Console → Security → **Secret Manager** → **Create secret**.
 2. Name `openrouter-api-key`, secret value: the deployment key from step 5. Create.
 3. Again: name `database-url`, value `<neon-sqlalchemy-url>`. Create.
+
+What was actually done (2026-10-26), equally safe: each value was piped from where it already lives straight into
+Secret Manager, so it never appeared on screen, in a file or in a command line (Git Bash, repo root):
+
+```bash
+neon cs production --project-id <neon-project-id> --database-name movie_copilot | tr -d '\r\n' \
+  | sed 's#^postgresql://#postgresql+psycopg://#' \
+  | gcloud secrets create database-url --project <project-id> --replication-policy automatic --data-file=-
+grep '^OPENROUTER_API_KEY=' backend/.env | cut -d= -f2- | tr -d '\r\n"' \
+  | gcloud secrets create openrouter-api-key --project <project-id> --replication-policy automatic --data-file=-
+```
 
 Check the names (this shows names, not values):
 
@@ -211,7 +226,9 @@ gcloud run deploy movie-copilot-api `
   --set-secrets "OPENROUTER_API_KEY=openrouter-api-key:latest,DATABASE_URL=database-url:latest"
 ```
 
-`--source backend` uploads `backend/` (minus `.dockerignore`), Cloud Build builds `backend/Dockerfile`, the image
+`--source backend` uploads `backend/` minus what `backend/.gcloudignore` lists (gcloud does not read
+`.dockerignore` for the upload: without `.gcloudignore` it sent `.env` with the keys and all of `.venv`; check with
+`gcloud meta list-files-for-upload backend`, ~42 files), Cloud Build builds `backend/Dockerfile`, the image
 goes to Artifact Registry and Cloud Run runs it: the plan's Cloud Build → Artifact Registry → Cloud Run in one
 command. The first run asks to create the Artifact Registry repository; say yes.
 
@@ -256,7 +273,8 @@ before building. It is only the API address, not a secret; no key ever goes into
 
 ```powershell
 npm install -g firebase-tools
-firebase login
+firebase login                                  # or skip: the CLI also uses gcloud's application default credentials
+gcloud services enable firebase.googleapis.com firebasehosting.googleapis.com --project <project-id>  # else addfirebase fails with 403
 firebase projects:addfirebase <project-id>      # adds Firebase to the same Google Cloud project
 
 cd frontend

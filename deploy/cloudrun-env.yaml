@@ -12,4 +12,4 @@ REQUEST_LOG_PATH: "stdout"
 RATE_LIMIT_PER_MINUTE: "10"
 RATE_LIMIT_PER_DAY: "200"
 # Only the deployed site (and the local dev page) may call the API from a browser. A JSON list.
-CORS_ORIGINS: '["https://<project-id>.web.app", "https://<project-id>.firebaseapp.com", "http://localhost:3000"]'
+CORS_ORIGINS: '["https://ai-devops-508221.web.app", "https://ai-devops-508221.firebaseapp.com", "http://localhost:3000"]'
