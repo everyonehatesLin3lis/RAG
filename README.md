@@ -12,7 +12,7 @@ backend and database wake up; after that, the first words appear in about 5 s.
 [How a question is answered](#how-a-question-is-answered) · [Tools](#tools) ·
 [Vector-only vs hybrid search](#vector-only-vs-hybrid-search) · [Evaluation](#evaluation) · [Security](#security) ·
 [Key decisions](#key-decisions) · [Limitations and next steps](#limitations-and-next-steps) ·
-[Running locally](#running-locally) · [Tests](#tests)
+[Installation](#installation) · [Tests](#tests)
 
 ## What it does
 
@@ -240,41 +240,80 @@ The options I compared and the numbers behind each choice are in [`docs/project_
 - **Answer scores vary between runs.** More runs per setting, or a larger evaluation set, would make small differences
   measurable.
 
-## Running locally
+## Installation
 
-Prerequisites: Python 3.11, Node.js, Docker Desktop.
+**Prerequisites:** [uv](https://docs.astral.sh/uv/) (it installs Python 3.11 itself), Node.js 20+, Docker Desktop and an
+[OpenRouter](https://openrouter.ai) API key.
 
-1. **Secrets** (never committed): copy `.env.example` to `.env` and set `POSTGRES_PASSWORD`; copy
-   `backend/.env.example` to `backend/.env` and set `OPENROUTER_API_KEY` and `DATABASE_URL`.
-2. **Database:**
-   ```bash
-   docker compose up -d
-   ```
-3. **Backend** (it starts the MCP server itself):
-   ```bash
-   cd backend
-   python -m venv .venv
-   .venv\Scripts\activate
-   pip install -r requirements.txt
-   alembic upgrade head
-   uvicorn app.main:app --reload --port 8000
-   ```
-4. **Data pipeline** (repo root, backend venv active; the download is about 670 MB and embedding costs money, so
-   dry-run first):
-   ```bash
-   python scripts/download_datasets.py
-   python scripts/select_subset.py
-   python scripts/ingest.py
-   python scripts/embed_chunks.py --dry-run
-   python scripts/embed_chunks.py
-   ```
-5. **Frontend:**
-   ```bash
-   cd frontend
-   npm install
-   npm run dev
-   ```
-   Then open http://localhost:3000.
+Install uv if you don't have it:
+
+```bash
+# Windows (PowerShell)
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+# macOS / Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+**1. Clone the repository.** On Windows, use a short folder path (for example `C:\dev\RAG`): one LangChain package
+has file paths long enough to hit Windows' 260-character limit inside a deeply nested folder.
+
+```bash
+git clone https://github.com/everyonehatesLin3lis/RAG.git
+cd RAG
+```
+
+**2. Set the secrets** (never committed):
+
+- copy `.env.example` to `.env` and set `POSTGRES_PASSWORD`;
+- copy `backend/.env.example` to `backend/.env`, set `OPENROUTER_API_KEY`, and put the same password into
+  `DATABASE_URL`.
+
+**3. Start the database** (PostgreSQL 17 + pgvector in Docker, on port 5433):
+
+```bash
+docker compose up -d
+```
+
+**4. Install the backend with uv** and create the tables:
+
+```bash
+cd backend
+uv venv --python 3.11
+.venv\Scripts\activate          # macOS / Linux: source .venv/bin/activate
+uv pip install -r requirements.txt
+alembic upgrade head
+```
+
+`requirements.txt` installs everything for development: the runtime packages in `requirements-runtime.txt` (all the
+deployed container needs) plus `datasets`, `pytest` and `httpx`.
+
+**5. Load the data** (from the repo root, with the backend environment still active). The download is about 670 MB,
+and embedding costs money (about $0.02 for all 10,540 chunks), so look at the dry run first:
+
+```bash
+python scripts/download_datasets.py
+python scripts/select_subset.py
+python scripts/ingest.py
+python scripts/embed_chunks.py --dry-run
+python scripts/embed_chunks.py
+```
+
+**6. Run the backend** (it starts the MCP server itself):
+
+```bash
+cd backend
+uvicorn app.main:app --reload --port 8000
+```
+
+**7. Run the frontend** in a second terminal:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Then open http://localhost:3000 and ask a question.
 
 ## Tests
 
