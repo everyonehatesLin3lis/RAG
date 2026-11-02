@@ -7,8 +7,8 @@ what each part of the system measured while I built it. Numbers come from real r
 
 ### Chat model: Xiaomi MiMo v2.6 Flash (changed from Claude Haiku 4.5)
 
-- **First choice (Phase 1):** Claude Haiku 4.5 (`anthropic/claude-haiku-4.5`), a cheap, reliable model.
-- **Changed on 2026-10-06** to `xiaomi/mimo-v2.6-flash`.
+- **First choice:** Claude Haiku 4.5 (`anthropic/claude-haiku-4.5`), a cheap, reliable model.
+- **Changed** to `xiaomi/mimo-v2.6-flash`.
 - OpenRouter prices on the day of the switch, per million tokens:
 
   | Model | Input | Output | Context window | Tool calling | Structured output |
@@ -18,7 +18,7 @@ what each part of the system measured while I built it. Numbers come from real r
 
 - That makes MiMo Flash about 7× cheaper per input token and about 18× cheaper per output token. Every
   RAG answer sends retrieved chunks as input, so input price dominates the running cost.
-- It supports tool calling (needed in Phase 10) and structured output (useful for query translation in Phase 7).
+- It supports tool calling (needed for the tools) and structured output (useful for query translation).
 - Checked with a real call after the switch: it answered a recommendation question in about 4 seconds.
 - Because the model name lives in configuration (`OPENROUTER_MODEL`), switching needed no code change.
 
@@ -49,12 +49,12 @@ No single Hugging Face dataset had both reviews and full movie metadata. Options
 - Options: the official `pgvector/pgvector` Docker image, or installing PostgreSQL directly on Windows.
 - **Chosen: Docker**. It's one command, pgvector comes preinstalled, and nothing gets
   installed on the machine.
-- Pinned to PostgreSQL 17 because Google Cloud SQL supports it with pgvector, which keeps the Phase 22 move simple.
+- Pinned to PostgreSQL 17 because Google Cloud SQL supports it with pgvector, which keeps a later move to the cloud simple.
 - Host port 5433, because another local project's container uses 5432.
 
 ### Cloud deployment: Neon + Cloud Run + Firebase Hosting (steps in [`docs/deployment.md`](deployment.md))
 
-The plan says Google Cloud SQL. The assignment brief asks only for a cloud database, so the developer compared:
+The plan says Google Cloud SQL. The assignment brief asks only for a cloud database, so I compared:
 
 | Option | Cost a month | Who runs PostgreSQL | Notes |
 |---|---|---|---|
@@ -62,8 +62,8 @@ The plan says Google Cloud SQL. The assignment brief asks only for a cloud datab
 | Own PostgreSQL in Docker on a free e2-micro VM | ~$0 (+ a few $ for the public IPv4 address) | we do: updates, backups, the open port | Same image as locally; 1 GB RAM; US regions only |
 | **Neon free plan** | $0 (0.5 GB storage, 100 compute-hours) | Neon | Managed PostgreSQL 17 + pgvector; sleeps after 5 min idle |
 
-- **Chosen: Neon for the database, Cloud Run for the backend, Firebase Hosting for the frontend**, decided by the
-  developer (2026-10-10). Neon is the same PostgreSQL + pgvector as locally, managed, and free at this size, so no
+- **Chosen: Neon for the database, Cloud Run for the backend, Firebase Hosting for the frontend**.
+  Neon is the same PostgreSQL + pgvector as locally, managed, and free at this size, so no
   code changes: only `DATABASE_URL` differs. A database port we run ourselves would be found by internet scanners within
   minutes, and the image's database user is a superuser who can run shell commands on the server; a managed service
   takes that off our hands.
@@ -80,18 +80,18 @@ The plan says Google Cloud SQL. The assignment brief asks only for a cloud datab
   The visitor's IP is the rightmost `X-Forwarded-For` entry, because a client can write the others itself.
   The counts are in memory per instance (with max 2 instances the real caps are up to twice the settings): simple and
   enough for a demo, which is why the key's credit limit is the real ceiling.
-- Checked in a container (2026-10-10, empty database): migrations run in the image, the MCP server starts and answers
+- Checked in a container (empty database): migrations run in the image, the MCP server starts and answers
   tool calls, idle memory ~210 MB, image ~100 MB compressed, the rate limit and stdout logs work.
-- Local database before the copy (2026-10-10): 212 MB (`rag_chunks` 187 MB with embeddings and indexes), about 42 %
+- Local database before the copy: 212 MB (`rag_chunks` 187 MB with embeddings and indexes), about 42 %
   of Neon's free 0.5 GB.
-- Purpose, as the developer put it (2026-10-26): the deployment has to live for about a week, so a reviewer can open
+- Purpose: the deployment has to live for about a week, so a reviewer can open
   the demo; no always-on or production needs. That ruled out an always-on Cloud SQL instance (~$10–15 a month,
   estimate) and a self-managed free VM (US-only, own backups and security) in favour of free, scale-to-zero parts.
-- OpenRouter key (developer's choice, 2026-10-26): the deployment uses the developer's existing key from
+- OpenRouter key: the deployment uses my existing key from
   `backend/.env`, not a separate key with a credit limit as planned. The rate limits still apply; a credit limit can be
   set on that key at openrouter.ai at any time without redeploying.
 
-**Deployed and tested (2026-10-26):**
+**Deployed and tested:**
 
 - Neon (PostgreSQL 17.11, pgvector 0.8.0, Frankfurt): migrations 0001–0004 ran, `alembic check` clean; the data
   copy (73 MB dump) loaded in 29 s; row counts match local exactly (500 movies, 9,987 reviews, 10,540 chunks, all
@@ -109,8 +109,8 @@ The plan says Google Cloud SQL. The assignment brief asks only for a cloud datab
   the first one?" was resolved from history; after a reload the conversation came back from Neon. No CORS errors.
   Not run live: the 11-question rate-limit test and the wrong-key error test (both checked locally and in the
   container).
-- Google Cloud project: the developer wanted a new project, but the account had reached its project quota (a shut-down
-  project keeps counting for ~30 days), so the backend and site go into the developer's existing `ai-devops-508221`
+- Google Cloud project: I wanted a new project, but the account had reached its project quota (a shut-down
+  project keeps counting for ~30 days), so the backend and site go into my existing `ai-devops-508221`
   (billing already linked, APIs already enabled). Everything is named `movie-copilot-*`, and the backend's own service
   account can read only its two secrets, so it stays separate from the project's other services.
 
@@ -156,7 +156,7 @@ the 10,540 chunks, about 850k tokens):
 
 ### Embedding experiment: Qwen3-Embedding-8B vs text-embedding-3-small
 
-The developer asked to try `qwen/qwen3-embedding-8b` against the model in use. Setup
+I tried `qwen/qwen3-embedding-8b` against the model in use. Setup
 ([`scripts/compare_embeddings.py`](../scripts/compare_embeddings.py), results in
 [`docs/experiments/embedding_comparison.json`](experiments/embedding_comparison.json)):
 - All 10,540 chunks were embedded with Qwen too (106 API calls, about $0.0085 estimated) and kept in a local file,
@@ -188,19 +188,19 @@ What it shows:
   29/30 questions. The miss was an opinion question about Heath Ledger's Joker, ranked 10th.
 - 30 questions is a small sample: 3 questions separate the models at rank 1. This is directional, not proof.
 
-**Decision: keep text-embedding-3-small** (decided by the developer, 2026-10-06). It is about 3.7× faster per
+**Decision: keep text-embedding-3-small.** It is about 3.7× faster per
 question, and with 8 chunks per answer it already gets the right movie into the context for 29/30 questions, so
 Qwen's better first-place ranking would change little in practice. The Qwen vectors stay cached in
-`data/experiments/`, so the comparison can be re-run against the larger Phase 20 evaluation set without paying again.
+`data/experiments/`, so the comparison can be re-run against the larger evaluation set without paying again.
 
 ### Retrieval: top 8 chunks, PostgreSQL chooses the scan
 
 - **K = 8.** The plan asks for 5–10 chunks; 8 is the default, configurable through `RETRIEVAL_TOP_K` and limited
   to 5–10. More chunks give the model more evidence but cost more input tokens per answer (about 1,000 now).
-- **Index use (decided by the developer: option 1).** At ~10k chunks PostgreSQL does an exact full scan instead of
+- **Index use (option 1).** At ~10k chunks PostgreSQL does an exact full scan instead of
   using the HNSW index (see Findings). Options:
   1. **Let PostgreSQL choose (chosen).** Results are exact, nothing tricky to explain, and the index is used on its
-     own as the table grows (Phase 23).
+     own as the table grows.
   2. Force the index (`SET LOCAL enable_seqscan = off`). Faster today (17 ms vs 50 ms), but approximate, and it
      overrides the planner.
 
@@ -211,7 +211,7 @@ Qwen's better first-place ranking would change little in practice. The Qwen vect
   of free text. The prompt includes the plan's own example.
 - **Reasoning off.** MiMo is a reasoning model. On 16 casual questions, reasoning on and off both put the right film
   first 16/16 times, but reasoning added time (median 5.9 s vs 3.6 s in that run), so it is off for this step.
-- **Which model translates: `google/gemini-3.1-flash-lite`** (decided by the developer, 2026-10-06, set with
+- **Which model translates: `google/gemini-3.1-flash-lite`** (set with
   `QUERY_TRANSLATION_MODEL`). The rewrite is a small job, so a fast model can do it as well. Measured on the same
   16 questions, translation step only:
 
@@ -265,7 +265,7 @@ Measured on 4 questions with Gemini translating and MiMo answering (median per s
 
 The answer step is now about 90% of the wait, and its time swings widely from one request to the next. The options
 for later are the same idea applied to the answer step: a faster answer model (a quality-versus-speed trade-off to
-measure, not assume), and streaming (Phase 25), which shows the answer as it is written so the user is not staring
+measure, not assume), and streaming, which shows the answer as it is written so the user is not staring
 at a spinner.
 
 ### Source citations: show every chunk the model was given
@@ -289,7 +289,7 @@ review rows, and only http(s) links are rendered.
 
 **Why tools at all.** "Which is rated higher, Zodiac or Prisoners?" has one correct answer, sitting in a table.
 Retrieval would hand the model a few reviews and hope it infers ratings; the model's memory might simply be wrong.
-A tool looks the number up. In Phase 10 the model decides *when* to call a tool and *with which arguments*, but our
+A tool looks the number up. With tool calling the model decides *when* to call a tool and *with which arguments*, but our
 code runs it, so the arguments are treated like any untrusted input: validated by a Pydantic schema first, and only
 ever used as bound SQL parameters in fixed query shapes.
 
@@ -298,9 +298,9 @@ ever used as bound SQL parameters in fixed query shapes.
 | `filter_movies(year_min, genre, rating_min)` | "thrillers since 2010 rated above 7.5" | the best 10 by IMDb rating, plus how many matched in total |
 | `compare_movies(movie_a, movie_b)` | "which is rated higher, Zodiac or Prisoners?" | year, IMDb rating, genres, review count for each, and which is higher |
 | `rating_summary(movie)` | "what do critics score it?" | average critic rating (0–10), number of reviews, spread across 2-point buckets |
-| `get_movie_metadata(movie)` (Phase 24) | "who wrote Zodiac?", "what is its IMDb rating?" | director, writers, cast, runtime, genres, IMDb rating and votes, language, overview, keywords |
+| `get_movie_metadata(movie)` (added with MCP) | "who wrote Zodiac?", "what is its IMDb rating?" | director, writers, cast, runtime, genres, IMDb rating and votes, language, overview, keywords |
 
-Decisions, all made by the developer after the options were explained:
+Decisions, after comparing the options:
 
 1. **Problems are returned, not raised.** A function can report a problem by throwing an error ("raising"), which
    stops everything, or by handing back a normal result that describes the problem ("returning"). The tools return
@@ -316,7 +316,7 @@ Decisions, all made by the developer after the options were explained:
 4. **Which rating.** Our data has two: the IMDb rating (the public's single number per film) and the critics' scores
    from each review. "Which is rated higher?" usually means the well-known number, so `filter_movies` and
    `compare_movies` use IMDb; "what do critics think" is about reviews, so `rating_summary` uses critic scores.
-5. **Average first.** The developer's view: the average is the number that matters, and users will ask for detail if
+5. **Average first.** The average is the number that matters, and users will ask for detail if
    they want it. The spread is still returned because the plan lists it, but the tool's description tells the model to
    lead with the average and mention the spread only when asked.
 
@@ -332,18 +332,18 @@ an answer ("call `compare_movies` with movie_a = Zodiac, movie_b = Prisoners"). 
 
 So **who decides?** The model. **Who executes?** Our code, which treats the request like any untrusted input.
 
-Decisions (all confirmed by the developer):
+Decisions:
 
 | Decision | Chosen | Alternative and why not |
 |---|---|---|
 | How a question reaches the tools | **No router.** Every question is retrieved as before, then the model gets sources *and* tools and decides itself | a first "router" LLM call that labels the question "tool" or "reviews": one more call to wait for and pay for, and it decides without seeing the reviews |
 | Loop limit | **At most 3 rounds**, then one last call with tools switched off | unlimited: a model that keeps asking for tools would keep the user waiting and keep costing |
-| Tool calls in the response | **Returned now** as `tool_calls: [{tool, arguments, result}]` (shown on the page in Phase 13) | hide until Phase 13: no way to check from outside which tool ran |
+| Tool calls in the response | **Returned now** as `tool_calls: [{tool, arguments, result}]` (shown on the page in the Tool calls panel) | hide until the panel exists: no way to check from outside which tool ran |
 | Retrieval for pure tool questions | **Always runs** | skip it: we cannot know beforehand, and the reviews let the model add context to a number |
 
 ### MCP server: the tools behind a standard protocol
 
-**Tool calling vs MCP.** Tool calling (Phase 10) is the *model* asking *our code* to run a function: it is about who
+**Tool calling vs MCP.** Tool calling is the *model* asking *our code* to run a function: it is about who
 decides. MCP (Model Context Protocol) is about *where the function lives and how it is reached*: the tools sit in a
 separate program, a server, that any MCP client can ask "what tools do you have?" (`tools/list`) and "run this one with
 these arguments" (`tools/call`), in JSON-RPC messages. The model still decides exactly as before; only the path from our
@@ -359,7 +359,7 @@ What that buys: the same server works unchanged with other MCP clients (Claude D
 are discovered instead of imported, and the database code runs in its own process, which gets the database URL and no
 API keys.
 
-Decisions, all made by the developer after the options were explained:
+Decisions, after comparing the options:
 
 | Decision | Chosen | Alternative and why not |
 |---|---|---|
@@ -379,8 +379,8 @@ Implementation choices that follow:
   low-level `Server` takes two handlers, list and call, so it serves our schemas exactly.
 - **Sync outside, async inside.** The MCP SDK is async and our pipeline is synchronous, so the client keeps its
   connection on an asyncio event loop in a background thread and each tool call waits for its result there.
-- **Failures never crash the chat.** In Phase 24 an unreachable server gave the model an `MCP_UNAVAILABLE` result, and a
-  server that could not start failed the request. Since Phase 27 both fall back to running the same tools in-process,
+- **Failures never crash the chat.** At first an unreachable server gave the model an `MCP_UNAVAILABLE` result, and a
+  server that could not start failed the request. Now both fall back to running the same tools in-process,
   with a warning under the answer.
 - **Fourth tool.** `get_movie_metadata`, named in the plan, answers single-film facts (a film's IMDb rating had no tool
   before). Questions about director, cast or runtime are not forced through it: the movie's profile source states them
@@ -393,7 +393,7 @@ phases that built each part; this phase made each group runnable on its own, mad
 every plan item to its tests), and filled the gaps: real RAG behaviour (known, vague and no-answer questions), all four
 tools in one matrix, hostile tool arguments including through the MCP server, and live tests.
 
-Decisions, all made by the developer after the options were explained:
+Decisions, after comparing the options:
 
 | Decision | Chosen | Alternative and why not |
 |---|---|---|
@@ -428,11 +428,11 @@ the code. Messages never contain provider details, keys or the database address;
 | Timeout | error after 90 s for the whole question | `REQUEST_TIMEOUT` 504 (one model call: `LLM_TIMEOUT`) |
 | Anything unexpected (a bug) | error, details only in the server log | `INTERNAL_ERROR` 500 |
 
-Decisions, all made by the developer after the options were explained:
+Decisions, after comparing the options:
 
 | Decision | Chosen | Alternative and why not |
 |---|---|---|
-| MCP server down | **fall back to the in-process tools** (same functions), say so | fail every question with `MCP_UNAVAILABLE`, which was the Phase 24 behaviour, even for questions needing no tool |
+| MCP server down | **fall back to the in-process tools** (same functions), say so | fail every question with `MCP_UNAVAILABLE`, which was the first behaviour, even for questions needing no tool |
 | Embedding down | **answer from keyword search** when the question has keywords, say so | fail: hybrid search already has a second search that does not need embeddings |
 | Time limit | **90 s per question**, all steps together | 60 s would have cut off the slowest measured answer (63 s); no limit allows minutes in theory (5 model calls × 30 s × a retry) |
 | After an error | **"Try again" button** resending the question | message only: most of these failures are temporary |
@@ -445,12 +445,12 @@ deadline plus that call's own 30 s limit.
 ### Final UI: the plan's screen
 
 The plan's main screen is the answer, its sources, then ▸ RAG Process, ▸ Tool Calls and ▸ Token Usage / Cost, with the
-debug information collapsible. Decisions, all made by the developer after the options were explained:
+debug information collapsible. Decisions, after comparing the options:
 
 | Decision | Chosen | Alternative and why not |
 |---|---|---|
 | Sources | **visible under every answer**: the first 3 as small cards (movie, critic, 3-line excerpt, link), "Show all 8" | a closed panel like the others: shorter, but citations are what makes an answer checkable, and the plan's mockup does not draw Sources as a ▸ panel |
-| Panel order | **the plan's**: RAG process, Tool calls, Token usage / cost | Tool calls first (Phase 13's choice): a tool result is often the answer, but the plan's order follows the pipeline (retrieval, then tools, then the bill) |
+| Panel order | **the plan's**: RAG process, Tool calls, Token usage / cost | Tool calls first (the earlier order): a tool result is often the answer, but the plan's order follows the pipeline (retrieval, then tools, then the bill) |
 | Answers after a reload | **text only**, with a divider "Earlier messages: text only" | store sources, tool calls, debug and usage per message (a migration and a JSONB column): more complete, but the panels describe the answer just received |
 
 What else changed, and why:
@@ -462,7 +462,7 @@ What else changed, and why:
 - **An empty chat explains itself:** what the answers are based on (9,987 reviews, 500 films, database tools) and four
   example questions, one per kind of work the system does (comparison, recommendation, critics' opinions, filtering).
 - **Colours as named tokens** (`surface`, `line`, `muted`, `accent` in `globals.css`) with a dark set, and the Geist font
-  the layout loads (an Arial rule in the stylesheet had been overriding it since Phase 0).
+  the layout loads (an Arial rule in the stylesheet had been overriding it from the start).
 - **Checked:** light and dark, desktop and phone width (375 px: nothing wider than the screen, even with every panel
   open), streaming, the empty state and the reloaded-history divider.
 
@@ -487,13 +487,13 @@ done       (the plan's event)
 error      {"error": {"code", "message"}}                                         failure after the stream started
 ```
 
-Decisions, all made by the developer after the options were explained:
+Decisions, after comparing the options:
 
 | Decision | Chosen | Alternative and why not |
 |---|---|---|
 | Endpoint | **new `POST /api/chat/stream`**; `POST /api/chat` stays plain JSON, same pipeline | make `/api/chat` stream: the evaluation runner, the tests and any other client would all have to parse SSE |
 | Events | **the plan's three plus progress** (status, tool_call, metadata, error) | only the three: the page would show nothing for the 3–15 s before the first token |
-| Cost while streaming | **keep OpenRouter's reported cost** with a ~10-line `ChatOpenAI` subclass | estimate from tokens × price: computed instead of reported, which Phase 14 decided against |
+| Cost while streaming | **keep OpenRouter's reported cost** with a ~10-line `ChatOpenAI` subclass | estimate from tokens × price: computed instead of reported, which the token-usage design rejected |
 | Browser goes away | **stop at the next event, save nothing**, log `disconnected` | finish and save: pays for an answer nobody reads |
 
 How it is built, and why:
@@ -527,7 +527,7 @@ Zodiac" means nothing unless the earlier messages are sent along. So every quest
    discussed film with Zodiac".
 2. **The answer model**, between the system rules and the new question, so the reply follows on.
 
-These are defaults set while building, and the developer can change any of them:
+These are defaults set while building, and any of them can change:
 
 | Choice | Default | Why, and the trade-off |
 |---|---|---|
@@ -548,20 +548,20 @@ the pipeline in order:
    critic review or a movie profile, and whether it was sent to the model.
 4. **Time**: per step (translation, embedding + search, answer including tool calls) and in total.
 
-Choices made while building (defaults the developer can change):
+Choices made while building (defaults that can change):
 - The plan's four fields keep their names. `translated_query` is the embedded search sentence, so it stays a plain
   string; keywords, filters and where the rewrite came from are separate added fields.
 - **Similarity, not distance, is shown** (1 − distance): "higher = closer" is easier to read. The raw distance is kept
   in the data and in the bar's tooltip.
-- `vector_results` and `selected_chunks` are the same 8 chunks today. They are kept apart because from Phase 18 hybrid
+- `vector_results` and `selected_chunks` are the same 8 chunks today. They are kept apart because with hybrid
   search merges vector and keyword results, and what reaches the model will no longer be just the vector list.
 - Timings are measured inside the request. The answer step includes the extra model rounds caused by tool calls.
 
 ### Tool visualisation: what the "Tool calls" panel shows
 
-When the model used a tool, the collapsible **Tool calls** panel (first under the answer until Phase 26, now after the
+When the model used a tool, the collapsible **Tool calls** panel (at first directly under the answer, now after the
 RAG process, as in the plan's final screen) shows one card per call,
-in the plan's layout: **Tool used**, **Arguments**, **Result**. Choices made while building (defaults the developer
+in the plan's layout: **Tool used**, **Arguments**, **Result**. Choices made while building (defaults that
 can change):
 - **A readable view per tool:** `compare_movies` as a small table plus which is rated higher; `filter_movies` as the
   ranked list with "N matches, showing the best M"; `rating_summary` as the average with a bar per score bucket.
@@ -570,7 +570,7 @@ can change):
   message, and the candidates or suggestions. That is exactly what the model read before deciding what to do next.
 - **Raw JSON toggle** on every card: the arguments and result exactly as the model received them, for checking that
   the readable view matches.
-- **Repeated calls are marked.** Phase 10 found the model sometimes repeats an identical call; the card says "same call
+- **Repeated calls are marked.** Testing tool calling showed the model sometimes repeats an identical call; the card says "same call
   repeated by the model" instead of silently showing a duplicate.
 - **Panel order:** Tool calls, then Sources, then RAG process. Tools hold the exact facts the answer usually leads with.
 
@@ -600,7 +600,7 @@ How it is measured, and why this way:
 
 Every chat request that reaches the pipeline appends one JSON line to `logs/requests.jsonl` with the plan's fields:
 `timestamp`, `conversation_id`, `query`, `translated_query`, `retrieved_chunks`, `tools`, `tokens`, `cost`, `latency_ms`,
-`status`. Choices made while building (defaults the developer can change):
+`status`. Choices made while building (defaults that can change):
 
 | Choice | Default | Why |
 |---|---|---|
@@ -649,19 +649,19 @@ database error carrying the connection string, and four kinds of injected tags i
 **The difference.** *Semantic* (vector) search compares meanings: the question and each chunk become embeddings, and
 the nearest ones win, so "a heist inside dreams" finds *Inception* without naming it. *Keyword* (lexical) search
 compares words: a chunk matches if it contains the words, so "Hugh Jackman" finds every chunk listing him, but a
-paraphrase finds nothing. Each is strong where the other is weak; hybrid search (Phase 18) combines them.
+paraphrase finds nothing. Each is strong where the other is weak; hybrid search combines them.
 
-Choices made while building (defaults the developer can change):
+Choices made while building (defaults that can change):
 
 | Choice | Default | Why |
 |---|---|---|
 | Engine | **PostgreSQL's built-in full-text search** | no extra search engine to run (the stack rule says not to add one); the text already lives in PostgreSQL |
-| What is searched | **the chunk text**, the same units as vector search | profile chunks hold title, director, cast, genres and keywords; review chunks hold title, genres, critic and text. Same units means Phase 18 can merge the two lists directly |
+| What is searched | **the chunk text**, the same units as vector search | profile chunks hold title, director, cast, genres and keywords; review chunks hold title, genres, critic and text. Same units means hybrid search can merge the two lists directly |
 | Index | a **generated `tsvector` column** + **GIN index** (migration 0004) | PostgreSQL keeps it in sync with the text by itself; the GIN index maps each word to its chunks, so lookups take milliseconds |
 | Language rules | `english`: stems words, drops common words | "thrillers" finds "thriller"; the cost is over-matching (below) |
 | Query | the **keywords from query translation**, each as an exact **phrase**, joined with OR | "Hugh Jackman" must appear as those two words in order; any keyword can match |
 | Ranking | `ts_rank_cd` (more and closer matches score higher), scaled to 0..1, top 10 | the plan's hybrid example uses "top 10 each" |
-| Use in answers | **shown in the RAG panel only** | the plan builds keyword search first and combines in Phase 18 |
+| Use in answers | **shown in the RAG panel only** | the plan builds keyword search first and combines it in hybrid search |
 
 ### Hybrid search: Reciprocal Rank Fusion (spec in [`specs/18.md`](../specs/18.md))
 
@@ -670,7 +670,7 @@ the merged list go to the model. The merge is **Reciprocal Rank Fusion (RRF)**: 
 every list it appears in, and the scores are added. A chunk found high by *both* searches (meaning and exact words
 agree) beats one found by only one.
 
-Decisions, all confirmed by the developer; the last two were settled by measurement:
+Decisions; the last two were settled by measurement:
 
 | Decision | Chosen | Why |
 |---|---|---|
@@ -684,7 +684,7 @@ Decisions, all confirmed by the developer; the last two were settled by measurem
 ### Evaluation dataset: 49 questions with answers from the database
 
 [`evaluation/evaluation_dataset.jsonl`](../evaluation/evaluation_dataset.jsonl), built by
-[`scripts/build_eval_dataset.py`](../scripts/build_eval_dataset.py), approved by the developer, who also asked for more
+[`scripts/build_eval_dataset.py`](../scripts/build_eval_dataset.py), and I also asked for more
 two-film questions.
 
 | Type | n | Example | Expected |
@@ -702,7 +702,7 @@ How it was made, and why:
   higher", critic averages and every acceptable film for a recommendation are queried by the build script. For opinion
   questions it checks that the words a good answer should contain really appear in that film's reviews. If a fact cannot
   be verified, the build stops. The dataset can only expect what the system can actually know.
-- **New questions only.** None of the 54 questions used to tune retrieval in Phases 5, 7 and 18 is reused, and no two-film
+- **New questions only.** None of the 54 questions used to tune retrieval (embeddings, query translation, hybrid search) is reused, and no two-film
   pair repeats; otherwise the evaluation would reward settings picked on its own questions.
 - **Built-in traps:** a tie (Heat vs Joker), a negative case (critics' average for Suicide Squad is 3.85/10), and four
   well-known films the data does not contain (*The Shawshank Redemption*, *The Matrix*, *Oppenheimer*, *Parasite*), where the
@@ -710,7 +710,7 @@ How it was made, and why:
 - **Fields:** the plan's `question`, `expected_answer`, `expected_movie`, plus `expected_movies` (for Recall@K),
   `must_contain_any` (a quick correctness check), `expected_tool`, `acceptable_movies` for recommendations, and `no_answer`.
 - **Known limit:** `must_contain_any` is rough ("Inception" appears in any answer about Inception vs Interstellar, right or
-  wrong), so Phase 20 judges correctness and groundedness separately.
+  wrong), so the evaluation judges correctness and groundedness separately.
 
 ### RAG evaluation: how we know it works (spec in [`specs/20.md`](../specs/20.md))
 
@@ -727,7 +727,7 @@ came back, in three layers:
    **relevance**, and every factual claim marked **supported or unsupported** by those sources. **Groundedness** = share of
    supported claims; an answer with any unsupported claim counts toward the **hallucination rate**.
 
-Decisions, all confirmed by the developer:
+Decisions:
 
 | Decision | Chosen | Why |
 |---|---|---|
@@ -796,7 +796,7 @@ These follow from the decisions above:
     11 MB table), and the planner's estimate for a full scan ignores that storage.
   - Forced onto the index, the query returns the same top 8 in 17 ms. Refreshing statistics and storing vectors
     inline did not change the planner's choice.
-  - Results are correct either way. How retrieval queries use the index is decided in Phase 6.
+  - Results are correct either way. How retrieval queries use the index is decided under Retrieval.
 
 ### Basic RAG (spec and traceability in [`specs/6.md`](../specs/6.md))
 
@@ -836,7 +836,7 @@ These follow from the decisions above:
   all critic reviews of the film, each with a working link to the original review.
 - **Sources make mistakes visible.** The answer quoted Todd Camp calling Murray "a hoop"; the source says "a hoot".
   A small misquote by the model, which a reader can catch only because the source is shown, and the kind of
-  unsupported detail the Phase 20 groundedness check should measure.
+  unsupported detail the groundedness check should measure.
 
 ### Tools
 
@@ -864,7 +864,7 @@ Real questions through the whole pipeline:
 - The model sometimes sends numbers as text (`"rating_min": "7.5"`). The Pydantic schema converts them safely, which
   is one reason validation sits in our code rather than trusting the model's formatting.
 - It repeated one call with identical arguments in the same round. That is harmless and cheap, but it will appear
-  twice once tool calls are shown on the page (Phase 13).
+  twice once tool calls are shown on the page.
 - It uses tools even when reviews alone would answer, which adds facts rather than harming the answer.
 
 ### Conversation history
@@ -879,7 +879,7 @@ The plan's own follow-up example, through the API:
 - After a page reload the conversation came back from `GET /api/conversations/{id}`; "New chat" started a new one.
 - **Comparison questions retrieve one side.** For "compare Prisoners with Zodiac", all 8 retrieved chunks were *Zodiac*
   reviews; the *Prisoners* side came from history and the tool. Vector search returns the 8 nearest chunks overall,
-  with no rule to cover each film mentioned. Something to measure when keyword and hybrid search arrive (Phases 17–18).
+  with no rule to cover each film mentioned. Something to measure once keyword and hybrid search exist.
 
 ### RAG visualisation
 
@@ -891,8 +891,8 @@ The plan's own follow-up example, through the API:
 - **Time:** translation 1.5 s, embedding + search 1.3 s, answer 14.2 s, total 17.0 s.
 
 The sequel crowding is the kind of thing the panel exists to show: profile documents of a film series look almost
-alike to an embedding, so they compete for the same slots. Together with the one-sided comparison result from
-Phase 11, it is worth measuring in the retrieval evaluation (Phases 19–21).
+alike to an embedding, so they compete for the same slots. Together with the one-sided comparison result seen with
+conversation history, it is worth measuring in the retrieval evaluation.
 
 ### Tool visualisation
 
@@ -904,7 +904,7 @@ Checked in the browser:
   - `filter_movies`: 28 matches, the best 25 listed. The model chose the maximum `limit` and again sent numbers as text.
   - `rating_summary("Beauty and the Beast")`: the amber `AMBIGUOUS_TITLE` box with the 1991 and 2017 candidates. This
     time the model did not retry with a year, so the `rating_summary` success view has not yet been seen on a real
-    answer (it is built from the same result fields the Phase 9 tests check).
+    answer (it is built from the same result fields the tool tests check).
 
 ### Token usage and cost
 
@@ -921,7 +921,7 @@ Real answers, costs as reported by OpenRouter:
   tokens came from the provider's cache; MiMo's cost for the whole answer was $0.000083, about a seventh of list price.
   Even on a new question the second round reuses the first round's prefix (1,984 of 4,292 tokens cached).
 - **Translation is now the most expensive single call.** Gemini 3.1 Flash Lite costs more per token than MiMo, its prompt
-  (instructions and example) is about 860 tokens, and it gets no cache discount here. It was chosen for speed (Phase 7);
+  (instructions and example) is about 860 tokens, and it gets no cache discount here. It was chosen for speed;
   this is the cost side of that trade-off, still a fraction of a cent.
 - MiMo spends some output on hidden **reasoning** (17–74 tokens here), billed as output.
 
@@ -967,7 +967,7 @@ What the runs showed:
   offered general coding tips naming `os.remove()` and `shutil.rmtree()`, which breaks "decline off-topic questions". The
   system prompt now says to decline in one or two sentences with no code, commands or tips; the re-run passed.
 - **Tools are a strong defence for facts.** R3 is the case the plan worries about most, a review planting false data, and
-  the tool-first rule from Phase 10 is what defeated it.
+  the tool-first rule is what defeated it.
 - **Limits:** 8 attacks on one model are a sample, not a guarantee. Models can be talked round by attacks not tried here,
   which is why the non-model layers (escaping, validation, fixed SQL, no secrets in the prompt) matter: they hold even
   if the model is fooled.
@@ -985,14 +985,14 @@ Vector search and keyword search on the questions earlier phases flagged (films 
 | joker movie with heath ledger | The Dark Knight ×7, The Dark Knight Rises | The Dark Knight ×4, The Dark Knight Rises ×4, Suicide Squad, Inception | 2 |
 
 - **They complement each other.** For the comparison question vector search found only *Zodiac*; keyword search found
-  *Prisoners* too, which is exactly the one-sided result Phase 11 recorded. For people (Jackman, Villeneuve) keyword search
+  *Prisoners* too, which is exactly the one-sided result seen with conversation history. For people (Jackman, Villeneuve) keyword search
   finds films that vector search misses.
 - **Keyword search's weakness is generic words.** Translation keywords like "crime", "thriller" or "best films" match
   hundreds of chunks, and stemming turns the title *Prisoners* into "prison", so *Alien³* and *American History X*
-  (tagged "prison") ranked above the film itself. Fusion in Phase 18 has to keep that noise from pushing out good results.
+  (tagged "prison") ranked above the film itself. Fusion in hybrid search has to keep that noise from pushing out good results.
 - **Speed:** under 50 ms per search, shown as 0.0 s in the panel.
 - **The planner switched to the HNSW index.** Adding the column rewrote the table, and PostgreSQL now uses the HNSW index
-  for the app's vector query instead of an exact scan (the developer's Phase 6 choice: let PostgreSQL decide). HNSW is
+  for the app's vector query instead of an exact scan (the earlier choice: let PostgreSQL decide). HNSW is
   approximate, so it was measured: on 200 real chunk embeddings used as queries, **recall@8 against exact search was 1.000**,
   at about 5 ms per query against 72 ms. Two tests that check exact ranking with artificial, mostly-zero vectors started
   failing, because HNSW can miss neighbours of such vectors; they now force an exact scan for that check.
@@ -1011,7 +1011,7 @@ Vector search and keyword search on the questions earlier phases flagged (films 
 | Two-film questions: both films among the 8 | 0.38 (3 of 8) | **0.75 (6 of 8)** |
 | Different films among the 8 | 2.0 | 3.6 |
 
-- **Hybrid fixes the one-sided comparisons** found in Phase 11. "Compare Prisoners with Zodiac" now gets a *Prisoners*
+- **Hybrid fixes the one-sided comparisons** seen earlier. "Compare Prisoners with Zodiac" now gets a *Prisoners*
   chunk (keyword rank 2) next to the *Zodiac* chunks; vector-only sent 8 *Zodiac* chunks.
 - **Its cost is noise.** More different films reach the context (3.6 vs 2.0), and on two kidnapping-themed questions the
   keywords "kidnapping", "torture", "revenge" lifted *Man on Fire* and *Taken* above *Prisoners* (still in the 8). The browser
@@ -1056,7 +1056,7 @@ What the results show:
 - **Two-film comparisons are the weak spot, and the cause is retrieval.** In 6 of 9 the answer was only "partially
   correct". For Heat vs Nightcrawler, Ex Machina vs Her, Dunkirk vs 1917 and Up vs Inside Out, the 8 chunks held no
   review of one of the two films; the model said so honestly and used `compare_movies` for the facts, so the answers
-  stayed grounded but incomplete. This is the one-sided retrieval seen in Phases 11 and 18: hybrid search reduced it,
+  stayed grounded but incomplete. This is the one-sided retrieval seen earlier: hybrid search reduced it,
   but retrieving the 8 nearest chunks overall still lets one film take most slots.
 - **The two unsupported claims are mild:** "Vikings is a TV series" (true, but in no source) and "Hereditary is the more
   genuinely disturbing film" (the model's own conclusion, not a critic's). The judge flagged both, which is what it is for.
@@ -1109,10 +1109,10 @@ What the comparison shows:
   hybrid at the same recall).
 - **Latency and cost:** hybrid's 2 s faster average is MiMo's own speed varying (keyword search takes milliseconds); hybrid
   sends about 400 more tokens per answer, a negligible cost difference.
-- **Decision:** hybrid stays the default (the Phase 18 rule: hybrid unless measured worse). Retrieval is better and answer
+- **Decision:** hybrid stays the default (the rule: hybrid unless measured worse). Retrieval is better and answer
   accuracy is equal within noise. Two follow-ups were offered: a system-prompt rule against the model's own verdicts
-  (**adopted by the developer**, measured below) and retrieving reviews per named film for comparison questions
-  (**skipped by the developer** for now).
+  (**adopted**, measured below) and retrieving reviews per named film for comparison questions
+  (**skipped** for now; it was added later).
 
 ### Prompt rule: report what critics say, no verdict of its own ([`evaluation/results/hybrid-fixA.json`](../evaluation/results/hybrid-fixA.json))
 
@@ -1135,7 +1135,7 @@ with the full evaluation again plus the same 7 questions × 3 runs as above (abo
   this), and one overstated summary ("none of the reviews discuss the score" for La La Land, where two touch on it).
 - **The price is directness.** The judge rates "the sources do not settle it" as only partly relevant, so relevance dips
   a little. That is the intended trade: honest about the evidence rather than confident without it.
-- Correctness and the full-run totals are within the run-to-run noise measured in Phase 21; the rule is kept because it
+- Correctness and the full-run totals are within the run-to-run noise measured in the strategy comparison; the rule is kept because it
   removed the specific error it targeted, not because of a score change.
 
 ### MCP server
@@ -1151,9 +1151,9 @@ one, without the chatbot or any LLM:
 - **Through the web page:** "Which is rated higher, Zodiac or Prisoners? And who directed Prisoners?" called
   `compare_movies` via the MCP server (the panel says "Tool calls (1) · via MCP server") and answered correctly
   (Prisoners 8.2 vs Zodiac 7.7, Denis Villeneuve) in 3.8 s of generation. The tool definitions the model receives are
-  identical to Phase 10's, so tool choice is unchanged by construction.
+  identical to the in-process ones, so tool choice is unchanged by construction.
 - Found while testing: *Parasite* is not in the 500-film subset, so questions about it get `MOVIE_NOT_FOUND`.
-- **Does a fourth tool make the model call tools when it should not?** While testing Phase 25, "why do critics like X?"
+- **Does a fourth tool make the model call tools when it should not?** While testing streaming, "why do critics like X?"
   sometimes triggered `rating_summary` and `get_movie_metadata`, each tool round adding 4–8 s. Measured on the 24
   factual, opinion and plot evaluation questions ([`evaluation/results/hybrid-p24.json`](../evaluation/results/hybrid-p24.json),
   about $0.13) against the run with three tools:
@@ -1205,7 +1205,7 @@ Measured through the stream endpoint with a small client (real answers, about $0
 - **Vague questions are often resolved by the translator's own knowledge:** Gemini adds the keyword "Black Swan" for "a
   ballerina losing her grip on reality", "Up" for the balloon house, "Christopher Nolan" for Oppenheimer. So vague
   questions work partly because the translation model recognises the film, not only through semantic search.
-- **3 of the 5 poisoned-review attacks no longer reach the model.** In Phase 16 (vector search) all 5 poisoned reviews
+- **3 of the 5 poisoned-review attacks no longer reach the model.** In the first injection tests (vector search) all 5 poisoned reviews
   were retrieved; with hybrid search only 2 are, so those 3 attacks are skipped as untested. The 5 attacks that ran were
   all defended. Open: rewrite those 3 questions so their poison is retrieved again.
 - **My mistake: the first `pytest -m rag` also ran the live tests** (a `-m` on the command line replaces the default),
@@ -1239,11 +1239,11 @@ Checked in the running app:
   reviews in its top 10, and keyword search put the *American History X* profile first: full-text search stems the keyword "Prisoners" to
   "prison", which that profile mentions four times.
   The answer was right because it came from `compare_movies`, but it shows both known retrieval weaknesses on one
-  screen: comparisons dominated by one film (Phase 21's skipped fix B) and keyword noise (hybrid's lower precision).
+  screen: comparisons dominated by one film (the per-film retrieval fix skipped at the time) and keyword noise (hybrid's lower precision).
 
 ### Final evaluation and analytics (results in [Evaluation](../README.md#evaluation))
 
-- Developer's choices (2026-10-26): re-run the final evaluation with today's code, **2 runs per strategy** (about $1.10;
+- Choices: re-run the final evaluation with today's code, **2 runs per strategy** (about $1.10;
   1 run cannot separate small differences from noise, 3 was judged not worth the extra cost), and add four analytics:
   where the time goes (free), context size (5 / 8 / 10 chunks), query translation on/off, and two other answer models.
 - Context size used 5 and 10 chunks rather than 4 and 12, because the plan and `RETRIEVAL_TOP_K` allow 5–10.
@@ -1254,7 +1254,7 @@ Checked in the running app:
   `evaluation/analytics_report.py` builds the comparison; `scripts/cold_start_check.py` measures the deployed site.
 - Budget stop: halfway through, OpenRouter refused every call ("Workspace monthly budget of $5.00 exceeded", then the
   key's own $5 monthly limit). 5 of the 9 runs stopped, and **the live demo stopped answering too**, because it uses the
-  same key. The developer raised both limits to $8; `--resume` then ran only the 194 missing questions. Lesson: an
+  same key. I raised both limits to $8; `--resume` then ran only the 194 missing questions. Lesson: an
   evaluation run and the public demo should not share a key and its limit.
 
 ### Environment (Windows)
