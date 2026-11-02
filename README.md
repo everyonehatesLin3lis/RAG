@@ -18,6 +18,7 @@ backend and database wake up; after that, the first words appear in about 5 s.
 [How a question is answered](#how-a-question-is-answered) · [Tools](#tools) ·
 [Vector-only vs hybrid search](#vector-only-vs-hybrid-search) · [Evaluation](#evaluation) ·
 [Choosing the answer model](#choosing-the-answer-model) · [Security](#security) ·
+[How I built it with AI agents](#how-i-built-it-with-ai-agents) ·
 [Key decisions](#key-decisions) · [Limitations and next steps](#limitations-and-next-steps) ·
 [Installation](#installation) · [Tests](#tests)
 
@@ -271,6 +272,35 @@ I tested it with 8 live attacks (5 poisoned reviews inserted into the database, 
 defended after one prompt fix ([`docs/experiments/prompt_injection_results.json`](docs/experiments/prompt_injection_results.json),
 `python scripts/injection_tests.py`).
 
+## How I built it with AI agents
+
+I built this with Claude Code as the coding agent. I set the plan, the rules and the key decisions; the agent wrote and
+tested code within those rules, and explained each part so I could defend it myself.
+
+- **A plan as the source of truth:** [`EXECUTION_PLAN.md`](EXECUTION_PLAN.md) breaks the project into 31 phases, built
+  one at a time, each finished only when it had been run and shown to work.
+- **A rulebook for the agent:** [`CLAUDE.md`](CLAUDE.md) holds what has to be true in every session. The rules that
+  mattered most:
+  - *Finished means run and shown to work*, not "the code is written".
+  - *Paid calls are estimated first:* try a job on a few rows and say how many API calls a full run makes before
+    starting it.
+  - *Never write a number that was not measured.*
+  - *No new framework or major dependency without asking;* open choices are listed and decided by me, not silently.
+  - *Security from the first line:* reviews are untrusted, no SQL from model text, no secrets in responses or logs.
+  - *Explain it:* every part has to be explainable without AI help, so the agent explains what it builds and why.
+- **Test-first for the core parts:** the [`implement-spec`](docs/ai-workflow/skills/implement-spec/SKILL.md) skill
+  turns a written spec into acceptance criteria, then failing tests, then the smallest implementation, then a
+  traceability report. Embeddings, basic RAG, the tools, tool calling, hybrid search, the evaluation and the test suite
+  were built this way; their specs are in [`specs/`](specs/), and code and tests point back to them
+  (`# Implements: specs/18.md#AC-002`). For AI features it separates deterministic checks (retrieval, tool calls,
+  schemas) from model behaviour, which is measured by the evaluation instead of exact-text tests.
+- **Retrospectives:** the [`retro`](docs/ai-workflow/skills/retro/SKILL.md) skill reviews a session for friction and
+  reusable lessons and proposes where each belongs (a project rule, a test, documentation), with nothing written
+  without approval.
+
+The skills are in [`docs/ai-workflow/`](docs/ai-workflow/); copied into `~/.claude/skills/`, Claude Code can use them
+in any project.
+
 ## Key decisions
 
 The options I compared and the numbers behind each choice are in [`docs/project_log.md`](docs/project_log.md).
@@ -421,7 +451,7 @@ frontend/     Next.js chat app
 backend/      FastAPI app (app/), Alembic migrations (migrations/), tests (tests/)
 scripts/      download, select, ingest, embed, injection tests, monitoring
 evaluation/   evaluation dataset, runner, reports and results
-docs/         dataset notes, deployment guide, development notes, experiments
+docs/         dataset notes, deployment guide, project log, experiments, AI workflow skills
 deploy/       Cloud Run settings (no secrets)
 specs/        acceptance criteria for the test-first parts
 ```
