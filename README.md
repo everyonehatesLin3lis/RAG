@@ -200,8 +200,6 @@ defended after one prompt fix ([`docs/experiments/prompt_injection_results.json`
 
 ## Key decisions
 
-The options I compared and the numbers behind each choice are in [`docs/project_log.md`](docs/project_log.md).
-
 - **PostgreSQL + pgvector instead of a separate vector database.** Vectors sit next to the movies and reviews they
   describe, the tools query the same tables, and full-text search for hybrid retrieval is built in. HNSW gives
   approximate search in ~5 ms instead of ~72 ms, with the same top 8 on 200 real queries.
