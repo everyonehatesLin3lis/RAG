@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 372" width="860" height="372" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">
+  <title>Vector-only vs hybrid search on 49 evaluation questions</title>
+  <style>
+    .ink { fill: #0b0b0b; }
+    .ink2 { fill: #52514e; }
+    .muted { fill: #898781; }
+    .grid { stroke: #e1e0d9; stroke-width: 1; }
+    .link { stroke: #c3c2b7; stroke-width: 2; }
+    .vec { fill: #eb6834; stroke: #fcfcfb; stroke-width: 2; }
+    .hyb { fill: #2a78d6; stroke: #fcfcfb; stroke-width: 2; }
+    @media (prefers-color-scheme: dark) {
+      .ink { fill: #f0efec; }
+      .ink2 { fill: #c3c2b7; }
+      .grid { stroke: #2c2c2a; }
+      .link { stroke: #383835; }
+      .vec { fill: #d95926; stroke: #1a1a19; }
+      .hyb { fill: #3987e5; stroke: #1a1a19; }
+    }
+  </style>
+
+  <!-- legend -->
+  <circle class="vec" cx="268" cy="24" r="7"/>
+  <text class="ink2" x="282" y="29" font-size="14">Vector only</text>
+  <rect class="hyb" x="381" y="17" width="14" height="14" rx="2" transform="rotate(45 388 24)"/>
+  <text class="ink2" x="404" y="29" font-size="14">Hybrid (vector + keyword, RRF)</text>
+  <text class="muted" x="850" y="29" font-size="12" text-anchor="end">vector · hybrid</text>
+
+  <!-- gridlines: 0.75 .. 1.00 -->
+  <g class="grid">
+    <line x1="260" y1="50" x2="260" y2="314"/>
+    <line x1="336" y1="50" x2="336" y2="314"/>
+    <line x1="412" y1="50" x2="412" y2="314"/>
+    <line x1="488" y1="50" x2="488" y2="314"/>
+    <line x1="564" y1="50" x2="564" y2="314"/>
+    <line x1="640" y1="50" x2="640" y2="314"/>
+  </g>
+  <g class="muted" font-size="12" text-anchor="middle">
+    <text x="260" y="334">0.75</text>
+    <text x="336" y="334">0.80</text>
+    <text x="412" y="334">0.85</text>
+    <text x="488" y="334">0.90</text>
+    <text x="564" y="334">0.95</text>
+    <text x="640" y="334">1.00</text>
+  </g>
+  <text class="muted" x="450" y="360" font-size="12" text-anchor="middle">score (0–1, higher is better; axis starts at 0.75)</text>
+
+  <!-- rows: label, connector, vector dot, hybrid diamond, values -->
+  <g font-size="14">
+    <text class="ink" x="16" y="85">Expected film reached the model</text>
+    <line class="link" x1="606.6" y1="80" x2="640" y2="80"/>
+    <circle class="vec" cx="606.6" cy="80" r="7"/>
+    <rect class="hyb" x="633" y="73" width="14" height="14" rx="2" transform="rotate(45 640 80)"/>
+    <text class="ink2" x="850" y="85" text-anchor="end">0.978 · <tspan font-weight="600">1.000</tspan></text>
+
+    <text class="ink" x="16" y="129">Recall@5</text>
+    <line class="link" x1="524.5" y1="124" x2="554.9" y2="124"/>
+    <circle class="vec" cx="524.5" cy="124" r="7"/>
+    <rect class="hyb" x="547.9" y="117" width="14" height="14" rx="2" transform="rotate(45 554.9 124)"/>
+    <text class="ink2" x="850" y="129" text-anchor="end">0.924 · <tspan font-weight="600">0.944</tspan></text>
+
+    <text class="ink" x="16" y="173">Precision@5</text>
+    <line class="link" x1="346.6" y1="168" x2="529" y2="168"/>
+    <circle class="vec" cx="529" cy="168" r="7"/>
+    <rect class="hyb" x="339.6" y="161" width="14" height="14" rx="2" transform="rotate(45 346.6 168)"/>
+    <text class="ink2" x="850" y="173" text-anchor="end"><tspan font-weight="600">0.927</tspan> · 0.807</text>
+
+    <text class="ink" x="16" y="217">Answer accuracy</text>
+    <line class="link" x1="609.6" y1="212" x2="617.2" y2="212"/>
+    <circle class="vec" cx="609.6" cy="212" r="7"/>
+    <rect class="hyb" x="610.2" y="205" width="14" height="14" rx="2" transform="rotate(45 617.2 212)"/>
+    <text class="ink2" x="850" y="217" text-anchor="end">0.980 · 0.985</text>
+
+    <text class="ink" x="16" y="261">Groundedness</text>
+    <circle class="vec" cx="640" cy="256" r="8"/>
+    <rect class="hyb" x="633.5" y="251" width="10" height="10" rx="2" transform="rotate(45 638.5 256)"/>
+    <text class="ink2" x="850" y="261" text-anchor="end">1.000 · 0.999</text>
+
+    <text class="ink" x="16" y="305">Relevance</text>
+    <circle class="vec" cx="624.8" cy="300" r="8"/>
+    <rect class="hyb" x="619.8" y="295" width="10" height="10" rx="2" transform="rotate(45 624.8 300)"/>
+    <text class="ink2" x="850" y="305" text-anchor="end">0.990 · 0.990</text>
+  </g>
+</svg>
