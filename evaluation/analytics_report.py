@@ -5,7 +5,7 @@ Four questions, each answered by runs of the same 49 evaluation questions that d
 1. Where does the time go?   per-step timings of the baseline runs (translation, search, generation, tool rounds)
 2. Context size vs cost      5, 8 (baseline) and 10 chunks sent to the model: accuracy vs input tokens vs cost
 3. Query translation         on (baseline) vs off: retrieval, accuracy, latency, cost
-4. Answer model              MiMo v2.6 Flash (baseline) vs other cheap models: accuracy, latency, cost
+4. Answer model              MiMo v2.6 Flash (baseline) vs cheaper and stronger models: accuracy, latency, cost
 
 Baseline = today's system: hybrid search, 8 chunks, translation by Gemini 3.1 Flash Lite, answers by MiMo, tools over
 MCP (evaluation/results/final2/hybrid-r*.json, the Phase 29 final runs). Experiments ran once each
@@ -91,8 +91,10 @@ def time_breakdown(runs: list[dict]) -> dict:
 
 
 def experiment(tag: str) -> list[dict]:
-    path = EXPERIMENTS / f"hybrid-{tag}.json"
-    return [load(path)] if path.exists() else []
+    """A setup's first run (hybrid-<tag>.json) plus any repeat runs (hybrid-<tag>-r2.json, ...)."""
+    first = EXPERIMENTS / f"hybrid-{tag}.json"
+    paths = ([first] if first.exists() else []) + sorted(EXPERIMENTS.glob(f"hybrid-{tag}-r[0-9].json"))
+    return [load(p) for p in paths]
 
 
 def show(title: str, setups: dict[str, dict], keys: list[tuple[str, str]]) -> None:
@@ -151,7 +153,7 @@ def main() -> None:
           *QUALITY, ("expected_tool_used_rate", "Expected tool used"), *SPEED_COST])
 
     models = {"mimo-v2.6-flash (baseline)": baseline}
-    for tag in ("gpt-6-luna", "gemini-3.1-flash-lite"):
+    for tag in ("gpt-6-luna", "gemini-3.1-flash-lite", "gpt-6-astra"):
         if runs := experiment(tag):
             models[tag] = describe(runs)
     report["answer_models"] = models

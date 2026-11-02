@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 440" width="880" height="440" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">
+  <title>Answer accuracy vs cost per 1,000 answers, by answer model</title>
+  <style>
+  .ink { fill: #0b0b0b; } .ink2 { fill: #52514e; } .muted { fill: #898781; }
+  .grid { stroke: #e1e0d9; stroke-width: 1; } .track { stroke: #e1e0d9; stroke-width: 6; stroke-linecap: round; }
+  .limit { stroke: #52514e; stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .range { stroke: #898781; stroke-width: 2; } .zone { fill: #0ca30c; fill-opacity: 0.08; }
+  .pass { fill: #0ca30c; } .fail { fill: #d03b3b; } .ring { stroke: #fcfcfb; stroke-width: 2; }
+  .passText { fill: #006300; } .failText { fill: #b02a2a; }
+  .s1 { fill: #2a78d6; } .s2 { fill: #eb6834; } .s3 { fill: #1baf7a; } .s4 { fill: #6250d6; }
+  @media (prefers-color-scheme: dark) {
+    .ink { fill: #f0efec; } .ink2 { fill: #c3c2b7; } .grid, .track { stroke: #2c2c2a; }
+    .limit { stroke: #c3c2b7; } .ring { stroke: #1a1a19; } .zone { fill-opacity: 0.14; }
+    .passText { fill: #0ca30c; } .failText { fill: #e66767; }
+    .s1 { fill: #3987e5; } .s2 { fill: #d95926; } .s3 { fill: #199e70; } .s4 { fill: #9085e9; }
+  }
+</style>
+  <rect class="zone" x="90" y="50" width="250.0" height="165.0"/>
+  <text class="passText" x="100.0" y="70.0" font-size="12" text-anchor="start" font-weight="600">good enough</text>
+  <text class="passText" x="100.0" y="86.0" font-size="12" text-anchor="start">accuracy ≥ 0.95, ≤ $1 per 1,000</text>
+  <line class="grid" x1="90.0" y1="50" x2="90.0" y2="380"/>
+  <text class="muted" x="90.0" y="400.0" font-size="12" text-anchor="middle">$0.1</text>
+  <line class="grid" x1="340.0" y1="50" x2="340.0" y2="380"/>
+  <text class="muted" x="340.0" y="400.0" font-size="12" text-anchor="middle">$1</text>
+  <line class="grid" x1="590.0" y1="50" x2="590.0" y2="380"/>
+  <text class="muted" x="590.0" y="400.0" font-size="12" text-anchor="middle">$10</text>
+  <line class="grid" x1="840.0" y1="50" x2="840.0" y2="380"/>
+  <text class="muted" x="840.0" y="400.0" font-size="12" text-anchor="middle">$100</text>
+  <line class="grid" x1="90" y1="380.0" x2="840" y2="380.0"/>
+  <text class="muted" x="80.0" y="384.0" font-size="12" text-anchor="end">0.90</text>
+  <line class="grid" x1="90" y1="314.0" x2="840" y2="314.0"/>
+  <text class="muted" x="80.0" y="318.0" font-size="12" text-anchor="end">0.92</text>
+  <line class="grid" x1="90" y1="248.0" x2="840" y2="248.0"/>
+  <text class="muted" x="80.0" y="252.0" font-size="12" text-anchor="end">0.94</text>
+  <line class="grid" x1="90" y1="182.0" x2="840" y2="182.0"/>
+  <text class="muted" x="80.0" y="186.0" font-size="12" text-anchor="end">0.96</text>
+  <line class="grid" x1="90" y1="116.0" x2="840" y2="116.0"/>
+  <text class="muted" x="80.0" y="120.0" font-size="12" text-anchor="end">0.98</text>
+  <line class="grid" x1="90" y1="50.0" x2="840" y2="50.0"/>
+  <text class="muted" x="80.0" y="54.0" font-size="12" text-anchor="end">1.00</text>
+  <line class="limit" x1="340.0" y1="50" x2="340.0" y2="380"/>
+  <line class="limit" x1="90" y1="215.0" x2="840" y2="215.0"/>
+  <text class="ink2" x="465.0" y="428.0" font-size="13" text-anchor="middle">Cost per 1,000 answers (log scale; cheaper is left)</text>
+  <text class="ink2" font-size="13" text-anchor="middle" transform="translate(22 215.0) rotate(-90)">Answer accuracy (higher is better)</text>
+  <line class="range" x1="296.5" y1="117.3" x2="296.5" y2="83.7"/>
+  <circle class="s1 ring" cx="296.5" cy="100.5" r="8"/>
+  <line class="range" x1="291.5" y1="218.3" x2="291.5" y2="117.3"/>
+  <circle class="s2 ring" cx="291.5" cy="167.8" r="8"/>
+  <line class="range" x1="375.0" y1="252.0" x2="375.0" y2="221.9"/>
+  <circle class="s3 ring" cx="375.0" cy="237.1" r="8"/>
+  <circle class="s4 ring" cx="681.2" cy="184.6" r="8"/>
+  <text class="ink" x="310.5" y="96.5" font-size="13" text-anchor="start" font-weight="600">MiMo v2.6 Flash (in use)</text>
+  <text class="ink2" x="310.5" y="113.5" font-size="12" text-anchor="start">0.985 · $0.67 · 5.5 s · 2 runs</text>
+  <text class="ink" x="305.5" y="163.8" font-size="13" text-anchor="start" font-weight="600">GPT-6 Luna</text>
+  <text class="ink2" x="305.5" y="180.8" font-size="12" text-anchor="start">0.964 · $0.64 · 4.9 s · 2 runs</text>
+  <text class="ink" x="389.0" y="233.1" font-size="13" text-anchor="start" font-weight="600">Gemini 3.1 Flash Lite</text>
+  <text class="ink2" x="389.0" y="250.1" font-size="12" text-anchor="start">0.943 · $1.38 · 3.4 s · 2 runs</text>
+  <text class="ink" x="667.2" y="146.6" font-size="13" text-anchor="end" font-weight="600">GPT-6 Astra</text>
+  <text class="ink2" x="667.2" y="163.6" font-size="12" text-anchor="end">0.959 · $23.16 · 6.1 s · 1 run</text>
+</svg>

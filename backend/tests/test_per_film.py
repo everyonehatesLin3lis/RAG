@@ -25,6 +25,7 @@ def given_to_the_model(session, monkeypatch, movies: list[str], keywords: list[s
     return rag.answer_question("Compare them", session)
 
 
+@pytest.mark.real_data
 def test_two_named_films_get_four_chunks_each_alternating(session, monkeypatch):
     # The vector is a Whiplash question's: one search over everything would give Whiplash most of the 8 slots.
     result = given_to_the_model(session, monkeypatch, ["Whiplash", "La La Land"], keywords=["Whiplash", "La La Land"])
@@ -35,6 +36,7 @@ def test_two_named_films_get_four_chunks_each_alternating(session, monkeypatch):
     assert result.debug.per_film == ["Whiplash (2014)", "La La Land (2016)"]
 
 
+@pytest.mark.real_data
 def test_three_named_films_share_the_eight_slots(session, monkeypatch):
     result = given_to_the_model(session, monkeypatch, ["Whiplash", "La La Land", "Gravity"])
 
@@ -47,6 +49,7 @@ def test_three_named_films_share_the_eight_slots(session, monkeypatch):
     ["Whiplash", "The Godfather Part VII"],         # the second title is not in the data (invented by the model?)
     ["Whiplash", "'; DROP TABLE movies; --"],       # a hostile title is just a title that matches nothing
 ])
+@pytest.mark.real_data
 def test_fewer_than_two_real_films_use_the_normal_search(movies, session, monkeypatch):
     result = given_to_the_model(session, monkeypatch, movies)
 
@@ -54,6 +57,7 @@ def test_fewer_than_two_real_films_use_the_normal_search(movies, session, monkey
     assert len(result.sources) == 8
 
 
+@pytest.mark.real_data
 def test_a_shared_title_keeps_both_films_in_one_share(session):
     found = retrieval.named_movies(session, ["Beauty and the Beast", "Up", "beauty and the beast (2017)"])
 

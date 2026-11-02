@@ -1,0 +1,58 @@
+# Runs on every push and pull request: the backend tests against an empty PostgreSQL + pgvector database (schema from
+# the Alembic migrations), and the frontend type check and build. Tests marked real_data need the ~200 MB of ingested
+# movie data and skip here; locally they run. No API keys: the tests block every paid call.
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:0.8.7-pg17
+        env:
+          POSTGRES_USER: movie_copilot
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: movie_copilot
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U movie_copilot"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql+psycopg://movie_copilot:ci@127.0.0.1:5432/movie_copilot
+      OPENROUTER_API_KEY: not-used-by-tests
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Install
+        run: |
+          uv venv --python 3.11
+          uv pip install -r requirements.txt
+      - name: Migrate
+        run: .venv/bin/alembic upgrade head
+      - name: Test
+        run: .venv/bin/pytest -q
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run build

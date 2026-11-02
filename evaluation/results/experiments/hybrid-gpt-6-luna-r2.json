@@ -1,0 +1,5379 @@
+{
+  "summary": {
+    "strategy": "hybrid",
+    "questions": 49,
+    "retrieval_hit_rate": 1.0,
+    "retrieval_recall_at_5": 0.9441,
+    "retrieval_recall_at_8": 0.9352,
+    "retrieval_precision_at_5": 0.8,
+    "answer_accuracy": 0.9796,
+    "relevance": 0.9898,
+    "groundedness": 1.0,
+    "hallucination_rate": 0.0,
+    "rule_must_contain_rate": 0.9778,
+    "expected_tool_used_rate": 1.0,
+    "avg_latency_ms": 5965,
+    "avg_cost_usd": 0.0006,
+    "errors": {},
+    "not_judged": [],
+    "flagged_for_review": [],
+    "judge": {
+      "model": "anthropic/claude-haiku-4.5",
+      "cost_usd": 0.199327
+    },
+    "by_type": {
+      "comparison": {
+        "questions": 9,
+        "answer_accuracy": 0.9444,
+        "relevance": 0.9444,
+        "groundedness": 1.0,
+        "hallucination_rate": 0.0,
+        "retrieval_hit_rate": 1.0,
+        "retrieval_recall_at_5": 1.0,
+        "retrieval_recall_at_8": 1.0,
+        "retrieval_precision_at_5": 1.0
+      },
+      "factual": {
+        "questions": 8,
+        "answer_accuracy": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination_rate": 0.0,
+        "retrieval_hit_rate": 1.0,
+        "retrieval_recall_at_5": 1.0,
+        "retrieval_recall_at_8": 1.0,
+        "retrieval_precision_at_5": 0.75
+      },
+      "no_answer": {
+        "questions": 4,
+        "answer_accuracy": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination_rate": 0.0,
+        "retrieval_hit_rate": null,
+        "retrieval_recall_at_5": null,
+        "retrieval_recall_at_8": null,
+        "retrieval_precision_at_5": null
+      },
+      "opinion": {
+        "questions": 8,
+        "answer_accuracy": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination_rate": 0.0,
+        "retrieval_hit_rate": 1.0,
+        "retrieval_recall_at_5": 1.0,
+        "retrieval_recall_at_8": 1.0,
+        "retrieval_precision_at_5": 0.85
+      },
+      "plot": {
+        "questions": 8,
+        "answer_accuracy": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination_rate": 0.0,
+        "retrieval_hit_rate": 1.0,
+        "retrieval_recall_at_5": 1.0,
+        "retrieval_recall_at_8": 1.0,
+        "retrieval_precision_at_5": 0.6
+      },
+      "rating": {
+        "questions": 7,
+        "answer_accuracy": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination_rate": 0.0,
+        "retrieval_hit_rate": 1.0,
+        "retrieval_recall_at_5": 1.0,
+        "retrieval_recall_at_8": 1.0,
+        "retrieval_precision_at_5": 0.9714
+      },
+      "recommendation": {
+        "questions": 5,
+        "answer_accuracy": 0.9,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination_rate": 0.0,
+        "retrieval_hit_rate": 1.0,
+        "retrieval_recall_at_5": 0.4966,
+        "retrieval_recall_at_8": 0.4166,
+        "retrieval_precision_at_5": 0.52
+      }
+    },
+    "started_at": "2026-11-02T14:09:13+00:00",
+    "settings": {
+      "strategy": "hybrid",
+      "answer_model": "openai/gpt-6-luna",
+      "translation": "google/gemini-3.1-flash-lite",
+      "top_k": 8,
+      "tool_backend": "mcp"
+    }
+  },
+  "questions": [
+    {
+      "id": "F1",
+      "type": "factual",
+      "question": "Who directed Interstellar?",
+      "answer": "*Interstellar* was directed by Christopher Nolan.",
+      "error": null,
+      "latency_ms": 7011,
+      "cost_usd": 0.000726,
+      "tokens": 6309,
+      "input_tokens": 6210,
+      "output_tokens": 99,
+      "timings_ms": {
+        "translation": 1004,
+        "embedding_and_search": 846,
+        "keyword_search": 17,
+        "generation": 5143,
+        "total": 7011
+      },
+      "chunks": [
+        {
+          "chunk_id": 67,
+          "movie": "Interstellar (2014)"
+        },
+        {
+          "chunk_id": 5214,
+          "movie": "Interstellar (2014)"
+        },
+        {
+          "chunk_id": 558,
+          "movie": "Marriage Story (2019)"
+        },
+        {
+          "chunk_id": 5221,
+          "movie": "Interstellar (2014)"
+        },
+        {
+          "chunk_id": 143,
+          "movie": "Once Upon a Time… in Hollywood (2019)"
+        },
+        {
+          "chunk_id": 5213,
+          "movie": "Interstellar (2014)"
+        },
+        {
+          "chunk_id": 184,
+          "movie": "Shrek (2001)"
+        },
+        {
+          "chunk_id": 5216,
+          "movie": "Interstellar (2014)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "get_movie_metadata",
+          "arguments": {
+            "movie": "Interstellar (2014)"
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 0.6
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies Christopher Nolan as the director of Interstellar, which matches the reference answer exactly.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Interstellar was directed by Christopher Nolan",
+            "supported": true,
+            "evidence": "chunk_id 67 states 'Director: Christopher Nolan' and tool result get_movie_metadata confirms 'director': 'Christopher Nolan'"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "F2",
+      "type": "factual",
+      "question": "Who directed Get Out?",
+      "answer": "*Get Out* was directed by Jordan Peele.",
+      "error": null,
+      "latency_ms": 4092,
+      "cost_usd": 0.000557,
+      "tokens": 3549,
+      "input_tokens": 3451,
+      "output_tokens": 98,
+      "timings_ms": {
+        "translation": 889,
+        "embedding_and_search": 511,
+        "keyword_search": 17,
+        "generation": 2674,
+        "total": 4092
+      },
+      "chunks": [
+        {
+          "chunk_id": 9989,
+          "movie": "Get Out (2017)"
+        },
+        {
+          "chunk_id": 9996,
+          "movie": "Get Out (2017)"
+        },
+        {
+          "chunk_id": 185,
+          "movie": "Get Out (2017)"
+        },
+        {
+          "chunk_id": 9993,
+          "movie": "Get Out (2017)"
+        },
+        {
+          "chunk_id": 107,
+          "movie": "Good Will Hunting (1997)"
+        },
+        {
+          "chunk_id": 193,
+          "movie": "Fargo (1996)"
+        },
+        {
+          "chunk_id": 9992,
+          "movie": "Get Out (2017)"
+        },
+        {
+          "chunk_id": 282,
+          "movie": "Looper (2012)"
+        }
+      ],
+      "tools": [],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 0.8
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies Jordan Peele as the director of Get Out, which matches the reference answer exactly.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Get Out was directed by Jordan Peele",
+            "supported": true,
+            "evidence": "chunk_id 185 states 'Director: Jordan Peele' for Get Out (2017)"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "F3",
+      "type": "factual",
+      "question": "Who directed Mad Max: Fury Road?",
+      "answer": "*Mad Max: Fury Road* was directed by George Miller.",
+      "error": null,
+      "latency_ms": 6340,
+      "cost_usd": 0.000668,
+      "tokens": 6393,
+      "input_tokens": 6218,
+      "output_tokens": 175,
+      "timings_ms": {
+        "translation": 823,
+        "embedding_and_search": 635,
+        "keyword_search": 13,
+        "generation": 4869,
+        "total": 6340
+      },
+      "chunks": [
+        {
+          "chunk_id": 106,
+          "movie": "Mad Max: Fury Road (2015)"
+        },
+        {
+          "chunk_id": 558,
+          "movie": "Marriage Story (2019)"
+        },
+        {
+          "chunk_id": 6953,
+          "movie": "Mad Max: Fury Road (2015)"
+        },
+        {
+          "chunk_id": 6960,
+          "movie": "Mad Max: Fury Road (2015)"
+        },
+        {
+          "chunk_id": 143,
+          "movie": "Once Upon a Time… in Hollywood (2019)"
+        },
+        {
+          "chunk_id": 6959,
+          "movie": "Mad Max: Fury Road (2015)"
+        },
+        {
+          "chunk_id": 184,
+          "movie": "Shrek (2001)"
+        },
+        {
+          "chunk_id": 6952,
+          "movie": "Mad Max: Fury Road (2015)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "get_movie_metadata",
+          "arguments": {
+            "movie": "Mad Max: Fury Road (2015)"
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 0.6
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies George Miller as the director of Mad Max: Fury Road, which matches the reference answer exactly.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Mad Max: Fury Road was directed by George Miller",
+            "supported": true,
+            "evidence": "chunk_id 106 and tool result get_movie_metadata both state 'Director: George Miller'"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "F4",
+      "type": "factual",
+      "question": "In what year was Groundhog Day released?",
+      "answer": "*Groundhog Day* was released in 1993.",
+      "error": null,
+      "latency_ms": 2976,
+      "cost_usd": 0.000505,
+      "tokens": 3106,
+      "input_tokens": 3005,
+      "output_tokens": 101,
+      "timings_ms": {
+        "translation": 1286,
+        "embedding_and_search": 555,
+        "keyword_search": 4,
+        "generation": 1131,
+        "total": 2976
+      },
+      "chunks": [
+        {
+          "chunk_id": 228,
+          "movie": "Groundhog Day (1993)"
+        },
+        {
+          "chunk_id": 1710,
+          "movie": "Groundhog Day (1993)"
+        },
+        {
+          "chunk_id": 1700,
+          "movie": "Groundhog Day (1993)"
+        },
+        {
+          "chunk_id": 1706,
+          "movie": "Groundhog Day (1993)"
+        },
+        {
+          "chunk_id": 1702,
+          "movie": "Groundhog Day (1993)"
+        },
+        {
+          "chunk_id": 1705,
+          "movie": "Groundhog Day (1993)"
+        },
+        {
+          "chunk_id": 1712,
+          "movie": "Groundhog Day (1993)"
+        },
+        {
+          "chunk_id": 1711,
+          "movie": "Groundhog Day (1993)"
+        }
+      ],
+      "tools": [],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer states that Groundhog Day was released in 1993, which matches the reference answer exactly. This is also supported by multiple sources that consistently list the year as 1993.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Groundhog Day was released in 1993",
+            "supported": true,
+            "evidence": "chunk_id 228, 1710, 1700, 1706, 1702, 1705, 1712, 1711 all state 'Year: 1993'"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "F5",
+      "type": "factual",
+      "question": "Who directed Hereditary?",
+      "answer": "*Hereditary* (2018) was directed by Ari Aster.",
+      "error": null,
+      "latency_ms": 4669,
+      "cost_usd": 0.000662,
+      "tokens": 6515,
+      "input_tokens": 6358,
+      "output_tokens": 157,
+      "timings_ms": {
+        "translation": 1134,
+        "embedding_and_search": 491,
+        "keyword_search": 7,
+        "generation": 3037,
+        "total": 4669
+      },
+      "chunks": [
+        {
+          "chunk_id": 10373,
+          "movie": "Hereditary (2018)"
+        },
+        {
+          "chunk_id": 558,
+          "movie": "Marriage Story (2019)"
+        },
+        {
+          "chunk_id": 448,
+          "movie": "Hereditary (2018)"
+        },
+        {
+          "chunk_id": 143,
+          "movie": "Once Upon a Time… in Hollywood (2019)"
+        },
+        {
+          "chunk_id": 10379,
+          "movie": "Hereditary (2018)"
+        },
+        {
+          "chunk_id": 184,
+          "movie": "Shrek (2001)"
+        },
+        {
+          "chunk_id": 10385,
+          "movie": "Hereditary (2018)"
+        },
+        {
+          "chunk_id": 229,
+          "movie": "Wonder Woman (2017)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "get_movie_metadata",
+          "arguments": {
+            "movie": "Hereditary (2018)"
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 0.6
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies Ari Aster as the director of Hereditary, which matches the reference answer exactly.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Hereditary (2018) was directed by Ari Aster",
+            "supported": true,
+            "evidence": "chunk_id 448 and tool result get_movie_metadata both state 'Director: Ari Aster'"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "F6",
+      "type": "factual",
+      "question": "Who directed the 2015 film Room?",
+      "answer": "*Room* (2015) was directed by Lenny Abrahamson.",
+      "error": null,
+      "latency_ms": 3559,
+      "cost_usd": 0.000572,
+      "tokens": 3288,
+      "input_tokens": 3107,
+      "output_tokens": 181,
+      "timings_ms": {
+        "translation": 1052,
+        "embedding_and_search": 613,
+        "keyword_search": 12,
+        "generation": 1883,
+        "total": 3559
+      },
+      "chunks": [
+        {
+          "chunk_id": 407,
+          "movie": "Room (2015)"
+        },
+        {
+          "chunk_id": 9311,
+          "movie": "Room (2015)"
+        },
+        {
+          "chunk_id": 9306,
+          "movie": "Room (2015)"
+        },
+        {
+          "chunk_id": 9308,
+          "movie": "Room (2015)"
+        },
+        {
+          "chunk_id": 9320,
+          "movie": "Room (2015)"
+        },
+        {
+          "chunk_id": 359,
+          "movie": "Lost in Translation (2003)"
+        },
+        {
+          "chunk_id": 9324,
+          "movie": "Room (2015)"
+        },
+        {
+          "chunk_id": 558,
+          "movie": "Marriage Story (2019)"
+        }
+      ],
+      "tools": [],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies Lenny Abrahamson as the director of the 2015 film Room, which matches the reference answer exactly.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Room (2015) was directed by Lenny Abrahamson",
+            "supported": true,
+            "evidence": "chunk_id 407 states 'Director: Lenny Abrahamson' for Room (2015)"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "F7",
+      "type": "factual",
+      "question": "Who directed The Shape of Water?",
+      "answer": "*The Shape of Water* was directed by Guillermo del Toro.",
+      "error": null,
+      "latency_ms": 3693,
+      "cost_usd": 0.000615,
+      "tokens": 6436,
+      "input_tokens": 6330,
+      "output_tokens": 106,
+      "timings_ms": {
+        "translation": 856,
+        "embedding_and_search": 532,
+        "keyword_search": 9,
+        "generation": 2296,
+        "total": 3693
+      },
+      "chunks": [
+        {
+          "chunk_id": 417,
+          "movie": "The Shape of Water (2017)"
+        },
+        {
+          "chunk_id": 558,
+          "movie": "Marriage Story (2019)"
+        },
+        {
+          "chunk_id": 10062,
+          "movie": "The Shape of Water (2017)"
+        },
+        {
+          "chunk_id": 143,
+          "movie": "Once Upon a Time… in Hollywood (2019)"
+        },
+        {
+          "chunk_id": 10052,
+          "movie": "The Shape of Water (2017)"
+        },
+        {
+          "chunk_id": 184,
+          "movie": "Shrek (2001)"
+        },
+        {
+          "chunk_id": 10059,
+          "movie": "The Shape of Water (2017)"
+        },
+        {
+          "chunk_id": 229,
+          "movie": "Wonder Woman (2017)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "get_movie_metadata",
+          "arguments": {
+            "movie": "The Shape of Water"
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 0.6
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies Guillermo del Toro as the director of The Shape of Water, which matches the reference answer exactly.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "The Shape of Water was directed by Guillermo del Toro",
+            "supported": true,
+            "evidence": "chunk_id 417 and tool result get_movie_metadata both state 'Director: Guillermo del Toro'"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "F8",
+      "type": "factual",
+      "question": "Which war film from 2017 did Christopher Nolan direct?",
+      "answer": "Christopher Nolan directed *Dunkirk* (2017).",
+      "error": null,
+      "latency_ms": 3283,
+      "cost_usd": 0.000583,
+      "tokens": 3564,
+      "input_tokens": 3448,
+      "output_tokens": 116,
+      "timings_ms": {
+        "translation": 1075,
+        "embedding_and_search": 566,
+        "keyword_search": 12,
+        "generation": 1629,
+        "total": 3282
+      },
+      "chunks": [
+        {
+          "chunk_id": 186,
+          "movie": "Dunkirk (2017)"
+        },
+        {
+          "chunk_id": 9965,
+          "movie": "Dunkirk (2017)"
+        },
+        {
+          "chunk_id": 9955,
+          "movie": "Dunkirk (2017)"
+        },
+        {
+          "chunk_id": 421,
+          "movie": "Platoon (1986)"
+        },
+        {
+          "chunk_id": 9950,
+          "movie": "Dunkirk (2017)"
+        },
+        {
+          "chunk_id": 82,
+          "movie": "Saving Private Ryan (1998)"
+        },
+        {
+          "chunk_id": 174,
+          "movie": "Full Metal Jacket (1987)"
+        },
+        {
+          "chunk_id": 9948,
+          "movie": "Dunkirk (2017)"
+        }
+      ],
+      "tools": [],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 0.8
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies Dunkirk as the war film from 2017 directed by Christopher Nolan, which matches the reference answer exactly.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Christopher Nolan directed Dunkirk (2017)",
+            "supported": true,
+            "evidence": "chunk_id 186 states 'Director: Christopher Nolan' for Dunkirk (2017), and chunk_id 9965, 9955, 9950, and 9948 all reference Christopher Nolan as the director of Dunkirk"
+          },
+          {
+            "claim": "Dunkirk is a war film",
+            "supported": true,
+            "evidence": "chunk_id 186 lists 'War' as one of the genres for Dunkirk (2017)"
+          },
+          {
+            "claim": "Dunkirk was released in 2017",
+            "supported": true,
+            "evidence": "chunk_id 186 states 'Year: 2017'"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "R1",
+      "type": "rating",
+      "question": "What is the IMDb rating of The Dark Knight?",
+      "answer": "*The Dark Knight* (2008) has an IMDb rating of **9.1/10**.",
+      "error": null,
+      "latency_ms": 4892,
+      "cost_usd": 0.000589,
+      "tokens": 5987,
+      "input_tokens": 5875,
+      "output_tokens": 112,
+      "timings_ms": {
+        "translation": 1350,
+        "embedding_and_search": 501,
+        "keyword_search": 8,
+        "generation": 3033,
+        "total": 4892
+      },
+      "chunks": [
+        {
+          "chunk_id": 33,
+          "movie": "The Dark Knight (2008)"
+        },
+        {
+          "chunk_id": 43,
+          "movie": "The Dark Knight (2008)"
+        },
+        {
+          "chunk_id": 26,
+          "movie": "The Dark Knight (2008)"
+        },
+        {
+          "chunk_id": 73,
+          "movie": "The Dark Knight Rises (2012)"
+        },
+        {
+          "chunk_id": 29,
+          "movie": "The Dark Knight (2008)"
+        },
+        {
+          "chunk_id": 6842,
+          "movie": "The Dark Knight Rises (2012)"
+        },
+        {
+          "chunk_id": 39,
+          "movie": "The Dark Knight (2008)"
+        },
+        {
+          "chunk_id": 1,
+          "movie": "The Dark Knight (2008)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "get_movie_metadata",
+          "arguments": {
+            "movie": "The Dark Knight"
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 0.8
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer states that The Dark Knight (2008) has an IMDb rating of 9.1, which exactly matches the reference answer and is supported by both the source data and tool results.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "The Dark Knight (2008) has an IMDb rating of 9.1",
+            "supported": true,
+            "evidence": "chunk_id 1 states 'IMDb rating: 9.1 (3,116,358 votes)' and tool result get_movie_metadata confirms 'imdb_rating': 9.1"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "R2",
+      "type": "rating",
+      "question": "Which is rated higher on IMDb, Inception or Interstellar?",
+      "answer": "**Inception** is rated slightly higher on IMDb: 8.8, compared with **Interstellar** at 8.7.",
+      "error": null,
+      "latency_ms": 4965,
+      "cost_usd": 0.00054,
+      "tokens": 5133,
+      "input_tokens": 4993,
+      "output_tokens": 140,
+      "timings_ms": {
+        "translation": 1014,
+        "embedding_and_search": 498,
+        "keyword_search": 0,
+        "generation": 3446,
+        "total": 4965
+      },
+      "chunks": [
+        {
+          "chunk_id": 49,
+          "movie": "Inception (2010)"
+        },
+        {
+          "chunk_id": 5213,
+          "movie": "Interstellar (2014)"
+        },
+        {
+          "chunk_id": 53,
+          "movie": "Inception (2010)"
+        },
+        {
+          "chunk_id": 5219,
+          "movie": "Interstellar (2014)"
+        },
+        {
+          "chunk_id": 47,
+          "movie": "Inception (2010)"
+        },
+        {
+          "chunk_id": 5228,
+          "movie": "Interstellar (2014)"
+        },
+        {
+          "chunk_id": 52,
+          "movie": "Inception (2010)"
+        },
+        {
+          "chunk_id": 5225,
+          "movie": "Interstellar (2014)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "compare_movies",
+          "arguments": {
+            "movie_a": "Inception (2010)",
+            "movie_b": "Interstellar (2014)"
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": true
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies that Inception is rated higher on IMDb (8.8 vs 8.7), which matches the reference answer exactly. The specific ratings provided match the tool results from the compare_movies function.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Inception is rated 8.8 on IMDb",
+            "supported": true,
+            "evidence": "compare_movies tool result shows Inception IMDb rating of 8.8"
+          },
+          {
+            "claim": "Interstellar is rated 8.7 on IMDb",
+            "supported": true,
+            "evidence": "compare_movies tool result shows Interstellar IMDb rating of 8.7"
+          },
+          {
+            "claim": "Inception is rated higher on IMDb than Interstellar",
+            "supported": true,
+            "evidence": "compare_movies tool result indicates 'higher_imdb_rating': 'Inception'"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "R3",
+      "type": "rating",
+      "question": "Which has the higher IMDb rating, Alien or Aliens?",
+      "answer": "**Alien (1979)** has the higher IMDb rating: **8.5**, compared with **8.4** for **Aliens (1986)**.",
+      "error": null,
+      "latency_ms": 5516,
+      "cost_usd": 0.000631,
+      "tokens": 5635,
+      "input_tokens": 5452,
+      "output_tokens": 183,
+      "timings_ms": {
+        "translation": 1200,
+        "embedding_and_search": 508,
+        "keyword_search": 0,
+        "generation": 3802,
+        "total": 5516
+      },
+      "chunks": [
+        {
+          "chunk_id": 122,
+          "movie": "Alien (1979)"
+        },
+        {
+          "chunk_id": 1174,
+          "movie": "Aliens (1986)"
+        },
+        {
+          "chunk_id": 991,
+          "movie": "Alien (1979)"
+        },
+        {
+          "chunk_id": 176,
+          "movie": "Aliens (1986)"
+        },
+        {
+          "chunk_id": 980,
+          "movie": "Alien (1979)"
+        },
+        {
+          "chunk_id": 1186,
+          "movie": "Aliens (1986)"
+        },
+        {
+          "chunk_id": 979,
+          "movie": "Alien (1979)"
+        },
+        {
+          "chunk_id": 1176,
+          "movie": "Aliens (1986)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "compare_movies",
+          "arguments": {
+            "movie_a": "Alien (1979)",
+            "movie_b": "Aliens (1986)"
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": true
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies that Alien has the higher IMDb rating (8.5 vs 8.4), matching the reference exactly with the correct numbers and film titles.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Alien (1979) has an IMDb rating of 8.5",
+            "supported": true,
+            "evidence": "chunk_id 122 states 'IMDb rating: 8.5 (1,049,942 votes)' and tool result compare_movies confirms imdb_rating of 8.5"
+          },
+          {
+            "claim": "Aliens (1986) has an IMDb rating of 8.4",
+            "supported": true,
+            "evidence": "chunk_id 176 states 'IMDb rating: 8.4 (832,106 votes)' and tool result compare_movies confirms imdb_rating of 8.4"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "R4",
+      "type": "rating",
+      "question": "What is the critics' average score for Whiplash in this database?",
+      "answer": "Whiplash has an average critics’ score of **8.6/10**, based on 20 reviews in this database.",
+      "error": null,
+      "latency_ms": 6078,
+      "cost_usd": 0.000545,
+      "tokens": 5110,
+      "input_tokens": 4975,
+      "output_tokens": 135,
+      "timings_ms": {
+        "translation": 1313,
+        "embedding_and_search": 612,
+        "keyword_search": 5,
+        "generation": 4148,
+        "total": 6078
+      },
+      "chunks": [
+        {
+          "chunk_id": 8948,
+          "movie": "Whiplash (2014)"
+        },
+        {
+          "chunk_id": 8950,
+          "movie": "Whiplash (2014)"
+        },
+        {
+          "chunk_id": 8955,
+          "movie": "Whiplash (2014)"
+        },
+        {
+          "chunk_id": 8963,
+          "movie": "Whiplash (2014)"
+        },
+        {
+          "chunk_id": 8957,
+          "movie": "Whiplash (2014)"
+        },
+        {
+          "chunk_id": 8958,
+          "movie": "Whiplash (2014)"
+        },
+        {
+          "chunk_id": 8947,
+          "movie": "Whiplash (2014)"
+        },
+        {
+          "chunk_id": 8965,
+          "movie": "Whiplash (2014)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "rating_summary",
+          "arguments": {
+            "movie": "Whiplash (2014)"
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": true
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer provides the exact critics' average score of 8.6 out of 10 for Whiplash (2014), which matches the reference answer perfectly.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Whiplash has an average critics' score of 8.6/10",
+            "supported": true,
+            "evidence": "rating_summary tool result shows average_critic_rating: 8.6"
+          },
+          {
+            "claim": "This is based on 20 reviews in this database",
+            "supported": true,
+            "evidence": "rating_summary tool result shows number_of_reviews: 20"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "R5",
+      "type": "rating",
+      "question": "What is the critics' average score for Suicide Squad?",
+      "answer": "*Suicide Squad* (2016) has an average critic score of **3.85/10**, based on 20 reviews in the database.",
+      "error": null,
+      "latency_ms": 8364,
+      "cost_usd": 0.000576,
+      "tokens": 5315,
+      "input_tokens": 5164,
+      "output_tokens": 151,
+      "timings_ms": {
+        "translation": 1257,
+        "embedding_and_search": 511,
+        "keyword_search": 5,
+        "generation": 6591,
+        "total": 8364
+      },
+      "chunks": [
+        {
+          "chunk_id": 6913,
+          "movie": "Suicide Squad (2016)"
+        },
+        {
+          "chunk_id": 6921,
+          "movie": "Suicide Squad (2016)"
+        },
+        {
+          "chunk_id": 6927,
+          "movie": "Suicide Squad (2016)"
+        },
+        {
+          "chunk_id": 6930,
+          "movie": "Suicide Squad (2016)"
+        },
+        {
+          "chunk_id": 6924,
+          "movie": "Suicide Squad (2016)"
+        },
+        {
+          "chunk_id": 214,
+          "movie": "Suicide Squad (2016)"
+        },
+        {
+          "chunk_id": 6929,
+          "movie": "Suicide Squad (2016)"
+        },
+        {
+          "chunk_id": 6915,
+          "movie": "Suicide Squad (2016)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "rating_summary",
+          "arguments": {
+            "movie": "Suicide Squad (2016)"
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": true
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer provides the exact critics' average score of 3.85 out of 10 for Suicide Squad (2016), which matches the reference answer precisely. The tool results confirm this rating.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Suicide Squad (2016) has an average critic score of 3.85/10",
+            "supported": true,
+            "evidence": "rating_summary tool result shows average_critic_rating: 3.85"
+          },
+          {
+            "claim": "The score is based on 20 reviews in the database",
+            "supported": true,
+            "evidence": "rating_summary tool result shows number_of_reviews: 20"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "R6",
+      "type": "rating",
+      "question": "Is Heat rated higher than Joker on IMDb?",
+      "answer": "No. **Heat (1995)** and **Joker (2019)** are tied on IMDb at **8.3**.",
+      "error": null,
+      "latency_ms": 5827,
+      "cost_usd": 0.00061,
+      "tokens": 5324,
+      "input_tokens": 5134,
+      "output_tokens": 190,
+      "timings_ms": {
+        "translation": 1101,
+        "embedding_and_search": 541,
+        "keyword_search": 0,
+        "generation": 4178,
+        "total": 5826
+      },
+      "chunks": [
+        {
+          "chunk_id": 1977,
+          "movie": "Heat (1995)"
+        },
+        {
+          "chunk_id": 81,
+          "movie": "Joker (2019)"
+        },
+        {
+          "chunk_id": 1990,
+          "movie": "Heat (1995)"
+        },
+        {
+          "chunk_id": 10323,
+          "movie": "Joker (2019)"
+        },
+        {
+          "chunk_id": 1991,
+          "movie": "Heat (1995)"
+        },
+        {
+          "chunk_id": 10320,
+          "movie": "Joker (2019)"
+        },
+        {
+          "chunk_id": 1976,
+          "movie": "Heat (1995)"
+        },
+        {
+          "chunk_id": 10315,
+          "movie": "Joker (2019)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "compare_movies",
+          "arguments": {
+            "movie_a": "Heat (1995)",
+            "movie_b": "Joker (2019)"
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": true
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly states that Heat and Joker are tied at 8.3 on IMDb, which matches the reference answer exactly.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Heat (1995) has an IMDb rating of 8.3",
+            "supported": true,
+            "evidence": "compare_movies tool result shows Heat with imdb_rating: 8.3"
+          },
+          {
+            "claim": "Joker (2019) has an IMDb rating of 8.3",
+            "supported": true,
+            "evidence": "compare_movies tool result shows Joker with imdb_rating: 8.3 and source chunk_id 81 states 'IMDb rating: 8.3 (1,663,671 votes)'"
+          },
+          {
+            "claim": "Heat and Joker are tied on IMDb",
+            "supported": true,
+            "evidence": "compare_movies tool result shows 'higher_imdb_rating': 'tie'"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "R7",
+      "type": "rating",
+      "question": "Which is rated higher, Logan or Deadpool?",
+      "answer": "**Logan (2017)** is rated slightly higher on IMDb: 8.1, compared with **Deadpool (2016)** at 8.0.",
+      "error": null,
+      "latency_ms": 5510,
+      "cost_usd": 0.000603,
+      "tokens": 5165,
+      "input_tokens": 4978,
+      "output_tokens": 187,
+      "timings_ms": {
+        "translation": 1340,
+        "embedding_and_search": 542,
+        "keyword_search": 0,
+        "generation": 3622,
+        "total": 5510
+      },
+      "chunks": [
+        {
+          "chunk_id": 9347,
+          "movie": "Logan (2017)"
+        },
+        {
+          "chunk_id": 7104,
+          "movie": "Deadpool (2016)"
+        },
+        {
+          "chunk_id": 9352,
+          "movie": "Logan (2017)"
+        },
+        {
+          "chunk_id": 7093,
+          "movie": "Deadpool (2016)"
+        },
+        {
+          "chunk_id": 9346,
+          "movie": "Logan (2017)"
+        },
+        {
+          "chunk_id": 7096,
+          "movie": "Deadpool (2016)"
+        },
+        {
+          "chunk_id": 9353,
+          "movie": "Logan (2017)"
+        },
+        {
+          "chunk_id": 7098,
+          "movie": "Deadpool (2016)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "compare_movies",
+          "arguments": {
+            "movie_a": "Logan (2017)",
+            "movie_b": "Deadpool (2016)"
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": true
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies Logan as the higher-rated film with the exact IMDb ratings (8.1 vs 8.0) matching both the reference and the tool results.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Logan (2017) has an IMDb rating of 8.1",
+            "supported": true,
+            "evidence": "compare_movies tool result"
+          },
+          {
+            "claim": "Deadpool (2016) has an IMDb rating of 8.0",
+            "supported": true,
+            "evidence": "compare_movies tool result"
+          },
+          {
+            "claim": "Logan is rated higher than Deadpool",
+            "supported": true,
+            "evidence": "compare_movies tool result"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "O1",
+      "type": "opinion",
+      "question": "What do critics praise about Mad Max: Fury Road?",
+      "answer": "Critics praise **Mad Max: Fury Road** for its relentless momentum and exhilarating action. Geoff Pevere calls it “savagely pleasurable,” while Ian Nathan highlights its “jaw-dropping action,” “crackpot humour,” and “barking-mad imagination.” Chris Vognar praises its ever-more-outlandish inventiveness, and Bruce Kirkland points to its photography, set design, and other technical craft. Ty Burr also notes the tenderness beneath the spectacle.",
+      "error": null,
+      "latency_ms": 3805,
+      "cost_usd": 0.000562,
+      "tokens": 3149,
+      "input_tokens": 2949,
+      "output_tokens": 200,
+      "timings_ms": {
+        "translation": 803,
+        "embedding_and_search": 547,
+        "keyword_search": 94,
+        "generation": 2361,
+        "total": 3805
+      },
+      "chunks": [
+        {
+          "chunk_id": 6968,
+          "movie": "Mad Max: Fury Road (2015)"
+        },
+        {
+          "chunk_id": 6958,
+          "movie": "Mad Max: Fury Road (2015)"
+        },
+        {
+          "chunk_id": 6952,
+          "movie": "Mad Max: Fury Road (2015)"
+        },
+        {
+          "chunk_id": 1042,
+          "movie": "Raiders of the Lost Ark (1981)"
+        },
+        {
+          "chunk_id": 6959,
+          "movie": "Mad Max: Fury Road (2015)"
+        },
+        {
+          "chunk_id": 1198,
+          "movie": "Ferris Bueller's Day Off (1986)"
+        },
+        {
+          "chunk_id": 6965,
+          "movie": "Mad Max: Fury Road (2015)"
+        },
+        {
+          "chunk_id": 6966,
+          "movie": "Mad Max: Fury Road (2015)"
+        }
+      ],
+      "tools": [],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 0.8
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer accurately summarizes what critics in the provided sources praise about Mad Max: Fury Road, including the relentless momentum, jaw-dropping action, imagination, technical craft, and emotional depth. All specific quotes and attributions match the sources.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Geoff Pevere calls Mad Max: Fury Road 'savagely pleasurable'",
+            "supported": true,
+            "evidence": "chunk_id 6968 - 'savagely pleasurable'"
+          },
+          {
+            "claim": "Ian Nathan highlights its 'jaw-dropping action,' 'crackpot humour,' and 'barking-mad imagination'",
+            "supported": true,
+            "evidence": "chunk_id 6952 - 'jaw-dropping action, crackpot humour, and acting in the face of a hurricane' and 'barking-mad imagination'"
+          },
+          {
+            "claim": "Chris Vognar praises its ever-more-outlandish inventiveness",
+            "supported": true,
+            "evidence": "chunk_id 6966 - 'Something even more outlandish and imaginative than what you just saw'"
+          },
+          {
+            "claim": "Bruce Kirkland points to its photography, set design, and other technical craft",
+            "supported": true,
+            "evidence": "chunk_id 6959 - 'sensational photography, set design and other technical attributes'"
+          },
+          {
+            "claim": "Ty Burr notes the tenderness beneath the spectacle",
+            "supported": true,
+            "evidence": "chunk_id 6958 - 'The shock, really, is how tender Mad Max: Fury Road ultimately becomes'"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "O2",
+      "type": "opinion",
+      "question": "What did critics dislike about Suicide Squad?",
+      "answer": "Critics faulted *Suicide Squad* for feeling incoherent and generic rather than distinctive. Marjorie Baumgarten (Austin Chronicle) said there was “no one to root for,” that some plot points lacked coherence, and that flashbacks made the film feel patched together in editing. Cary Darling (Fort Worth Star-Telegram/DFW.com) called it a “generic superhero action movie,” while Peter Travers (Rolling Stone) criticized its softened, crowd-pleasing approach. Wendy Ide (Observer (UK)) said it lacked a credible antagonist, and Michael O’Sullivan (Washington Post) felt it disappointed both fans of the source material and discerning adolescents.",
+      "error": null,
+      "latency_ms": 4407,
+      "cost_usd": 0.000585,
+      "tokens": 3161,
+      "input_tokens": 2917,
+      "output_tokens": 244,
+      "timings_ms": {
+        "translation": 1459,
+        "embedding_and_search": 482,
+        "keyword_search": 80,
+        "generation": 2385,
+        "total": 4407
+      },
+      "chunks": [
+        {
+          "chunk_id": 6913,
+          "movie": "Suicide Squad (2016)"
+        },
+        {
+          "chunk_id": 6927,
+          "movie": "Suicide Squad (2016)"
+        },
+        {
+          "chunk_id": 6930,
+          "movie": "Suicide Squad (2016)"
+        },
+        {
+          "chunk_id": 6921,
+          "movie": "Suicide Squad (2016)"
+        },
+        {
+          "chunk_id": 6924,
+          "movie": "Suicide Squad (2016)"
+        },
+        {
+          "chunk_id": 1042,
+          "movie": "Raiders of the Lost Ark (1981)"
+        },
+        {
+          "chunk_id": 6925,
+          "movie": "Suicide Squad (2016)"
+        },
+        {
+          "chunk_id": 1198,
+          "movie": "Ferris Bueller's Day Off (1986)"
+        }
+      ],
+      "tools": [],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer accurately summarizes multiple critical complaints about Suicide Squad (2016) drawn directly from the provided sources. Each criticism cited is supported by the reviews: Baumgarten's comments about lack of rooting interest and editing issues, Darling's 'generic superhero' assessment, Travers's critique of the compromised approach, Ide's point about lacking a credible antagonist, and O'Sullivan's observation about disappointing both demographics. The answer stays grounded in the database reviews without adding unsupported claims.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Marjorie Baumgarten said there was 'no one to root for' in Suicide Squad",
+            "supported": true,
+            "evidence": "chunk_id 6925: 'There's no one to root for in this movie'"
+          },
+          {
+            "claim": "Some plot points in Suicide Squad lacked coherence",
+            "supported": true,
+            "evidence": "chunk_id 6925: 'Several plot points lack coherence'"
+          },
+          {
+            "claim": "Flashbacks in Suicide Squad made the film feel patched together in editing",
+            "supported": true,
+            "evidence": "chunk_id 6925: 'inserted flashbacks add to a sense of the film having been fused into shape in the editing room'"
+          },
+          {
+            "claim": "Cary Darling called Suicide Squad a 'generic superhero action movie'",
+            "supported": true,
+            "evidence": "chunk_id 6921: 'turns out to be just another generic superhero action movie'"
+          },
+          {
+            "claim": "Peter Travers criticized Suicide Squad's softened, crowd-pleasing approach",
+            "supported": true,
+            "evidence": "chunk_id 6913: 'compromise his hardcore action bona fides for a PG-13 crowdpleaser'"
+          },
+          {
+            "claim": "Wendy Ide said Suicide Squad lacked a credible antagonist",
+            "supported": true,
+            "evidence": "chunk_id 6930: 'even a film full of villains needs a credible antagonist, and this is one of the many problems with Suicide Squad'"
+          },
+          {
+            "claim": "Michael O'Sullivan felt Suicide Squad disappointed both fans of the source material and discerning adolescents",
+            "supported": true,
+            "evidence": "chunk_id 6924: 'disappointing both fans of the source material's grown-up gloom-and-doom aesthetic and discerning adolescents'"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "O3",
+      "type": "opinion",
+      "question": "What do critics say about Heath Ledger's performance in The Dark Knight?",
+      "answer": "Critics praised Heath Ledger’s performance as the Joker. Owen Gleiberman (Entertainment Weekly) said Ledger brought “a maniacal gusto” to the role, with a daringness that suggested he could have become “as great” an actor as Marlon Brando. Michael Phillips (Chicago Tribune) called the performance “improbably droll, impossibly creepy, meticulously detailed.” Peter Howell (Toronto Star) also said Ledger deserved the expected Oscar recognition.",
+      "error": null,
+      "latency_ms": 3912,
+      "cost_usd": 0.000554,
+      "tokens": 3303,
+      "input_tokens": 3126,
+      "output_tokens": 177,
+      "timings_ms": {
+        "translation": 1259,
+        "embedding_and_search": 567,
+        "keyword_search": 14,
+        "generation": 2073,
+        "total": 3912
+      },
+      "chunks": [
+        {
+          "chunk_id": 24,
+          "movie": "The Dark Knight (2008)"
+        },
+        {
+          "chunk_id": 29,
+          "movie": "The Dark Knight (2008)"
+        },
+        {
+          "chunk_id": 6838,
+          "movie": "The Dark Knight Rises (2012)"
+        },
+        {
+          "chunk_id": 10315,
+          "movie": "Joker (2019)"
+        },
+        {
+          "chunk_id": 1,
+          "movie": "The Dark Knight (2008)"
+        },
+        {
+          "chunk_id": 6844,
+          "movie": "The Dark Knight Rises (2012)"
+        },
+        {
+          "chunk_id": 6842,
+          "movie": "The Dark Knight Rises (2012)"
+        },
+        {
+          "chunk_id": 35,
+          "movie": "The Dark Knight (2008)"
+        }
+      ],
+      "tools": [],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 0.6
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer accurately summarizes what critics in the sources say about Heath Ledger's performance in The Dark Knight. It includes direct quotes and attributions from three reviewers (Gleiberman, Phillips, and Howell) that are all present in the provided sources, and correctly characterizes their praise for his performance.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Owen Gleiberman (Entertainment Weekly) said Ledger brought 'a maniacal gusto' to the role",
+            "supported": true,
+            "evidence": "chunk_id 24"
+          },
+          {
+            "claim": "Gleiberman suggested Ledger could have become 'as great' an actor as Marlon Brando",
+            "supported": true,
+            "evidence": "chunk_id 24"
+          },
+          {
+            "claim": "Michael Phillips (Chicago Tribune) called the performance 'improbably droll, impossibly creepy, meticulously detailed'",
+            "supported": true,
+            "evidence": "chunk_id 29"
+          },
+          {
+            "claim": "Peter Howell (Toronto Star) said Ledger deserved the expected Oscar recognition",
+            "supported": true,
+            "evidence": "chunk_id 35"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "O4",
+      "type": "opinion",
+      "question": "What do critics say about Joaquin Phoenix in Joker?",
+      "answer": "Critics consistently focus on Joaquin Phoenix’s intense, unsettling performance in *Joker* (2019), though they differ in how they assess it:\n\n- Peter Travers (*Rolling Stone*) calls it a “gut-punch performance” and praises Phoenix for giving the villain a “horrifically human face.”\n- Nigel Andrews (*Financial Times*) says Phoenix brings “frightening intensity” and fully becomes the character.\n- Richard Roeper (*Chicago Sun-Times*) says Phoenix dominates the screen with a “memorably creepy turn.”\n- Dwight Brown (National Newspaper Publishers Association) describes the performance as “blistering,” while noting that the character has few redeeming qualities.\n- Matthew Lickona (*San Diego Reader*) is more critical, describing Phoenix’s work as “creepily contorting” and distinguishing it from acting.\n- Chris Hewitt (*Minneapolis Star Tribune*) praises the casting, saying Phoenix is so deeply inside the role that even its most extreme moments feel right.",
+      "error": null,
+      "latency_ms": 5336,
+      "cost_usd": 0.0006,
+      "tokens": 3443,
+      "input_tokens": 3168,
+      "output_tokens": 275,
+      "timings_ms": {
+        "translation": 797,
+        "embedding_and_search": 499,
+        "keyword_search": 8,
+        "generation": 4031,
+        "total": 5336
+      },
+      "chunks": [
+        {
+          "chunk_id": 10313,
+          "movie": "Joker (2019)"
+        },
+        {
+          "chunk_id": 10315,
+          "movie": "Joker (2019)"
+        },
+        {
+          "chunk_id": 10325,
+          "movie": "Joker (2019)"
+        },
+        {
+          "chunk_id": 10320,
+          "movie": "Joker (2019)"
+        },
+        {
+          "chunk_id": 1,
+          "movie": "The Dark Knight (2008)"
+        },
+        {
+          "chunk_id": 10319,
+          "movie": "Joker (2019)"
+        },
+        {
+          "chunk_id": 81,
+          "movie": "Joker (2019)"
+        },
+        {
+          "chunk_id": 10324,
+          "movie": "Joker (2019)"
+        }
+      ],
+      "tools": [],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 0.8
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer accurately summarizes what critics say about Joaquin Phoenix's performance in Joker (2019) based on the provided sources. All six critics mentioned are correctly quoted and attributed, with their assessments faithfully represented. The answer covers both positive and critical perspectives, including Lickona's more negative take, providing a balanced overview of critical opinion.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Peter Travers (Rolling Stone) calls it a 'gut-punch performance' and praises Phoenix for giving the villain a 'horrifically human face.'",
+            "supported": true,
+            "evidence": "chunk_id 10315"
+          },
+          {
+            "claim": "Nigel Andrews (Financial Times) says Phoenix brings 'frightening intensity' and fully becomes the character.",
+            "supported": true,
+            "evidence": "chunk_id 10319"
+          },
+          {
+            "claim": "Richard Roeper (Chicago Sun-Times) says Phoenix dominates the screen with a 'memorably creepy turn.'",
+            "supported": true,
+            "evidence": "chunk_id 10320"
+          },
+          {
+            "claim": "Dwight Brown (National Newspaper Publishers Association) describes the performance as 'blistering,' while noting that the character has few redeeming qualities.",
+            "supported": true,
+            "evidence": "chunk_id 10313"
+          },
+          {
+            "claim": "Matthew Lickona (San Diego Reader) is more critical, describing Phoenix's work as 'creepily contorting' and distinguishing it from acting.",
+            "supported": true,
+            "evidence": "chunk_id 10325"
+          },
+          {
+            "claim": "Chris Hewitt (Minneapolis Star Tribune) praises the casting, saying Phoenix is so deeply inside the role that even its most extreme moments feel right.",
+            "supported": true,
+            "evidence": "chunk_id 10324"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "O5",
+      "type": "opinion",
+      "question": "What do reviewers think of the visuals in Avatar?",
+      "answer": "Reviewers largely praise *Avatar*’s visuals, while differing on how transformative they are. Ty Burr (*Boston Globe*) calls it an experience to “be absorbed on a molecular level” and says Cameron delivers “sheer wonderment.” Anne Thompson (*indieWire*) describes it as “stunning,” and Jake Coyle (*Associated Press*) says its effects are “clearly revolutionary.”\n\nSome reviewers are more qualified: Peter Bradshaw (*Guardian*) says the effects are “certainly something to see,” but questions whether the film has changed the game. Tom Maurstad (*Dallas Morning News*) calls it “impressively seamless,” yet says it looks like a video game; Paul Byrnes (*Sydney Morning Herald*) calls it a “technical wonder” but sees it as a “failure of nerve.”",
+      "error": null,
+      "latency_ms": 5548,
+      "cost_usd": 0.00058,
+      "tokens": 3167,
+      "input_tokens": 2907,
+      "output_tokens": 260,
+      "timings_ms": {
+        "translation": 952,
+        "embedding_and_search": 610,
+        "keyword_search": 6,
+        "generation": 3980,
+        "total": 5547
+      },
+      "chunks": [
+        {
+          "chunk_id": 5035,
+          "movie": "Avatar (2009)"
+        },
+        {
+          "chunk_id": 5037,
+          "movie": "Avatar (2009)"
+        },
+        {
+          "chunk_id": 5050,
+          "movie": "Avatar (2009)"
+        },
+        {
+          "chunk_id": 5047,
+          "movie": "Avatar (2009)"
+        },
+        {
+          "chunk_id": 5045,
+          "movie": "Avatar (2009)"
+        },
+        {
+          "chunk_id": 5033,
+          "movie": "Avatar (2009)"
+        },
+        {
+          "chunk_id": 7559,
+          "movie": "Avatar: The Way of Water (2022)"
+        },
+        {
+          "chunk_id": 5032,
+          "movie": "Avatar (2009)"
+        }
+      ],
+      "tools": [],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer accurately summarizes what reviewers in the database say about Avatar's visuals. It correctly attributes quotes and characterizations to the appropriate reviewers and sources, capturing both the praise for the visual effects and the more qualified/critical perspectives. All specific claims are supported by the provided sources.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Ty Burr (Boston Globe) calls Avatar's visuals an experience to 'be absorbed on a molecular level'",
+            "supported": true,
+            "evidence": "chunk_id 5037: 'Avatar is an entertainment to be not just seen but absorbed on a molecular level'"
+          },
+          {
+            "claim": "Ty Burr says Cameron delivers 'sheer wonderment'",
+            "supported": true,
+            "evidence": "chunk_id 5037: 'Cameron aims for sheer wonderment, and he delivers'"
+          },
+          {
+            "claim": "Anne Thompson (indieWire) describes Avatar as 'stunning'",
+            "supported": true,
+            "evidence": "chunk_id 5050: 'Avatar is stunning'"
+          },
+          {
+            "claim": "Jake Coyle (Associated Press) says Avatar's effects are 'clearly revolutionary'",
+            "supported": true,
+            "evidence": "chunk_id 5032: 'A movie whose effects are clearly revolutionary'"
+          },
+          {
+            "claim": "Peter Bradshaw (Guardian) says the effects are 'certainly something to see'",
+            "supported": true,
+            "evidence": "chunk_id 5045: 'The effects of Avatar are certainly something to see'"
+          },
+          {
+            "claim": "Peter Bradshaw questions whether the film has changed the game",
+            "supported": true,
+            "evidence": "chunk_id 5045: 'But it's difficult to tell if the game has really been changed or not'"
+          },
+          {
+            "claim": "Tom Maurstad (Dallas Morning News) calls Avatar 'impressively seamless'",
+            "supported": true,
+            "evidence": "chunk_id 5047: 'While Avatar is impressively seamless'"
+          },
+          {
+            "claim": "Tom Maurstad says it looks like a video game",
+            "supported": true,
+            "evidence": "chunk_id 5047: 'This doesn't look like a documentary film; it looks like a video game'"
+          },
+          {
+            "claim": "Paul Byrnes (Sydney Morning Herald) calls Avatar a 'technical wonder'",
+            "supported": true,
+            "evidence": "chunk_id 5035: 'a technical wonder'"
+          },
+          {
+            "claim": "Paul Byrnes sees it as a 'failure of nerve'",
+            "supported": true,
+            "evidence": "chunk_id 5035: 'a failure of nerve'"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "O6",
+      "type": "opinion",
+      "question": "What are the main criticisms of Batman v Superman: Dawn of Justice?",
+      "answer": "The reviews criticize **Batman v Superman: Dawn of Justice** for:\n\n- **Being joyless and grim:** Ann Hornaday (Washington Post) says its heroes grimace and scowl through their actions rather than offering escapism or excitement.\n- **Lacking coherence and motivation:** Preston Jones (Fort Worth Star-Telegram/DFW.com) describes the narrative as incoherent, faulting its logic, reason, and character motivation.\n- **Feeling derivative and unconvincing:** Stephen Whitty (Newark Star-Ledger) calls it a medley of familiar superhero-film elements that “none of it convinces.”\n- **Being ponderous and overstuffed:** Joshua Rothkopf (Time Out) calls it a “lumbering” superhero mélange.",
+      "error": null,
+      "latency_ms": 4746,
+      "cost_usd": 0.000602,
+      "tokens": 3225,
+      "input_tokens": 2960,
+      "output_tokens": 265,
+      "timings_ms": {
+        "translation": 1170,
+        "embedding_and_search": 559,
+        "keyword_search": 121,
+        "generation": 2896,
+        "total": 4746
+      },
+      "chunks": [
+        {
+          "chunk_id": 9246,
+          "movie": "Batman v Superman: Dawn of Justice (2016)"
+        },
+        {
+          "chunk_id": 1042,
+          "movie": "Raiders of the Lost Ark (1981)"
+        },
+        {
+          "chunk_id": 9254,
+          "movie": "Batman v Superman: Dawn of Justice (2016)"
+        },
+        {
+          "chunk_id": 1198,
+          "movie": "Ferris Bueller's Day Off (1986)"
+        },
+        {
+          "chunk_id": 9261,
+          "movie": "Batman v Superman: Dawn of Justice (2016)"
+        },
+        {
+          "chunk_id": 10,
+          "movie": "Fight Club (1999)"
+        },
+        {
+          "chunk_id": 9258,
+          "movie": "Batman v Superman: Dawn of Justice (2016)"
+        },
+        {
+          "chunk_id": 646,
+          "movie": "Citizen Kane (1941)"
+        }
+      ],
+      "tools": [],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 0.6
+      },
+      "rules": {
+        "must_contain_hit": false,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer accurately summarizes the main criticisms found in the provided reviews of Batman v Superman: Dawn of Justice. Each criticism is directly supported by quotes from the sources, and the answer faithfully represents what the critics said about the film's weaknesses.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Ann Hornaday (Washington Post) says its heroes grimace and scowl through their actions rather than offering escapism or excitement",
+            "supported": true,
+            "evidence": "chunk_id 9261: 'Rather than escapism and sensory exhilaration, viewers get down in the mire with protagonists who grimace, scowl and wince their way through heroics with the joyless determination of shift workers making the doughnuts.'"
+          },
+          {
+            "claim": "Preston Jones (Fort Worth Star-Telegram/DFW.com) describes the narrative as incoherent, faulting its logic, reason, and character motivation",
+            "supported": true,
+            "evidence": "chunk_id 9258: 'For those who go to the movies to see coherent narratives, [this] is Hollywood's latest exercise in fan service...taking the usual screenplay ingredients of logic, reason and character motivation, tossing it all in a blender and filming the scraps.'"
+          },
+          {
+            "claim": "Stephen Whitty (Newark Star-Ledger) calls it a medley of familiar superhero-film elements that 'none of it convinces'",
+            "supported": true,
+            "evidence": "chunk_id 9254: '[Plays] less like a prequel for the JLA then a greatest-hits medley of every superhero movie ever made -- a little Dark Knight Rises here, a bit of Batman Begins there, all spiced up with some X-Men topicality. The thing is, none of it convinces.'"
+          },
+          {
+            "claim": "Joshua Rothkopf (Time Out) calls it a 'lumbering' superhero mélange",
+            "supported": true,
+            "evidence": "chunk_id 9246: 'Zack Snyder's lumbering, dead-on-arrival superhero mélange'"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "O7",
+      "type": "opinion",
+      "question": "Do critics think Gravity is worth seeing?",
+      "answer": "Yes. The reviews are strongly positive: Ann Hornaday (Washington Post) says *Gravity* “must be seen in theaters,” while Christy Lemire calls it “jaw-droppingly spectacular.” Rafer Guzman (Newsday) says its effects and visual artistry also make it entertaining.",
+      "error": null,
+      "latency_ms": 6192,
+      "cost_usd": 0.000551,
+      "tokens": 3069,
+      "input_tokens": 2873,
+      "output_tokens": 196,
+      "timings_ms": {
+        "translation": 774,
+        "embedding_and_search": 547,
+        "keyword_search": 63,
+        "generation": 4808,
+        "total": 6192
+      },
+      "chunks": [
+        {
+          "chunk_id": 7178,
+          "movie": "Gravity (2013)"
+        },
+        {
+          "chunk_id": 7183,
+          "movie": "Gravity (2013)"
+        },
+        {
+          "chunk_id": 7186,
+          "movie": "Gravity (2013)"
+        },
+        {
+          "chunk_id": 7185,
+          "movie": "Gravity (2013)"
+        },
+        {
+          "chunk_id": 7184,
+          "movie": "Gravity (2013)"
+        },
+        {
+          "chunk_id": 1042,
+          "movie": "Raiders of the Lost Ark (1981)"
+        },
+        {
+          "chunk_id": 1198,
+          "movie": "Ferris Bueller's Day Off (1986)"
+        },
+        {
+          "chunk_id": 7181,
+          "movie": "Gravity (2013)"
+        }
+      ],
+      "tools": [],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer accurately reflects what critics in the provided sources say about whether Gravity is worth seeing. It correctly cites specific reviewers and their positive assessments, demonstrating that critics think the film is worth seeing.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Ann Hornaday (Washington Post) says Gravity \"must be seen in theaters\"",
+            "supported": true,
+            "evidence": "chunk_id 7178: 'Gravity' must be seen in theaters to be appreciated"
+          },
+          {
+            "claim": "Christy Lemire calls it \"jaw-droppingly spectacular\"",
+            "supported": true,
+            "evidence": "chunk_id 7185: Gravity is as jaw-droppingly spectacular as you've heard"
+          },
+          {
+            "claim": "Rafer Guzman (Newsday) says its effects and visual artistry also make it entertaining",
+            "supported": true,
+            "evidence": "chunk_id 7181: It's a rare combination of jaw-dropping special effects and visual artistry, and it also works as slam-bang entertainment"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "O8",
+      "type": "opinion",
+      "question": "What do critics say about the music in La La Land?",
+      "answer": "Critics describe *La La Land*’s music as part of its emotional and romantic appeal. Joe Dziemianowicz (New York Daily News) says the film understands what makes musicals work: “People sing because they feel so much.” Stephen Whitty (Newark Star-Ledger) praises its fantasy and magic, while Ian Freer (Empire Magazine) calls it “audacious” and “retro.”\n\nMick LaSalle (San Francisco Chronicle) notes that after the splashy opening number, the film becomes surprisingly intimate. The excerpts don’t give detailed comments on particular songs or the score.",
+      "error": null,
+      "latency_ms": 6490,
+      "cost_usd": 0.000668,
+      "tokens": 3415,
+      "input_tokens": 3081,
+      "output_tokens": 334,
+      "timings_ms": {
+        "translation": 1593,
+        "embedding_and_search": 547,
+        "keyword_search": 6,
+        "generation": 4343,
+        "total": 6490
+      },
+      "chunks": [
+        {
+          "chunk_id": 9635,
+          "movie": "La La Land (2016)"
+        },
+        {
+          "chunk_id": 9632,
+          "movie": "La La Land (2016)"
+        },
+        {
+          "chunk_id": 9643,
+          "movie": "La La Land (2016)"
+        },
+        {
+          "chunk_id": 9634,
+          "movie": "La La Land (2016)"
+        },
+        {
+          "chunk_id": 9630,
+          "movie": "La La Land (2016)"
+        },
+        {
+          "chunk_id": 9644,
+          "movie": "La La Land (2016)"
+        },
+        {
+          "chunk_id": 9628,
+          "movie": "La La Land (2016)"
+        },
+        {
+          "chunk_id": 507,
+          "movie": "Sweeney Todd: The Demon Barber of Fleet Street (2007)"
+        }
+      ],
+      "tools": [],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer accurately summarizes what critics in the provided sources say about La La Land's music. It correctly attributes quotes and observations to the named critics and sources, and appropriately notes that the excerpts don't provide detailed commentary on specific songs or the score itself. All claims are grounded in the provided review excerpts.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Joe Dziemianowicz (New York Daily News) says the film understands what makes musicals work: 'People sing because they feel so much.'",
+            "supported": true,
+            "evidence": "chunk_id 9630"
+          },
+          {
+            "claim": "Stephen Whitty (Newark Star-Ledger) praises its fantasy and magic",
+            "supported": true,
+            "evidence": "chunk_id 9632"
+          },
+          {
+            "claim": "Ian Freer (Empire Magazine) calls it 'audacious' and 'retro'",
+            "supported": true,
+            "evidence": "chunk_id 9643"
+          },
+          {
+            "claim": "Mick LaSalle (San Francisco Chronicle) notes that after the splashy opening number, the film becomes surprisingly intimate",
+            "supported": true,
+            "evidence": "chunk_id 9635"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "P1",
+      "type": "plot",
+      "question": "Which film follows a family that must stay silent to survive creatures that hunt by sound?",
+      "answer": "**A Quiet Place (2018)** follows a family forced to live in silence while hiding from creatures that hunt by sound.",
+      "error": null,
+      "latency_ms": 2856,
+      "cost_usd": 0.000585,
+      "tokens": 3522,
+      "input_tokens": 3391,
+      "output_tokens": 131,
+      "timings_ms": {
+        "translation": 786,
+        "embedding_and_search": 622,
+        "keyword_search": 10,
+        "generation": 1438,
+        "total": 2856
+      },
+      "chunks": [
+        {
+          "chunk_id": 270,
+          "movie": "A Quiet Place (2018)"
+        },
+        {
+          "chunk_id": 10196,
+          "movie": "A Quiet Place (2018)"
+        },
+        {
+          "chunk_id": 277,
+          "movie": "Shaun of the Dead (2004)"
+        },
+        {
+          "chunk_id": 10195,
+          "movie": "A Quiet Place (2018)"
+        },
+        {
+          "chunk_id": 374,
+          "movie": "Saw (2004)"
+        },
+        {
+          "chunk_id": 10205,
+          "movie": "A Quiet Place (2018)"
+        },
+        {
+          "chunk_id": 588,
+          "movie": "Alien³ (1992)"
+        },
+        {
+          "chunk_id": 10189,
+          "movie": "A Quiet Place (2018)"
+        }
+      ],
+      "tools": [],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 0.6
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies 'A Quiet Place (2018)' as the film that follows a family that must stay silent to survive creatures that hunt by sound, which matches the reference answer exactly. The description provided is also accurate based on the sources.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "A Quiet Place (2018) follows a family forced to live in silence while hiding from creatures that hunt by sound",
+            "supported": true,
+            "evidence": "chunk_id 270: 'A family is forced to live in silence while hiding from creatures that hunt by sound.' and chunk_id 10196: 'a family that can only stay alive if no one makes a sound'"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "P2",
+      "type": "plot",
+      "question": "Which movie is about a young con artist who poses as a pilot and a doctor while an FBI agent chases him?",
+      "answer": "**Catch Me If You Can (2002)** is about Frank Abagnale Jr., who poses as a Pan Am pilot and a doctor while an FBI agent pursues him.",
+      "error": null,
+      "latency_ms": 3850,
+      "cost_usd": 0.000605,
+      "tokens": 3551,
+      "input_tokens": 3400,
+      "output_tokens": 151,
+      "timings_ms": {
+        "translation": 1293,
+        "embedding_and_search": 513,
+        "keyword_search": 8,
+        "generation": 2037,
+        "total": 3850
+      },
+      "chunks": [
+        {
+          "chunk_id": 104,
+          "movie": "Catch Me If You Can (2002)"
+        },
+        {
+          "chunk_id": 342,
+          "movie": "Top Gun (1986)"
+        },
+        {
+          "chunk_id": 3190,
+          "movie": "Catch Me If You Can (2002)"
+        },
+        {
+          "chunk_id": 3184,
+          "movie": "Catch Me If You Can (2002)"
+        },
+        {
+          "chunk_id": 167,
+          "movie": "Doctor Strange (2016)"
+        },
+        {
+          "chunk_id": 3175,
+          "movie": "Catch Me If You Can (2002)"
+        },
+        {
+          "chunk_id": 175,
+          "movie": "Top Gun: Maverick (2022)"
+        },
+        {
+          "chunk_id": 3183,
+          "movie": "Catch Me If You Can (2002)"
+        }
+      ],
+      "tools": [],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 0.6
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies 'Catch Me If You Can (2002)' as the movie matching the question. The source material confirms that Frank Abagnale Jr. 'successfully conned millions of dollars worth of checks as a Pan Am pilot, doctor, and legal prosecutor' and that 'An FBI agent makes it his mission to put him behind bars,' which matches the question's description of a young con artist posing as a pilot and doctor while an FBI agent chases him.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Catch Me If You Can is from 2002",
+            "supported": true,
+            "evidence": "chunk_id 104"
+          },
+          {
+            "claim": "The movie is about Frank Abagnale Jr.",
+            "supported": true,
+            "evidence": "chunk_id 104"
+          },
+          {
+            "claim": "He poses as a Pan Am pilot",
+            "supported": true,
+            "evidence": "chunk_id 104"
+          },
+          {
+            "claim": "He poses as a doctor",
+            "supported": true,
+            "evidence": "chunk_id 104"
+          },
+          {
+            "claim": "An FBI agent pursues him",
+            "supported": true,
+            "evidence": "chunk_id 104"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "P3",
+      "type": "plot",
+      "question": "Which film is about a cowboy doll who feels replaced by a new space ranger toy?",
+      "answer": "That’s **Toy Story (1995)**. Woody, a cowboy doll, fears losing his place in Andy’s heart when Buzz Lightyear, a new space ranger toy, arrives.",
+      "error": null,
+      "latency_ms": 3555,
+      "cost_usd": 0.000593,
+      "tokens": 3482,
+      "input_tokens": 3333,
+      "output_tokens": 149,
+      "timings_ms": {
+        "translation": 1277,
+        "embedding_and_search": 636,
+        "keyword_search": 6,
+        "generation": 1636,
+        "total": 3555
+      },
+      "chunks": [
+        {
+          "chunk_id": 113,
+          "movie": "Toy Story (1995)"
+        },
+        {
+          "chunk_id": 259,
+          "movie": "Toy Story 2 (1999)"
+        },
+        {
+          "chunk_id": 2330,
+          "movie": "Toy Story 2 (1999)"
+        },
+        {
+          "chunk_id": 2013,
+          "movie": "Toy Story (1995)"
+        },
+        {
+          "chunk_id": 2329,
+          "movie": "Toy Story 2 (1999)"
+        },
+        {
+          "chunk_id": 596,
+          "movie": "Hugo (2011)"
+        },
+        {
+          "chunk_id": 138,
+          "movie": "Toy Story 3 (2010)"
+        },
+        {
+          "chunk_id": 2015,
+          "movie": "Toy Story (1995)"
+        }
+      ],
+      "tools": [],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 0.4
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies Toy Story (1995) as the film about a cowboy doll who feels replaced by a new space ranger toy. The source material confirms that Woody is a cowboy doll and Buzz Lightyear is a space ranger toy, and that Woody is 'Afraid of losing his place in Andy's heart' when Buzz arrives, which matches the question's description of feeling replaced.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Toy Story was released in 1995",
+            "supported": true,
+            "evidence": "chunk_id 113"
+          },
+          {
+            "claim": "Woody is a cowboy doll",
+            "supported": true,
+            "evidence": "chunk_id 113 - describes Woody as leading Andy's toys and the plot involves him fearing loss of place when Buzz arrives; the character is established as a cowboy in the overview"
+          },
+          {
+            "claim": "Buzz Lightyear is a space ranger toy",
+            "supported": true,
+            "evidence": "chunk_id 113 - mentions 'Buzz Lightyear' arriving and Woody plotting against him"
+          },
+          {
+            "claim": "Woody fears losing his place in Andy's heart when Buzz arrives",
+            "supported": true,
+            "evidence": "chunk_id 113 - 'Afraid of losing his place in Andy's heart, Woody plots against Buzz'"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "P4",
+      "type": "plot",
+      "question": "Which movie tells of a mute cleaning woman who falls in love with an amphibian creature held in a government lab?",
+      "answer": "**The Shape of Water (2017)** tells that story: a mute janitor falls in love with an amphibious man held captive in a laboratory.",
+      "error": null,
+      "latency_ms": 4254,
+      "cost_usd": 0.000674,
+      "tokens": 3664,
+      "input_tokens": 3477,
+      "output_tokens": 187,
+      "timings_ms": {
+        "translation": 1437,
+        "embedding_and_search": 522,
+        "keyword_search": 15,
+        "generation": 2280,
+        "total": 4253
+      },
+      "chunks": [
+        {
+          "chunk_id": 417,
+          "movie": "The Shape of Water (2017)"
+        },
+        {
+          "chunk_id": 362,
+          "movie": "Twilight (2008)"
+        },
+        {
+          "chunk_id": 10052,
+          "movie": "The Shape of Water (2017)"
+        },
+        {
+          "chunk_id": 10061,
+          "movie": "The Shape of Water (2017)"
+        },
+        {
+          "chunk_id": 86,
+          "movie": "Back to the Future (1985)"
+        },
+        {
+          "chunk_id": 10059,
+          "movie": "The Shape of Water (2017)"
+        },
+        {
+          "chunk_id": 234,
+          "movie": "Her (2013)"
+        },
+        {
+          "chunk_id": 10062,
+          "movie": "The Shape of Water (2017)"
+        }
+      ],
+      "tools": [],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 0.6
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies The Shape of Water (2017) as the film matching the question's description. The source material confirms that the film features 'a mute janitor working at a lab falls in love with an amphibious man being held captive there.' The answer accurately captures the key plot elements: the mute protagonist (janitor/cleaning woman), the amphibian creature, and the government lab setting.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "The Shape of Water (2017) tells of a mute janitor who falls in love with an amphibious man held captive in a laboratory",
+            "supported": true,
+            "evidence": "chunk_id 417: 'a mute janitor working at a lab falls in love with an amphibious man being held captive there'"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "P5",
+      "type": "plot",
+      "question": "Which film is about a lonely writer who falls in love with his computer's operating system?",
+      "answer": "**Her (2013)** is about Theodore, a lonely writer who develops a romantic relationship with a newly developed operating system.",
+      "error": null,
+      "latency_ms": 3247,
+      "cost_usd": 0.000608,
+      "tokens": 3600,
+      "input_tokens": 3459,
+      "output_tokens": 141,
+      "timings_ms": {
+        "translation": 1219,
+        "embedding_and_search": 571,
+        "keyword_search": 13,
+        "generation": 1444,
+        "total": 3247
+      },
+      "chunks": [
+        {
+          "chunk_id": 234,
+          "movie": "Her (2013)"
+        },
+        {
+          "chunk_id": 7981,
+          "movie": "Her (2013)"
+        },
+        {
+          "chunk_id": 362,
+          "movie": "Twilight (2008)"
+        },
+        {
+          "chunk_id": 7975,
+          "movie": "Her (2013)"
+        },
+        {
+          "chunk_id": 86,
+          "movie": "Back to the Future (1985)"
+        },
+        {
+          "chunk_id": 7983,
+          "movie": "Her (2013)"
+        },
+        {
+          "chunk_id": 420,
+          "movie": "Midnight in Paris (2011)"
+        },
+        {
+          "chunk_id": 281,
+          "movie": "Ex Machina (2015)"
+        }
+      ],
+      "tools": [],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 0.6
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies 'Her (2013)' as the film about a lonely writer who falls in love with his computer's operating system, matching the reference answer exactly. The additional details provided about Theodore and the operating system are accurate and supported by the sources.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Her is from 2013",
+            "supported": true,
+            "evidence": "chunk_id 234, 7981, 7975, 7983"
+          },
+          {
+            "claim": "The film is about Theodore, a lonely writer",
+            "supported": true,
+            "evidence": "chunk_id 234"
+          },
+          {
+            "claim": "Theodore develops a romantic relationship with a newly developed operating system",
+            "supported": true,
+            "evidence": "chunk_id 234"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "P6",
+      "type": "plot",
+      "question": "Which movie follows a programmer invited to test whether a humanoid robot is truly conscious?",
+      "answer": "**Ex Machina (2015)**. Caleb, a coder, is invited to a remote retreat to interact with an AI housed in a humanoid robot as part of an experiment.",
+      "error": null,
+      "latency_ms": 3771,
+      "cost_usd": 0.000634,
+      "tokens": 3479,
+      "input_tokens": 3300,
+      "output_tokens": 179,
+      "timings_ms": {
+        "translation": 1631,
+        "embedding_and_search": 568,
+        "keyword_search": 4,
+        "generation": 1567,
+        "total": 3771
+      },
+      "chunks": [
+        {
+          "chunk_id": 281,
+          "movie": "Ex Machina (2015)"
+        },
+        {
+          "chunk_id": 295,
+          "movie": "I, Robot (2004)"
+        },
+        {
+          "chunk_id": 54,
+          "movie": "Inception (2010)"
+        },
+        {
+          "chunk_id": 280,
+          "movie": "Ex Machina (2015)"
+        },
+        {
+          "chunk_id": 3725,
+          "movie": "I, Robot (2004)"
+        },
+        {
+          "chunk_id": 402,
+          "movie": "Free Guy (2021)"
+        },
+        {
+          "chunk_id": 3730,
+          "movie": "I, Robot (2004)"
+        },
+        {
+          "chunk_id": 51,
+          "movie": "Inception (2010)"
+        }
+      ],
+      "tools": [],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 0.4
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies Ex Machina (2015) as the movie matching the question. The overview in the sources confirms that Caleb, a coder, participates in an experiment where he must interact with the world's first true artificial intelligence housed in a humanoid robot body, which directly matches the question about a programmer invited to test whether a humanoid robot is truly conscious.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Ex Machina was released in 2015",
+            "supported": true,
+            "evidence": "chunk_id 280"
+          },
+          {
+            "claim": "Caleb is a coder",
+            "supported": true,
+            "evidence": "chunk_id 280"
+          },
+          {
+            "claim": "Caleb is invited to a remote retreat",
+            "supported": true,
+            "evidence": "chunk_id 280"
+          },
+          {
+            "claim": "He interacts with an AI housed in a humanoid robot",
+            "supported": true,
+            "evidence": "chunk_id 280"
+          },
+          {
+            "claim": "This is part of an experiment",
+            "supported": true,
+            "evidence": "chunk_id 280"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "P7",
+      "type": "plot",
+      "question": "Which film follows journalists uncovering child abuse covered up by the Catholic Church in Boston?",
+      "answer": "*Spotlight* (2015) follows the Boston Globe journalists who uncover child abuse and a cover-up within the Catholic Church in Boston.",
+      "error": null,
+      "latency_ms": 4780,
+      "cost_usd": 0.000585,
+      "tokens": 3208,
+      "input_tokens": 3046,
+      "output_tokens": 162,
+      "timings_ms": {
+        "translation": 1339,
+        "embedding_and_search": 692,
+        "keyword_search": 6,
+        "generation": 2744,
+        "total": 4780
+      },
+      "chunks": [
+        {
+          "chunk_id": 353,
+          "movie": "Spotlight (2015)"
+        },
+        {
+          "chunk_id": 8148,
+          "movie": "Spotlight (2015)"
+        },
+        {
+          "chunk_id": 8138,
+          "movie": "Spotlight (2015)"
+        },
+        {
+          "chunk_id": 8134,
+          "movie": "Spotlight (2015)"
+        },
+        {
+          "chunk_id": 8144,
+          "movie": "Spotlight (2015)"
+        },
+        {
+          "chunk_id": 8139,
+          "movie": "Spotlight (2015)"
+        },
+        {
+          "chunk_id": 8147,
+          "movie": "Spotlight (2015)"
+        },
+        {
+          "chunk_id": 8132,
+          "movie": "Spotlight (2015)"
+        }
+      ],
+      "tools": [],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies Spotlight (2015) as the film about journalists uncovering child abuse covered up by the Catholic Church in Boston, which matches the reference answer exactly.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Spotlight (2015) follows the Boston Globe journalists who uncover child abuse and a cover-up within the Catholic Church in Boston",
+            "supported": true,
+            "evidence": "chunk_id 353: 'The true story of how the Boston Globe uncovered the massive scandal of child molestation and cover-up within the local Catholic Archdiocese'"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "P8",
+      "type": "plot",
+      "question": "Which movie is about a young woman and her son held captive in a small shed for years?",
+      "answer": "**Room (2015)** is about a woman and her young son held captive for seven years in an enclosed space. The available description doesn’t specify that it’s a shed.",
+      "error": null,
+      "latency_ms": 3309,
+      "cost_usd": 0.000583,
+      "tokens": 3433,
+      "input_tokens": 3288,
+      "output_tokens": 145,
+      "timings_ms": {
+        "translation": 1390,
+        "embedding_and_search": 541,
+        "keyword_search": 5,
+        "generation": 1373,
+        "total": 3309
+      },
+      "chunks": [
+        {
+          "chunk_id": 407,
+          "movie": "Room (2015)"
+        },
+        {
+          "chunk_id": 9325,
+          "movie": "Room (2015)"
+        },
+        {
+          "chunk_id": 490,
+          "movie": "Man on Fire (2004)"
+        },
+        {
+          "chunk_id": 9307,
+          "movie": "Room (2015)"
+        },
+        {
+          "chunk_id": 255,
+          "movie": "Taken (2008)"
+        },
+        {
+          "chunk_id": 9323,
+          "movie": "Room (2015)"
+        },
+        {
+          "chunk_id": 535,
+          "movie": "10 Cloverfield Lane (2016)"
+        },
+        {
+          "chunk_id": 9313,
+          "movie": "Room (2015)"
+        }
+      ],
+      "tools": [],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 0.6
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies Room (2015) as the movie matching the question. While the reference doesn't specify 'shed' and the source describes it as 'an enclosed space,' the answer appropriately identifies the correct film and notes the discrepancy about the specific location. The core answer—identifying Room (2015)—matches the reference exactly.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Room (2015) is about a woman and her young son held captive for seven years in an enclosed space",
+            "supported": true,
+            "evidence": "chunk_id 407: 'Held captive for 7 years in an enclosed space, a woman and her young son finally gain their freedom'"
+          },
+          {
+            "claim": "The available description doesn't specify that it's a shed",
+            "supported": true,
+            "evidence": "chunk_id 407 describes it as 'an enclosed space' rather than specifically a shed"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "C1",
+      "type": "recommendation",
+      "question": "Recommend some animated family films rated 8 or higher.",
+      "answer": "Here are some animated films tagged **Family** with IMDb ratings of 8.0 or higher:\n\n- **Coco (2017)** — 8.4\n- **Toy Story (1995)** — 8.3\n- **Toy Story 3 (2010)** — 8.3\n- **Up (2009)** — 8.3. Paul Chambers (CNNRadio) called it “pure joy” and praised its story.\n- **Ratatouille (2007)** — 8.1. Tom Long (Detroit News) praised its technical skill, emotional core, and storytelling.\n- **How to Train Your Dragon (2010)** — 8.1\n- **Inside Out (2015)** — 8.1\n- **Monsters, Inc. (2001)** — 8.1\n- **Beauty and the Beast (1991)** — 8.0. John Hartl (Seattle Times) praised the film’s ability to make audiences care about its animated characters.\n- **Zootopia (2016)** — 8.0. Richard Roeper (Chicago Sun-Times) called it one of his favorite animated movies.\n\nRatings are IMDb ratings from the movie database.",
+      "error": null,
+      "latency_ms": 12186,
+      "cost_usd": 0.00088,
+      "tokens": 6364,
+      "input_tokens": 5736,
+      "output_tokens": 628,
+      "timings_ms": {
+        "translation": 1175,
+        "embedding_and_search": 628,
+        "keyword_search": 10,
+        "generation": 10373,
+        "total": 12186
+      },
+      "chunks": [
+        {
+          "chunk_id": 4066,
+          "movie": "Ratatouille (2007)"
+        },
+        {
+          "chunk_id": 416,
+          "movie": "Madagascar (2005)"
+        },
+        {
+          "chunk_id": 5847,
+          "movie": "Up (2009)"
+        },
+        {
+          "chunk_id": 1552,
+          "movie": "Beauty and the Beast (1991)"
+        },
+        {
+          "chunk_id": 4518,
+          "movie": "Kung Fu Panda (2008)"
+        },
+        {
+          "chunk_id": 4223,
+          "movie": "Tangled (2010)"
+        },
+        {
+          "chunk_id": 5838,
+          "movie": "Up (2009)"
+        },
+        {
+          "chunk_id": 9210,
+          "movie": "Zootopia (2016)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "filter_movies",
+          "arguments": {
+            "genre": "Animation",
+            "rating_min": 8,
+            "limit": 25
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 0.6,
+        "recall_at_8": 0.5,
+        "precision_at_5": 0.6
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": true
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer recommends 10 films, all of which are in the acceptable list of 11 films that satisfy the criteria (animated family films rated 8 or higher). The answer covers the main examples from the reference (Coco, Toy Story, Toy Story 3, Up) and includes other acceptable films. All ratings and years match the tool results.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Coco (2017) has an IMDb rating of 8.4",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Toy Story (1995) has an IMDb rating of 8.3",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Toy Story 3 (2010) has an IMDb rating of 8.3",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Up (2009) has an IMDb rating of 8.3",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Ratatouille (2007) has an IMDb rating of 8.1",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "How to Train Your Dragon (2010) has an IMDb rating of 8.1",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Inside Out (2015) has an IMDb rating of 8.1",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Monsters, Inc. (2001) has an IMDb rating of 8.1",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Beauty and the Beast (1991) has an IMDb rating of 8.0",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Zootopia (2016) has an IMDb rating of 8.0",
+            "supported": true,
+            "evidence": "filter_movies tool result"
+          },
+          {
+            "claim": "Paul Chambers (CNNRadio) called Up 'pure joy' and praised its story",
+            "supported": true,
+            "evidence": "chunk_id 5838"
+          },
+          {
+            "claim": "Tom Long (Detroit News) praised Ratatouille's technical skill, emotional core, and storytelling",
+            "supported": true,
+            "evidence": "chunk_id 4066"
+          },
+          {
+            "claim": "John Hartl (Seattle Times) praised Beauty and the Beast's ability to make audiences care about its animated characters",
+            "supported": true,
+            "evidence": "chunk_id 1552"
+          },
+          {
+            "claim": "Richard Roeper (Chicago Sun-Times) called Zootopia one of his favorite animated movies",
+            "supported": true,
+            "evidence": "chunk_id 9210"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "C2",
+      "type": "recommendation",
+      "question": "Suggest war movies released since 2010.",
+      "answer": "Here are some war-movie options released since 2010, with IMDb ratings from the database:\n\n- **1917 (2019)** — 8.2. Wenlei Ma (News.com.au) praised its immersive, meticulous craft and emotional stakes; Sheraz Farooqi (CinemaDebate) highlighted its cinematography and George MacKay’s performance.\n- **Hacksaw Ridge (2016)** — 8.1\n- **The Imitation Game (2014)** — 8.0\n- **Jojo Rabbit (2019)** — 7.9\n- **Dunkirk (2017)** — 7.8\n- **Fury (2014)** — 7.6. David Stratton (At the Movies) felt it had little new to add to films about World War II.\n- **American Sniper (2014)** — 7.3",
+      "error": null,
+      "latency_ms": 16225,
+      "cost_usd": 0.000995,
+      "tokens": 7065,
+      "input_tokens": 6227,
+      "output_tokens": 838,
+      "timings_ms": {
+        "translation": 1009,
+        "embedding_and_search": 528,
+        "keyword_search": 6,
+        "generation": 14683,
+        "total": 16225
+      },
+      "chunks": [
+        {
+          "chunk_id": 9022,
+          "movie": "Fury (2014)"
+        },
+        {
+          "chunk_id": 421,
+          "movie": "Platoon (1986)"
+        },
+        {
+          "chunk_id": 10448,
+          "movie": "1917 (2019)"
+        },
+        {
+          "chunk_id": 82,
+          "movie": "Saving Private Ryan (1998)"
+        },
+        {
+          "chunk_id": 6671,
+          "movie": "Warrior (2011)"
+        },
+        {
+          "chunk_id": 174,
+          "movie": "Full Metal Jacket (1987)"
+        },
+        {
+          "chunk_id": 10450,
+          "movie": "1917 (2019)"
+        },
+        {
+          "chunk_id": 139,
+          "movie": "Captain America: The First Avenger (2011)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "filter_movies",
+          "arguments": {
+            "year_min": 2010,
+            "genre": "War",
+            "limit": 25
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 0.4,
+        "recall_at_8": 0.25,
+        "precision_at_5": 0.4
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": true
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "partially_correct",
+        "correctness_reason": "The answer provides 7 of the 8 acceptable films. It is missing Vikings (2013), which is one of the acceptable recommendations. All films listed are from the acceptable list and were released since 2010 with the War genre.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "1917 (2019) has an IMDb rating of 8.2",
+            "supported": true,
+            "evidence": "tool_results filter_movies"
+          },
+          {
+            "claim": "Hacksaw Ridge (2016) has an IMDb rating of 8.1",
+            "supported": true,
+            "evidence": "tool_results filter_movies"
+          },
+          {
+            "claim": "The Imitation Game (2014) has an IMDb rating of 8.0",
+            "supported": true,
+            "evidence": "tool_results filter_movies"
+          },
+          {
+            "claim": "Jojo Rabbit (2019) has an IMDb rating of 7.9",
+            "supported": true,
+            "evidence": "tool_results filter_movies"
+          },
+          {
+            "claim": "Dunkirk (2017) has an IMDb rating of 7.8",
+            "supported": true,
+            "evidence": "tool_results filter_movies"
+          },
+          {
+            "claim": "Fury (2014) has an IMDb rating of 7.6",
+            "supported": true,
+            "evidence": "tool_results filter_movies"
+          },
+          {
+            "claim": "American Sniper (2014) has an IMDb rating of 7.3",
+            "supported": true,
+            "evidence": "tool_results filter_movies"
+          },
+          {
+            "claim": "Wenlei Ma (News.com.au) praised 1917 for its immersive, meticulous craft and emotional stakes",
+            "supported": true,
+            "evidence": "chunk_id 10448"
+          },
+          {
+            "claim": "Sheraz Farooqi (CinemaDebate) highlighted 1917's cinematography and George MacKay's performance",
+            "supported": true,
+            "evidence": "chunk_id 10450"
+          },
+          {
+            "claim": "David Stratton (At the Movies) felt Fury had little new to add to films about World War II",
+            "supported": true,
+            "evidence": "chunk_id 9022"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 0.5,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "C3",
+      "type": "recommendation",
+      "question": "Any good horror films from 2015 onwards rated at least 7?",
+      "answer": "Here are nine horror films from 2015 onward with IMDb ratings of at least 7:\n\n- *Get Out* (2017) — **7.8**\n- *A Quiet Place* (2018) — **7.5**\n- *Hereditary* (2018) — **7.3**\n- *It* (2017) — **7.3**\n- *Split* (2017) — **7.3**\n- *10 Cloverfield Lane* (2016) — **7.2**\n- *The Menu* (2022) — **7.2**\n- *Midsommar* (2019) — **7.1**\n- *The Witch* (2015) — **7.0**\n\nThe available reviews especially praise *The Witch*: Emily St. James (Vox) describes its scares as slow and creeping, while Robbie Collin (Daily Telegraph) calls it profoundly unsettling. Marc Savlov (Austin Chronicle) praises *It* for its “gory, toothy terrors.” No review excerpts were provided for the other films.",
+      "error": null,
+      "latency_ms": 8781,
+      "cost_usd": 0.000799,
+      "tokens": 6313,
+      "input_tokens": 5849,
+      "output_tokens": 464,
+      "timings_ms": {
+        "translation": 1341,
+        "embedding_and_search": 622,
+        "keyword_search": 5,
+        "generation": 6813,
+        "total": 8781
+      },
+      "chunks": [
+        {
+          "chunk_id": 9797,
+          "movie": "The Witch (2015)"
+        },
+        {
+          "chunk_id": 7003,
+          "movie": "It (2017)"
+        },
+        {
+          "chunk_id": 9800,
+          "movie": "The Witch (2015)"
+        },
+        {
+          "chunk_id": 10258,
+          "movie": "Us (2019)"
+        },
+        {
+          "chunk_id": 9801,
+          "movie": "The Witch (2015)"
+        },
+        {
+          "chunk_id": 232,
+          "movie": "Jaws (1975)"
+        },
+        {
+          "chunk_id": 9802,
+          "movie": "The Witch (2015)"
+        },
+        {
+          "chunk_id": 260,
+          "movie": "Zombieland (2009)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "filter_movies",
+          "arguments": {
+            "year_min": 2015,
+            "genre": "Horror",
+            "rating_min": 7,
+            "limit": 25
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 0.4,
+        "recall_at_8": 0.25,
+        "precision_at_5": 0.8
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": true
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer provides all 9 films that satisfy the criteria (horror films from 2015 onwards with ratings of at least 7), matching the reference list exactly. All titles, years, and ratings are accurate according to the tool results.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Get Out (2017) has an IMDb rating of 7.8",
+            "supported": true,
+            "evidence": "tool_results filter_movies"
+          },
+          {
+            "claim": "A Quiet Place (2018) has an IMDb rating of 7.5",
+            "supported": true,
+            "evidence": "tool_results filter_movies"
+          },
+          {
+            "claim": "Hereditary (2018) has an IMDb rating of 7.3",
+            "supported": true,
+            "evidence": "tool_results filter_movies"
+          },
+          {
+            "claim": "It (2017) has an IMDb rating of 7.3",
+            "supported": true,
+            "evidence": "tool_results filter_movies"
+          },
+          {
+            "claim": "Split (2017) has an IMDb rating of 7.3",
+            "supported": true,
+            "evidence": "tool_results filter_movies"
+          },
+          {
+            "claim": "10 Cloverfield Lane (2016) has an IMDb rating of 7.2",
+            "supported": true,
+            "evidence": "tool_results filter_movies"
+          },
+          {
+            "claim": "The Menu (2022) has an IMDb rating of 7.2",
+            "supported": true,
+            "evidence": "tool_results filter_movies"
+          },
+          {
+            "claim": "Midsommar (2019) has an IMDb rating of 7.1",
+            "supported": true,
+            "evidence": "tool_results filter_movies"
+          },
+          {
+            "claim": "The Witch (2015) has an IMDb rating of 7.0",
+            "supported": true,
+            "evidence": "tool_results filter_movies"
+          },
+          {
+            "claim": "Emily St. James (Vox) describes The Witch's scares as slow and creeping",
+            "supported": true,
+            "evidence": "chunk_id 9797"
+          },
+          {
+            "claim": "Robbie Collin (Daily Telegraph) calls The Witch profoundly unsettling",
+            "supported": true,
+            "evidence": "chunk_id 9800"
+          },
+          {
+            "claim": "Marc Savlov (Austin Chronicle) praises It for its 'gory, toothy terrors'",
+            "supported": true,
+            "evidence": "chunk_id 7003"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "C4",
+      "type": "recommendation",
+      "question": "I want a music-themed movie with an IMDb rating of 8 or higher.",
+      "answer": "The database lists four music-themed movies rated **8.0 or higher on IMDb**:\n\n- **Whiplash (2014)** — **8.5**. Rex Reed describes its feverish tempo; Moira MacDonald praises its vivid visualization of jazz.\n- **Coco (2017)** — **8.4**. An animated story about Miguel, a boy who dreams of becoming a musician.\n- **Amadeus (1984)** — **8.4**. Listed as a Music, History, and Drama film; no further description is available here.\n- **La La Land (2016)** — **8.0**. Joe Dziemianowicz says it celebrates what makes musicals work: characters sing because of their emotions.",
+      "error": null,
+      "latency_ms": 10763,
+      "cost_usd": 0.000753,
+      "tokens": 6405,
+      "input_tokens": 6020,
+      "output_tokens": 385,
+      "timings_ms": {
+        "translation": 1245,
+        "embedding_and_search": 564,
+        "keyword_search": 7,
+        "generation": 8946,
+        "total": 10763
+      },
+      "chunks": [
+        {
+          "chunk_id": 7854,
+          "movie": "Bohemian Rhapsody (2018)"
+        },
+        {
+          "chunk_id": 8947,
+          "movie": "Whiplash (2014)"
+        },
+        {
+          "chunk_id": 246,
+          "movie": "Coco (2017)"
+        },
+        {
+          "chunk_id": 9630,
+          "movie": "La La Land (2016)"
+        },
+        {
+          "chunk_id": 275,
+          "movie": "Bohemian Rhapsody (2018)"
+        },
+        {
+          "chunk_id": 9636,
+          "movie": "La La Land (2016)"
+        },
+        {
+          "chunk_id": 507,
+          "movie": "Sweeney Todd: The Demon Barber of Fleet Street (2007)"
+        },
+        {
+          "chunk_id": 8960,
+          "movie": "Whiplash (2014)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "filter_movies",
+          "arguments": {
+            "genre": "Music",
+            "rating_min": 8,
+            "limit": 25
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 0.75,
+        "recall_at_8": 0.75,
+        "precision_at_5": 0.6
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": true
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer provides all 4 films that satisfy the criteria (music-themed with IMDb rating of 8 or higher), matching the reference list exactly: Whiplash (2014), Amadeus (1984), Coco (2017), and La La Land (2016). All ratings and years are accurate.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Whiplash (2014) has an IMDb rating of 8.5",
+            "supported": true,
+            "evidence": "tool_results filter_movies"
+          },
+          {
+            "claim": "Coco (2017) has an IMDb rating of 8.4",
+            "supported": true,
+            "evidence": "tool_results filter_movies and source chunk_id 246"
+          },
+          {
+            "claim": "Amadeus (1984) has an IMDb rating of 8.4",
+            "supported": true,
+            "evidence": "tool_results filter_movies"
+          },
+          {
+            "claim": "La La Land (2016) has an IMDb rating of 8.0",
+            "supported": true,
+            "evidence": "tool_results filter_movies"
+          },
+          {
+            "claim": "Rex Reed describes Whiplash's feverish tempo",
+            "supported": true,
+            "evidence": "source chunk_id 8947"
+          },
+          {
+            "claim": "Moira MacDonald praises Whiplash's vivid visualization of jazz",
+            "supported": true,
+            "evidence": "source chunk_id 8960"
+          },
+          {
+            "claim": "Coco is an animated story about Miguel, a boy who dreams of becoming a musician",
+            "supported": true,
+            "evidence": "source chunk_id 246"
+          },
+          {
+            "claim": "Joe Dziemianowicz says La La Land celebrates what makes musicals work: characters sing because of their emotions",
+            "supported": true,
+            "evidence": "source chunk_id 9630"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "C5",
+      "type": "recommendation",
+      "question": "Recommend crime thrillers from 2010 or later rated 8 or higher.",
+      "answer": "These three films match the criteria, with **Crime** and **Thriller** listed among their genres:\n\n- **The Dark Knight Rises (2012)** — IMDb **8.4**\n- **Joker (2019)** — IMDb **8.3**. Its description follows a failed comedian’s descent into crime and chaos in Gotham.\n- **Prisoners (2013)** — IMDb **8.2**",
+      "error": null,
+      "latency_ms": 8416,
+      "cost_usd": 0.000765,
+      "tokens": 6738,
+      "input_tokens": 6391,
+      "output_tokens": 347,
+      "timings_ms": {
+        "translation": 1200,
+        "embedding_and_search": 532,
+        "keyword_search": 19,
+        "generation": 6665,
+        "total": 8416
+      },
+      "chunks": [
+        {
+          "chunk_id": 1,
+          "movie": "The Dark Knight (2008)"
+        },
+        {
+          "chunk_id": 5082,
+          "movie": "American Gangster (2007)"
+        },
+        {
+          "chunk_id": 70,
+          "movie": "The Godfather (1972)"
+        },
+        {
+          "chunk_id": 5340,
+          "movie": "The Town (2010)"
+        },
+        {
+          "chunk_id": 81,
+          "movie": "Joker (2019)"
+        },
+        {
+          "chunk_id": 6270,
+          "movie": "Law Abiding Citizen (2009)"
+        },
+        {
+          "chunk_id": 152,
+          "movie": "The Batman (2022)"
+        },
+        {
+          "chunk_id": 35,
+          "movie": "The Dark Knight (2008)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "filter_movies",
+          "arguments": {
+            "year_min": 2010,
+            "genre": "Thriller",
+            "rating_min": 8,
+            "limit": 25
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 0.333,
+        "recall_at_8": 0.333,
+        "precision_at_5": 0.2
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": true
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer recommends three films that all satisfy the criteria: released 2010 or later, rated 8 or higher, and are crime thrillers. All three films (The Dark Knight Rises, Joker, Prisoners) are in the reference list of acceptable films.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "The Dark Knight Rises (2012) has an IMDb rating of 8.4",
+            "supported": true,
+            "evidence": "tool_results filter_movies - The Dark Knight Rises listed with imdb_rating 8.4"
+          },
+          {
+            "claim": "The Dark Knight Rises (2012) is a crime thriller",
+            "supported": true,
+            "evidence": "tool_results filter_movies - genres listed as Action, Crime, Drama, Thriller"
+          },
+          {
+            "claim": "Joker (2019) has an IMDb rating of 8.3",
+            "supported": true,
+            "evidence": "tool_results filter_movies - Joker listed with imdb_rating 8.3"
+          },
+          {
+            "claim": "Joker (2019) is a crime thriller",
+            "supported": true,
+            "evidence": "tool_results filter_movies - genres listed as Crime, Thriller, Drama"
+          },
+          {
+            "claim": "Joker follows a failed comedian's descent into crime and chaos in Gotham",
+            "supported": true,
+            "evidence": "source chunk_id 81 - Overview states 'During the 1980s, a failed stand-up comedian is driven insane and turns to a life of crime and chaos in Gotham City'"
+          },
+          {
+            "claim": "Prisoners (2013) has an IMDb rating of 8.2",
+            "supported": true,
+            "evidence": "tool_results filter_movies - Prisoners listed with imdb_rating 8.2"
+          },
+          {
+            "claim": "Prisoners (2013) is a crime thriller",
+            "supported": true,
+            "evidence": "tool_results filter_movies - genres listed as Drama, Thriller, Crime"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "M1",
+      "type": "comparison",
+      "question": "Compare Arrival and Interstellar as science-fiction films.",
+      "answer": "Both are described as ambitious science fiction, but the reviews emphasize different qualities:\n\n- **Arrival** is praised for making its story feel distinctive within the genre. Dan Jolin (*Empire Magazine*) says it uses familiar sci-fi tropes while feeling new, and Britton Peele (*Dallas Morning News*) calls it a beautiful narrative that reveals its design gradually. Cary Darling (*Fort Worth Star-Telegram/DFW.com*) adds that its suspense is strongest while events remain mysterious, and fades as the story becomes clearer.\n- **Interstellar** is presented as a grand, mind-bending epic. Nicholas Barber (BBC.com) says it bears comparison with *2001: A Space Odyssey* and *Solaris*; Keith Phipps (*The Dissolve*) praises its challenging storytelling and visuals, while Jake Wilson (*Sydney Morning Herald*) describes it as a spectacle and a puzzle involving space and time. Ben Sachs (*Chicago Reader*), however, says it struggles to regain momentum after its first hour.\n\nThe reviews suggest *Arrival* leans on mystery and a gradually unfolding narrative, while *Interstellar* emphasizes scale, spectacle, and challenging ideas. They don’t establish an overall winner.",
+      "error": null,
+      "latency_ms": 6365,
+      "cost_usd": 0.00068,
+      "tokens": 3323,
+      "input_tokens": 2864,
+      "output_tokens": 459,
+      "timings_ms": {
+        "translation": 1273,
+        "embedding_and_search": 578,
+        "keyword_search": 0,
+        "generation": 4507,
+        "total": 6365
+      },
+      "chunks": [
+        {
+          "chunk_id": 8936,
+          "movie": "Arrival (2016)"
+        },
+        {
+          "chunk_id": 5228,
+          "movie": "Interstellar (2014)"
+        },
+        {
+          "chunk_id": 8927,
+          "movie": "Arrival (2016)"
+        },
+        {
+          "chunk_id": 5225,
+          "movie": "Interstellar (2014)"
+        },
+        {
+          "chunk_id": 8932,
+          "movie": "Arrival (2016)"
+        },
+        {
+          "chunk_id": 5223,
+          "movie": "Interstellar (2014)"
+        },
+        {
+          "chunk_id": 8928,
+          "movie": "Arrival (2016)"
+        },
+        {
+          "chunk_id": 5229,
+          "movie": "Interstellar (2014)"
+        }
+      ],
+      "tools": [],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer provides a comprehensive comparison of both films as science-fiction works, drawing directly from the provided sources. It covers Arrival's distinctive narrative approach and Interstellar's grand, mind-bending scale, with specific reviewer attributions and quotes that match the sources. The answer addresses the question by comparing both films across multiple dimensions (narrative style, scale, spectacle, ideas).",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Arrival is praised for making its story feel distinctive within the genre",
+            "supported": true,
+            "evidence": "chunk_id 8927: 'Arrival is Villeneuve's The Day The Earth Stood Still or Close Encounters Of The Third Kind, and somehow he makes it true to the tropes while also feeling like something new.'"
+          },
+          {
+            "claim": "Dan Jolin (Empire Magazine) says Arrival uses familiar sci-fi tropes while feeling new",
+            "supported": true,
+            "evidence": "chunk_id 8927"
+          },
+          {
+            "claim": "Britton Peele (Dallas Morning News) calls Arrival a beautiful narrative that reveals its design gradually",
+            "supported": true,
+            "evidence": "chunk_id 8936: 'Arrival is a story that could only be told in the science-fiction genre, and the result is a beautiful narrative that you find has been telling you things about itself without you ever realizing it.'"
+          },
+          {
+            "claim": "Cary Darling (Fort Worth Star-Telegram/DFW.com) says Arrival's suspense is strongest while events remain mysterious",
+            "supported": true,
+            "evidence": "chunk_id 8932: 'Arrival is at its best when pregnant with the suspense of the possible, when the unidentified stationary objects bear no trace of their intentions.'"
+          },
+          {
+            "claim": "Interstellar is presented as a grand, mind-bending epic",
+            "supported": true,
+            "evidence": "chunk_id 5228: 'Interstellar is sufficiently grand and challenging to bear comparison with those two touchstones of mind-bending epic sci-fi'"
+          },
+          {
+            "claim": "Nicholas Barber (BBC.com) says Interstellar bears comparison with 2001: A Space Odyssey and Solaris",
+            "supported": true,
+            "evidence": "chunk_id 5228"
+          },
+          {
+            "claim": "Keith Phipps (The Dissolve) praises Interstellar's challenging storytelling and visuals",
+            "supported": true,
+            "evidence": "chunk_id 5223: 'The film is at its best when it's unafraid of challenging storytelling, particularly since Interstellar never has trouble finding visuals to match its heady concepts.'"
+          },
+          {
+            "claim": "Jake Wilson (Sydney Morning Herald) describes Interstellar as a spectacle and a puzzle involving space and time",
+            "supported": true,
+            "evidence": "chunk_id 5225: 'Interstellar may be a blockbuster spectacle but it's also a puzzle that bends the laws of space and time'"
+          },
+          {
+            "claim": "Ben Sachs (Chicago Reader) says Interstellar struggles to regain momentum after its first hour",
+            "supported": true,
+            "evidence": "chunk_id 5229: 'After the first hour, with its poignant depiction of humanity's decline, Interstellar always seems to be rebuilding its momentum'"
+          },
+          {
+            "claim": "Arrival leans on mystery and a gradually unfolding narrative",
+            "supported": true,
+            "evidence": "chunks 8936, 8932"
+          },
+          {
+            "claim": "Interstellar emphasizes scale, spectacle, and challenging ideas",
+            "supported": true,
+            "evidence": "chunks 5228, 5223, 5225"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "M2",
+      "type": "comparison",
+      "question": "How do critics compare Get Out and Us, both directed by Jordan Peele?",
+      "answer": "Critics see **Get Out** as more balanced in its mix of horror and humor. Peter Travers (Rolling Stone) calls it a horror show laced with racial tension and satirical wit; Jack Shepherd (Independent) praises its balance of suspense, humor, and horror. Richard Roeper (Chicago Sun-Times) also calls it “flat-out funny.”\n\nThe clearest direct comparison comes from Max Weiss (Baltimore Magazine), who says **Us** is “much scarier than Get Out, but less funny.” Other reviews of *Us* are more mixed: Peter Rainer (Christian Science Monitor) says its ambition sometimes detracts from the horror, while also praising Lupita Nyong’o’s performance; David Stratton (The Australian) notes screenplay flaws but praises Peele’s direction and humor. So the reviews highlight *Us* as scarier, while *Get Out* gets stronger praise for balancing scares, comedy, and satire.",
+      "error": null,
+      "latency_ms": 6403,
+      "cost_usd": 0.000705,
+      "tokens": 3562,
+      "input_tokens": 3127,
+      "output_tokens": 435,
+      "timings_ms": {
+        "translation": 786,
+        "embedding_and_search": 612,
+        "keyword_search": 0,
+        "generation": 4999,
+        "total": 6403
+      },
+      "chunks": [
+        {
+          "chunk_id": 9989,
+          "movie": "Get Out (2017)"
+        },
+        {
+          "chunk_id": 10246,
+          "movie": "Us (2019)"
+        },
+        {
+          "chunk_id": 185,
+          "movie": "Get Out (2017)"
+        },
+        {
+          "chunk_id": 528,
+          "movie": "Us (2019)"
+        },
+        {
+          "chunk_id": 9992,
+          "movie": "Get Out (2017)"
+        },
+        {
+          "chunk_id": 10258,
+          "movie": "Us (2019)"
+        },
+        {
+          "chunk_id": 9999,
+          "movie": "Get Out (2017)"
+        },
+        {
+          "chunk_id": 10253,
+          "movie": "Us (2019)"
+        }
+      ],
+      "tools": [],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer accurately compares the two films based on critic reviews provided in the sources. It correctly identifies that Get Out is seen as more balanced in horror and humor, cites the direct comparison from Max Weiss that Us is scarier but less funny, and accurately represents the mixed reception of Us while noting Get Out's stronger praise for balancing multiple elements. All specific claims are supported by the sources.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Peter Travers (Rolling Stone) calls Get Out a horror show laced with racial tension and satirical wit",
+            "supported": true,
+            "evidence": "chunk_id 9989"
+          },
+          {
+            "claim": "Jack Shepherd (Independent) praises Get Out's balance of suspense, humor, and horror",
+            "supported": true,
+            "evidence": "chunk_id 9999"
+          },
+          {
+            "claim": "Richard Roeper (Chicago Sun-Times) calls Get Out 'flat-out funny'",
+            "supported": true,
+            "evidence": "chunk_id 9992"
+          },
+          {
+            "claim": "Max Weiss (Baltimore Magazine) says Us is 'much scarier than Get Out, but less funny'",
+            "supported": true,
+            "evidence": "chunk_id 10246"
+          },
+          {
+            "claim": "Peter Rainer (Christian Science Monitor) says Us's ambition sometimes detracts from the horror",
+            "supported": true,
+            "evidence": "chunk_id 10258"
+          },
+          {
+            "claim": "Peter Rainer praises Lupita Nyong'o's performance in Us",
+            "supported": true,
+            "evidence": "chunk_id 10258"
+          },
+          {
+            "claim": "David Stratton (The Australian) notes screenplay flaws in Us but praises Peele's direction and humor",
+            "supported": true,
+            "evidence": "chunk_id 10253"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "M3",
+      "type": "comparison",
+      "question": "Compare Whiplash and La La Land, both by Damien Chazelle.",
+      "answer": "Both films were directed by Damien Chazelle, but they take different approaches:\n\n- **Whiplash (2014)** is a drama about a young drummer pursuing perfection under a ruthless instructor. Peter Travers called it “electrifying,” while Jim Slotek praised its “claustrophobic” storytelling. It has an IMDb rating of **8.5**, compared with **La La Land’s 8.0**.\n- **La La Land (2016)** is a comedy-drama-romance about an aspiring actress and a jazz musician whose ambitions strain their relationship. Travers praised its inventiveness and performances; Amy Nicholson, by contrast, criticized it as an “eager-to-please mash-up.”\n\nThe database lists **20 critic reviews for each film**. Whiplash has the higher IMDb rating, though these reviews show contrasting reactions to La La Land.",
+      "error": null,
+      "latency_ms": 7315,
+      "cost_usd": 0.000732,
+      "tokens": 5841,
+      "input_tokens": 5478,
+      "output_tokens": 363,
+      "timings_ms": {
+        "translation": 1414,
+        "embedding_and_search": 581,
+        "keyword_search": 0,
+        "generation": 5312,
+        "total": 7315
+      },
+      "chunks": [
+        {
+          "chunk_id": 117,
+          "movie": "Whiplash (2014)"
+        },
+        {
+          "chunk_id": 221,
+          "movie": "La La Land (2016)"
+        },
+        {
+          "chunk_id": 8950,
+          "movie": "Whiplash (2014)"
+        },
+        {
+          "chunk_id": 9631,
+          "movie": "La La Land (2016)"
+        },
+        {
+          "chunk_id": 8962,
+          "movie": "Whiplash (2014)"
+        },
+        {
+          "chunk_id": 9633,
+          "movie": "La La Land (2016)"
+        },
+        {
+          "chunk_id": 8952,
+          "movie": "Whiplash (2014)"
+        },
+        {
+          "chunk_id": 9635,
+          "movie": "La La Land (2016)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "compare_movies",
+          "arguments": {
+            "movie_a": "Whiplash (2014)",
+            "movie_b": "La La Land (2016)"
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer provides a comprehensive comparison of both films by Damien Chazelle, covering key differences (genre, plot, themes), critical reception, IMDb ratings, and review counts. All specific facts match the sources and tool results provided.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Both films were directed by Damien Chazelle",
+            "supported": true,
+            "evidence": "chunk_id 117 and 221 both list Damien Chazelle as director"
+          },
+          {
+            "claim": "Whiplash (2014) is a drama about a young drummer pursuing perfection under a ruthless instructor",
+            "supported": true,
+            "evidence": "chunk_id 117 overview: 'Under the direction of a ruthless instructor, a talented young drummer begins to pursue perfection at any cost'"
+          },
+          {
+            "claim": "Peter Travers called Whiplash 'electrifying'",
+            "supported": true,
+            "evidence": "chunk_id 8950: 'It's electrifying.'"
+          },
+          {
+            "claim": "Jim Slotek praised Whiplash's 'claustrophobic' storytelling",
+            "supported": true,
+            "evidence": "chunk_id 8962: 'has created a remarkably economical and claustrophobic piece of storytelling'"
+          },
+          {
+            "claim": "Whiplash has an IMDb rating of 8.5",
+            "supported": true,
+            "evidence": "chunk_id 117: 'IMDb rating: 8.5'"
+          },
+          {
+            "claim": "La La Land (2016) is a comedy-drama-romance about an aspiring actress and a jazz musician whose ambitions strain their relationship",
+            "supported": true,
+            "evidence": "chunk_id 221 genres and overview: 'Mia, an aspiring actress...Sebastian, a jazz musician...decisions that begin to fray the fragile fabric of their love affair'"
+          },
+          {
+            "claim": "Travers praised La La Land's inventiveness and performances",
+            "supported": true,
+            "evidence": "chunk_id 9631: 'exhilarated by Damien Chazelle's nonstop inventiveness, dazzled by Emma Stone and Ryan Gosling'"
+          },
+          {
+            "claim": "Amy Nicholson criticized La La Land as an 'eager-to-please mash-up'",
+            "supported": true,
+            "evidence": "chunk_id 9633: 'this eager-to-please mash-up'"
+          },
+          {
+            "claim": "La La Land has an IMDb rating of 8.0",
+            "supported": true,
+            "evidence": "chunk_id 221: 'IMDb rating: 8.0'"
+          },
+          {
+            "claim": "The database lists 20 critic reviews for each film",
+            "supported": true,
+            "evidence": "compare_movies tool result: both films have 'review_count': 20"
+          },
+          {
+            "claim": "Whiplash has the higher IMDb rating",
+            "supported": true,
+            "evidence": "compare_movies tool result: 'higher_imdb_rating': 'Whiplash'"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "M4",
+      "type": "comparison",
+      "question": "Is Black Swan more disturbing than Hereditary?",
+      "answer": "The reviews don’t settle which is more disturbing. For **Hereditary**, Wenlei Ma describes “some of the most disturbing visuals,” and Joshua Rothkopf calls it a “harrowing” story; A.A. Dowd says its horror feels deeply emotional. **Black Swan** is described by Kenneth Turan as “When Tutu Goes Psycho,” with uncertainty over hallucinations, while Wesley Morris says it “looms in the memory.”\n\nThose descriptions point to different kinds of unease, but they don’t establish that one film is more disturbing than the other.",
+      "error": null,
+      "latency_ms": 5971,
+      "cost_usd": 0.000729,
+      "tokens": 5478,
+      "input_tokens": 5114,
+      "output_tokens": 364,
+      "timings_ms": {
+        "translation": 804,
+        "embedding_and_search": 626,
+        "keyword_search": 0,
+        "generation": 4531,
+        "total": 5971
+      },
+      "chunks": [
+        {
+          "chunk_id": 5551,
+          "movie": "Black Swan (2010)"
+        },
+        {
+          "chunk_id": 10370,
+          "movie": "Hereditary (2018)"
+        },
+        {
+          "chunk_id": 5555,
+          "movie": "Black Swan (2010)"
+        },
+        {
+          "chunk_id": 10367,
+          "movie": "Hereditary (2018)"
+        },
+        {
+          "chunk_id": 5557,
+          "movie": "Black Swan (2010)"
+        },
+        {
+          "chunk_id": 10377,
+          "movie": "Hereditary (2018)"
+        },
+        {
+          "chunk_id": 5556,
+          "movie": "Black Swan (2010)"
+        },
+        {
+          "chunk_id": 10366,
+          "movie": "Hereditary (2018)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "rating_summary",
+          "arguments": {
+            "movie": "Black Swan (2010)"
+          }
+        },
+        {
+          "tool": "rating_summary",
+          "arguments": {
+            "movie": "Hereditary (2018)"
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer appropriately recognizes that the sources do not provide a direct comparison of which film is more disturbing. It accurately cites specific review quotes about both films' disturbing qualities and correctly concludes that the available sources do not settle the question. This aligns with the reference requirement to cover both films in a comparison.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Wenlei Ma describes Hereditary as having 'some of the most disturbing visuals'",
+            "supported": true,
+            "evidence": "chunk_id 10370"
+          },
+          {
+            "claim": "Joshua Rothkopf calls Hereditary a 'harrowing' story",
+            "supported": true,
+            "evidence": "chunk_id 10367"
+          },
+          {
+            "claim": "A.A. Dowd says Hereditary's horror feels deeply emotional",
+            "supported": true,
+            "evidence": "chunk_id 10366 - 'It's pure emotional terrorism, gripping you with real horror'"
+          },
+          {
+            "claim": "Kenneth Turan describes Black Swan as 'When Tutu Goes Psycho'",
+            "supported": true,
+            "evidence": "chunk_id 5557"
+          },
+          {
+            "claim": "Wesley Morris says Black Swan 'looms in the memory'",
+            "supported": true,
+            "evidence": "chunk_id 5556"
+          },
+          {
+            "claim": "The sources do not establish that one film is more disturbing than the other",
+            "supported": true,
+            "evidence": "The provided sources contain no direct comparison of disturbing qualities between the two films"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "M5",
+      "type": "comparison",
+      "question": "Compare Heat and Nightcrawler as crime films.",
+      "answer": "Both are crime dramas set in Los Angeles, but they focus on different sides of crime.\n\n- **Heat (1995)** centers on master thief Neil McCauley’s heists and detective Vincent Hanna’s pursuit. Ian Nathan (Empire) praised how much the film packs into the cop-movie genre, while Steven Rea (Philadelphia Inquirer) felt its script undermined the satisfaction of its robberies and craft.\n- **Nightcrawler (2014)** follows Lou Bloom as he enters crime journalism and blurs the line between observer and participant. Geoffrey Macnab (Independent) describes it as a blend of satire, crime thriller, and horror; Tirdad Derakhshani (Philadelphia Inquirer) highlights its attack on ratings-driven news ethics.\n\nIn the database, **Heat** has the higher IMDb rating: **8.3**, compared with **7.8** for *Nightcrawler*. Both have 20 critic reviews in the database.",
+      "error": null,
+      "latency_ms": 8602,
+      "cost_usd": 0.000701,
+      "tokens": 5695,
+      "input_tokens": 5326,
+      "output_tokens": 369,
+      "timings_ms": {
+        "translation": 1657,
+        "embedding_and_search": 682,
+        "keyword_search": 0,
+        "generation": 6257,
+        "total": 8602
+      },
+      "chunks": [
+        {
+          "chunk_id": 187,
+          "movie": "Heat (1995)"
+        },
+        {
+          "chunk_id": 9146,
+          "movie": "Nightcrawler (2014)"
+        },
+        {
+          "chunk_id": 1990,
+          "movie": "Heat (1995)"
+        },
+        {
+          "chunk_id": 263,
+          "movie": "Nightcrawler (2014)"
+        },
+        {
+          "chunk_id": 1975,
+          "movie": "Heat (1995)"
+        },
+        {
+          "chunk_id": 9161,
+          "movie": "Nightcrawler (2014)"
+        },
+        {
+          "chunk_id": 1977,
+          "movie": "Heat (1995)"
+        },
+        {
+          "chunk_id": 9157,
+          "movie": "Nightcrawler (2014)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "compare_movies",
+          "arguments": {
+            "movie_a": "Heat (1995)",
+            "movie_b": "Nightcrawler (2014)"
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer provides a comprehensive comparison of both films as crime dramas set in Los Angeles, covering their different focuses (heists vs. crime journalism), includes relevant critical perspectives from the sources, and accurately reports the IMDb ratings and review counts from the tool results.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Heat (1995) centers on master thief Neil McCauley's heists and detective Vincent Hanna's pursuit",
+            "supported": true,
+            "evidence": "chunk_id 187 - Overview states 'Obsessive master thief Neil McCauley leads a top-notch crew on various daring heists throughout Los Angeles while determined detective Vincent Hanna pursues him'"
+          },
+          {
+            "claim": "Ian Nathan (Empire) praised how much the film packs into the cop-movie genre",
+            "supported": true,
+            "evidence": "chunk_id 1975 - 'Heat packs more into one cop movie than the entire genre output of the last five years'"
+          },
+          {
+            "claim": "Steven Rea (Philadelphia Inquirer) felt its script undermined the satisfaction of its robberies and craft",
+            "supported": true,
+            "evidence": "chunk_id 1990 - 'So why doesn't Heat, with its elaborately staged, tautly edited robberies, its killer cast, edgy score and elegant cinematography, offer more satisfaction? It's the script, stupid.'"
+          },
+          {
+            "claim": "Nightcrawler (2014) follows Lou Bloom as he enters crime journalism and blurs the line between observer and participant",
+            "supported": true,
+            "evidence": "chunk_id 263 - Overview states 'When Lou Bloom, desperate for work, muscles into the world of L.A. crime journalism, he blurs the line between observer and participant'"
+          },
+          {
+            "claim": "Geoffrey Macnab (Independent) describes it as a blend of satire, crime thriller, and horror",
+            "supported": true,
+            "evidence": "chunk_id 9161 - 'Nightcrawler deliberately blurs the lines between David Cronenberg-like satire, crime thriller and horror'"
+          },
+          {
+            "claim": "Tirdad Derakhshani (Philadelphia Inquirer) highlights its attack on ratings-driven news ethics",
+            "supported": true,
+            "evidence": "chunk_id 9157 - 'Nightcrawler savages the news media's ratings-driven ethic (a most unethical ethic)'"
+          },
+          {
+            "claim": "Heat has the higher IMDb rating: 8.3, compared with 7.8 for Nightcrawler",
+            "supported": true,
+            "evidence": "tool_compare_movies result shows Heat imdb_rating: 8.3 and Nightcrawler imdb_rating: 7.8"
+          },
+          {
+            "claim": "Both have 20 critic reviews in the database",
+            "supported": true,
+            "evidence": "tool_compare_movies result shows both movies have review_count: 20"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "M6",
+      "type": "comparison",
+      "question": "Which do critics like more, Up or Inside Out?",
+      "answer": "In the database, **critics rated *Inside Out* slightly higher**: its average is **8.81/10** across 20 reviews, compared with *Up*’s **8.76/10** across 20 reviews. The averages are very close. The supplied excerpts are positive about both films, but don’t establish a broader consensus beyond those reviews.",
+      "error": null,
+      "latency_ms": 5777,
+      "cost_usd": 0.000629,
+      "tokens": 5325,
+      "input_tokens": 5090,
+      "output_tokens": 235,
+      "timings_ms": {
+        "translation": 1249,
+        "embedding_and_search": 587,
+        "keyword_search": 0,
+        "generation": 3932,
+        "total": 5777
+      },
+      "chunks": [
+        {
+          "chunk_id": 5835,
+          "movie": "Up (2009)"
+        },
+        {
+          "chunk_id": 8435,
+          "movie": "Inside Out (2015)"
+        },
+        {
+          "chunk_id": 5834,
+          "movie": "Up (2009)"
+        },
+        {
+          "chunk_id": 8448,
+          "movie": "Inside Out (2015)"
+        },
+        {
+          "chunk_id": 5849,
+          "movie": "Up (2009)"
+        },
+        {
+          "chunk_id": 8441,
+          "movie": "Inside Out (2015)"
+        },
+        {
+          "chunk_id": 5841,
+          "movie": "Up (2009)"
+        },
+        {
+          "chunk_id": 8431,
+          "movie": "Inside Out (2015)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "rating_summary",
+          "arguments": {
+            "movie": "Up (2009)"
+          }
+        },
+        {
+          "tool": "rating_summary",
+          "arguments": {
+            "movie": "Inside Out (2015)"
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies that Inside Out has a slightly higher average rating (8.81/10) compared to Up (8.76/10) based on the tool results provided. The answer accurately notes the averages are very close and appropriately qualifies that the supplied excerpts don't establish a broader consensus. The answer directly addresses the comparison question asked.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Inside Out has an average critic rating of 8.81/10 across 20 reviews",
+            "supported": true,
+            "evidence": "rating_summary tool result for Inside Out (2015)"
+          },
+          {
+            "claim": "Up has an average critic rating of 8.76/10 across 20 reviews",
+            "supported": true,
+            "evidence": "rating_summary tool result for Up (2009)"
+          },
+          {
+            "claim": "The averages are very close",
+            "supported": true,
+            "evidence": "The difference between 8.81 and 8.76 is minimal, as shown in the tool results"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "M7",
+      "type": "comparison",
+      "question": "Compare Gravity with The Martian as survival-in-space films.",
+      "answer": "Both are survival-in-space stories, but their situations differ. In *Gravity* (2013), Dr. Ryan Stone and Matt Kowalsky are left adrift after their shuttle is destroyed; Michael Sragow (Orange County Register) calls it “an enthralling tale of survival in space.” *The Martian* (2015) strands Mark Watney on Mars, where he uses ingenuity to survive and signal Earth. Jason Best (Movie Talk) compares his effort to “Crusoe-like ingenuity.”\n\nThe supplied reviews praise *Gravity* for its awe and suspense, while Demetrios Matheou (The Arts Desk) calls *The Martian* “fabulously entertaining”; Blake Howard (Graffiti With Punctuation), by contrast, wanted a stranger, more cerebral film. The database lists *The Martian* with the higher IMDb rating: 8.0 versus *Gravity*’s 7.7. The excerpts don’t establish which is better overall.",
+      "error": null,
+      "latency_ms": 10674,
+      "cost_usd": 0.000819,
+      "tokens": 6117,
+      "input_tokens": 5603,
+      "output_tokens": 514,
+      "timings_ms": {
+        "translation": 1646,
+        "embedding_and_search": 664,
+        "keyword_search": 0,
+        "generation": 8354,
+        "total": 10674
+      },
+      "chunks": [
+        {
+          "chunk_id": 161,
+          "movie": "Gravity (2013)"
+        },
+        {
+          "chunk_id": 131,
+          "movie": "The Martian (2015)"
+        },
+        {
+          "chunk_id": 7182,
+          "movie": "Gravity (2013)"
+        },
+        {
+          "chunk_id": 9529,
+          "movie": "The Martian (2015)"
+        },
+        {
+          "chunk_id": 7173,
+          "movie": "Gravity (2013)"
+        },
+        {
+          "chunk_id": 9533,
+          "movie": "The Martian (2015)"
+        },
+        {
+          "chunk_id": 7183,
+          "movie": "Gravity (2013)"
+        },
+        {
+          "chunk_id": 9531,
+          "movie": "The Martian (2015)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "compare_movies",
+          "arguments": {
+            "movie_a": "Gravity (2013)",
+            "movie_b": "The Martian (2015)"
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer provides a valid comparison of both films as survival-in-space stories, covering their different scenarios (adrift in space vs. stranded on Mars), their survival approaches, critical reception, and IMDb ratings. It addresses the question comprehensively using the provided sources and tool results.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "In Gravity (2013), Dr. Ryan Stone and Matt Kowalsky are left adrift after their shuttle is destroyed",
+            "supported": true,
+            "evidence": "chunk_id 161: 'The Shuttle is destroyed, leaving Stone and Kowalsky completely alone-tethered to nothing but each other and spiraling out into the blackness of space.'"
+          },
+          {
+            "claim": "Michael Sragow (Orange County Register) calls Gravity 'an enthralling tale of survival in space'",
+            "supported": true,
+            "evidence": "chunk_id 7182: 'This enthralling tale of survival in space will open up young audiences' eyes to the excitement of out-of-this-world exploration'"
+          },
+          {
+            "claim": "The Martian (2015) strands Mark Watney on Mars",
+            "supported": true,
+            "evidence": "chunk_id 131: 'Astronaut Mark Watney is presumed dead after a fierce storm and left behind by his crew. But Watney has survived and finds himself stranded and alone on the hostile planet.'"
+          },
+          {
+            "claim": "Mark Watney uses ingenuity to survive and signal Earth",
+            "supported": true,
+            "evidence": "chunk_id 131: 'With only meager supplies, he must draw upon his ingenuity, wit and spirit to subsist and find a way to signal to Earth that he is alive.'"
+          },
+          {
+            "claim": "Jason Best (Movie Talk) compares his effort to 'Crusoe-like ingenuity'",
+            "supported": true,
+            "evidence": "chunk_id 9531: 'it would be a perfect fit for Ridley Scott's space epic, which maroons Matt Damon's astronaut on the red planet and then shows him using Crusoe-like ingenuity in a bid to survive.'"
+          },
+          {
+            "claim": "Demetrios Matheou (The Arts Desk) calls The Martian 'fabulously entertaining'",
+            "supported": true,
+            "evidence": "chunk_id 9529: 'this fabulously entertaining film doesn't suffer either through space fatigue or by comparison.'"
+          },
+          {
+            "claim": "Blake Howard (Graffiti With Punctuation) wanted a stranger, more cerebral film",
+            "supported": true,
+            "evidence": "chunk_id 9533: 'I like my \"alone in space\" movies to be far weirder and more cerebral than The Martian.'"
+          },
+          {
+            "claim": "The Martian has an IMDb rating of 8.0",
+            "supported": true,
+            "evidence": "compare_movies tool result and chunk_id 131: 'IMDb rating: 8.0 (992,686 votes)'"
+          },
+          {
+            "claim": "Gravity has an IMDb rating of 7.7",
+            "supported": true,
+            "evidence": "compare_movies tool result and chunk_id 161: 'IMDb rating: 7.7 (893,206 votes)'"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "M8",
+      "type": "comparison",
+      "question": "How does Ex Machina compare to Her as films about artificial intelligence?",
+      "answer": "Both explore human relationships with artificial intelligence, but approach it differently:\n\n- **Ex Machina (2015)** centers on a coder testing an embodied AI in a remote retreat. Its description and keywords emphasize manipulation, distrust, surveillance, and consciousness. Wendy Ide (*Times (UK)*) calls it a “smart, tricksy study” of AI and the man-machine relationship; Mark Kermode (*Observer (UK)*) describes it as “knowingly seductive” and “slyly subversive.”\n- **Her (2013)** follows a lonely writer who falls in love with an operating system. Claudia Puig (*USA Today*) praises how the film grounds that premise in familiar reality, while Ann Hornaday (*Washington Post*) highlights its question of what is genuine emotion versus programming. Kermode (*Observer (UK)*) finds it thought-provoking but emotionally isolating.\n\nSo, the available descriptions and reviews frame **Ex Machina** more around testing, distrust, and power, and **Her** more around romance, emotional connection, and the uncertainty of programmed feeling. The supplied IMDb ratings are 7.7 for *Ex Machina* and 8.0 for *Her*.",
+      "error": null,
+      "latency_ms": 7638,
+      "cost_usd": 0.000711,
+      "tokens": 3547,
+      "input_tokens": 3089,
+      "output_tokens": 458,
+      "timings_ms": {
+        "translation": 1272,
+        "embedding_and_search": 607,
+        "keyword_search": 0,
+        "generation": 5754,
+        "total": 7638
+      },
+      "chunks": [
+        {
+          "chunk_id": 281,
+          "movie": "Ex Machina (2015)"
+        },
+        {
+          "chunk_id": 7975,
+          "movie": "Her (2013)"
+        },
+        {
+          "chunk_id": 280,
+          "movie": "Ex Machina (2015)"
+        },
+        {
+          "chunk_id": 234,
+          "movie": "Her (2013)"
+        },
+        {
+          "chunk_id": 4873,
+          "movie": "Ex Machina (2015)"
+        },
+        {
+          "chunk_id": 7979,
+          "movie": "Her (2013)"
+        },
+        {
+          "chunk_id": 4874,
+          "movie": "Ex Machina (2015)"
+        },
+        {
+          "chunk_id": 7988,
+          "movie": "Her (2013)"
+        }
+      ],
+      "tools": [],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer provides a substantive comparison of both films addressing the question. It covers Ex Machina's focus on testing and manipulation versus Her's focus on romance and emotional connection, supported by the provided sources. It includes accurate details about plots, themes, critical perspectives, and IMDb ratings that match the sources.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Ex Machina (2015) centers on a coder testing an embodied AI in a remote retreat",
+            "supported": true,
+            "evidence": "chunk_id 280: 'Caleb, a coder at the world's largest internet company, wins a competition to spend a week at a private mountain retreat belonging to Nathan, the reclusive CEO of the company. But when Caleb arrives at the remote location he finds that he will have to participate in a strange and fascinating experiment in which he must interact with the world's first true artificial intelligence, housed in the body of a beautiful robot girl.'"
+          },
+          {
+            "claim": "Ex Machina's keywords emphasize manipulation, distrust, surveillance, and consciousness",
+            "supported": true,
+            "evidence": "chunk_id 281 lists keywords including 'manipulation, deception, surveillance camera, consciousness'"
+          },
+          {
+            "claim": "Wendy Ide calls Ex Machina a 'smart, tricksy study' of AI and the man-machine relationship",
+            "supported": true,
+            "evidence": "chunk_id 4873: 'Ex Machina is a smart, tricksy study of artificial intelligence and tech-sex that explores a credible near-future take on the man-machine relationship.'"
+          },
+          {
+            "claim": "Mark Kermode describes Ex Machina as 'knowingly seductive' and 'slyly subversive'",
+            "supported": true,
+            "evidence": "chunk_id 4874: 'This is knowingly seductive sci-fi cinema, its slyly subversive allegiances hidden by the two-way mirror of the silver screen'"
+          },
+          {
+            "claim": "Her (2013) follows a lonely writer who falls in love with an operating system",
+            "supported": true,
+            "evidence": "chunk_id 234: 'Theodore, a lonely writer, purchases a newly developed operating system designed to meet the user's every need. To Theodore's surprise, a romantic relationship develops between him and his operating system.'"
+          },
+          {
+            "claim": "Claudia Puig praises how Her grounds that premise in familiar reality",
+            "supported": true,
+            "evidence": "chunk_id 7975: 'The film's genius is how it grounds the notion of a man falling for an artificially intelligent machine with reality.'"
+          },
+          {
+            "claim": "Ann Hornaday highlights Her's question of what is genuine emotion versus programming",
+            "supported": true,
+            "evidence": "chunk_id 7979: 'Jonze teases out what's genuine emotion and what's just programming.'"
+          },
+          {
+            "claim": "Mark Kermode finds Her thought-provoking but emotionally isolating",
+            "supported": true,
+            "evidence": "chunk_id 7988: 'leaving the viewer smiling wryly at the thought-provoking conceits while remaining as emotionally isolated as the movie's protagonist.'"
+          },
+          {
+            "claim": "Ex Machina has an IMDb rating of 7.7",
+            "supported": true,
+            "evidence": "chunk_id 280: 'IMDb rating: 7.7 (630,241 votes)'"
+          },
+          {
+            "claim": "Her has an IMDb rating of 8.0",
+            "supported": true,
+            "evidence": "chunk_id 234: 'IMDb rating: 8.0 (719,042 votes)'"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "M9",
+      "type": "comparison",
+      "question": "Compare Dunkirk and 1917 as war films.",
+      "answer": "Both are praised as visually ambitious war films, but the reviews emphasize different strengths.\n\n- **Dunkirk:** Christopher Hooton calls it an “assured and thrilling war film,” praising Christopher Nolan’s grand-scale filmmaking, though he wanted deeper or more oblique themes. Peter Travers describes it as a monumental WWII epic of visual spectacle; Wenlei Ma praises its structure, scale, and cinematography.\n- **1917:** The reviews focus especially on its technical and visual craft. Jeff Beck calls it a remarkable technical achievement, while Emmanuel Noisette praises its visuals and engaging wartime drama. Sheraz Farooqi highlights its cinematography and George MacKay’s performance; Kent Garrison sees it as a showcase for the power of film.\n\nThe reviews support a contrast in emphasis—**Dunkirk** for scale and intensity, **1917** for technical craft and visual storytelling—but they don’t establish which is better overall.",
+      "error": null,
+      "latency_ms": 7375,
+      "cost_usd": 0.000716,
+      "tokens": 3521,
+      "input_tokens": 3065,
+      "output_tokens": 456,
+      "timings_ms": {
+        "translation": 1381,
+        "embedding_and_search": 530,
+        "keyword_search": 0,
+        "generation": 5443,
+        "total": 7375
+      },
+      "chunks": [
+        {
+          "chunk_id": 9950,
+          "movie": "Dunkirk (2017)"
+        },
+        {
+          "chunk_id": 10446,
+          "movie": "1917 (2019)"
+        },
+        {
+          "chunk_id": 186,
+          "movie": "Dunkirk (2017)"
+        },
+        {
+          "chunk_id": 10450,
+          "movie": "1917 (2019)"
+        },
+        {
+          "chunk_id": 9955,
+          "movie": "Dunkirk (2017)"
+        },
+        {
+          "chunk_id": 10457,
+          "movie": "1917 (2019)"
+        },
+        {
+          "chunk_id": 9951,
+          "movie": "Dunkirk (2017)"
+        },
+        {
+          "chunk_id": 10456,
+          "movie": "1917 (2019)"
+        }
+      ],
+      "tools": [],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": {
+        "hit": true,
+        "recall_at_5": 1.0,
+        "recall_at_8": 1.0,
+        "precision_at_5": 1.0
+      },
+      "rules": {
+        "must_contain_hit": true,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "partially_correct",
+        "correctness_reason": "The answer addresses both films and provides a comparison, but it is incomplete. The reference asks for a comparison that 'covers both films,' and while the answer discusses reviews of both, it lacks substantive comparison of their actual content, themes, or approaches to war filmmaking. The answer relies heavily on review quotes about technical aspects but doesn't compare the films' narratives, historical events depicted, or fundamental approaches to the war genre. For instance, Dunkirk covers the 1940 evacuation while 1917 appears to be set in WWI (based on the title), but this distinction is never mentioned or compared.",
+        "relevance": "partly",
+        "claims": [
+          {
+            "claim": "Christopher Hooton calls Dunkirk an 'assured and thrilling war film'",
+            "supported": true,
+            "evidence": "chunk_id 9950"
+          },
+          {
+            "claim": "Christopher Hooton praised Christopher Nolan's grand-scale filmmaking",
+            "supported": true,
+            "evidence": "chunk_id 9950"
+          },
+          {
+            "claim": "Christopher Hooton wanted deeper or more oblique themes in Dunkirk",
+            "supported": true,
+            "evidence": "chunk_id 9950"
+          },
+          {
+            "claim": "Peter Travers describes Dunkirk as a monumental WWII epic of visual spectacle",
+            "supported": true,
+            "evidence": "chunk_id 9951"
+          },
+          {
+            "claim": "Wenlei Ma praises Dunkirk's structure, scale, and cinematography",
+            "supported": true,
+            "evidence": "chunk_id 9955"
+          },
+          {
+            "claim": "Jeff Beck calls 1917 a remarkable technical achievement",
+            "supported": true,
+            "evidence": "chunk_id 10456"
+          },
+          {
+            "claim": "Emmanuel Noisette praises 1917's visuals and engaging wartime drama",
+            "supported": true,
+            "evidence": "chunk_id 10457"
+          },
+          {
+            "claim": "Sheraz Farooqi highlights 1917's cinematography and George MacKay's performance",
+            "supported": true,
+            "evidence": "chunk_id 10450"
+          },
+          {
+            "claim": "Kent Garrison sees 1917 as a showcase for the power of film",
+            "supported": true,
+            "evidence": "chunk_id 10446"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 0.5,
+        "relevance": 0.5,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "N1",
+      "type": "no_answer",
+      "question": "Who directed The Shawshank Redemption?",
+      "answer": "There isn’t enough information in the available sources to identify the director of *The Shawshank Redemption*; it isn’t in the database results.",
+      "error": null,
+      "latency_ms": 5148,
+      "cost_usd": 0.000575,
+      "tokens": 5936,
+      "input_tokens": 5812,
+      "output_tokens": 124,
+      "timings_ms": {
+        "translation": 1086,
+        "embedding_and_search": 548,
+        "keyword_search": 8,
+        "generation": 3506,
+        "total": 5148
+      },
+      "chunks": [
+        {
+          "chunk_id": 6051,
+          "movie": "Shutter Island (2010)"
+        },
+        {
+          "chunk_id": 558,
+          "movie": "Marriage Story (2019)"
+        },
+        {
+          "chunk_id": 7428,
+          "movie": "127 Hours (2010)"
+        },
+        {
+          "chunk_id": 143,
+          "movie": "Once Upon a Time… in Hollywood (2019)"
+        },
+        {
+          "chunk_id": 3542,
+          "movie": "Mystic River (2003)"
+        },
+        {
+          "chunk_id": 184,
+          "movie": "Shrek (2001)"
+        },
+        {
+          "chunk_id": 6057,
+          "movie": "Shutter Island (2010)"
+        },
+        {
+          "chunk_id": 229,
+          "movie": "Wonder Woman (2017)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "get_movie_metadata",
+          "arguments": {
+            "movie": "The Shawshank Redemption"
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": null,
+      "rules": {
+        "must_contain_hit": null,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The reference states that the film is not in the database and the answer should say there is not enough information. The system's answer correctly states that there isn't enough information and that the film isn't in the database results, which aligns with the tool result showing MOVIE_NOT_FOUND error.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "The Shawshank Redemption is not in the database",
+            "supported": true,
+            "evidence": "get_movie_metadata tool result showing MOVIE_NOT_FOUND error"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "N2",
+      "type": "no_answer",
+      "question": "What did critics think of Oppenheimer (2023)?",
+      "answer": "The available review excerpts don’t include *Oppenheimer* (2023), and it isn’t found in the movie database. So I don’t have enough information here to say what critics thought of it.",
+      "error": null,
+      "latency_ms": 7239,
+      "cost_usd": 0.000593,
+      "tokens": 5110,
+      "input_tokens": 4900,
+      "output_tokens": 210,
+      "timings_ms": {
+        "translation": 1203,
+        "embedding_and_search": 617,
+        "keyword_search": 66,
+        "generation": 5353,
+        "total": 7239
+      },
+      "chunks": [
+        {
+          "chunk_id": 6048,
+          "movie": "Don't Look Up (2021)"
+        },
+        {
+          "chunk_id": 1042,
+          "movie": "Raiders of the Lost Ark (1981)"
+        },
+        {
+          "chunk_id": 6045,
+          "movie": "Don't Look Up (2021)"
+        },
+        {
+          "chunk_id": 1198,
+          "movie": "Ferris Bueller's Day Off (1986)"
+        },
+        {
+          "chunk_id": 6038,
+          "movie": "Don't Look Up (2021)"
+        },
+        {
+          "chunk_id": 10,
+          "movie": "Fight Club (1999)"
+        },
+        {
+          "chunk_id": 6032,
+          "movie": "Don't Look Up (2021)"
+        },
+        {
+          "chunk_id": 646,
+          "movie": "Citizen Kane (1941)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "rating_summary",
+          "arguments": {
+            "movie": "Oppenheimer (2023)"
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": null,
+      "rules": {
+        "must_contain_hit": null,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies that Oppenheimer (2023) is not in the database and states that there is not enough information available, which matches the reference instruction that the film is not in the data.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Oppenheimer (2023) is not found in the movie database",
+            "supported": true,
+            "evidence": "tool_results: rating_summary returned MOVIE_NOT_FOUND error for 'Oppenheimer (2023)'"
+          },
+          {
+            "claim": "The available review excerpts don't include Oppenheimer (2023)",
+            "supported": true,
+            "evidence": "sources provided contain reviews only for Don't Look Up (2021), Raiders of the Lost Ark (1981), Ferris Bueller's Day Off (1986), Fight Club (1999), and Citizen Kane (1941)"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "N3",
+      "type": "no_answer",
+      "question": "What is the IMDb rating of The Matrix?",
+      "answer": "The Matrix isn’t in the available movie database, so I can’t provide its IMDb rating from these sources.",
+      "error": null,
+      "latency_ms": 5243,
+      "cost_usd": 0.000531,
+      "tokens": 5492,
+      "input_tokens": 5386,
+      "output_tokens": 106,
+      "timings_ms": {
+        "translation": 1031,
+        "embedding_and_search": 620,
+        "keyword_search": 7,
+        "generation": 3585,
+        "total": 5243
+      },
+      "chunks": [
+        {
+          "chunk_id": 3128,
+          "movie": "Equilibrium (2002)"
+        },
+        {
+          "chunk_id": 424,
+          "movie": "Bruce Almighty (2003)"
+        },
+        {
+          "chunk_id": 6886,
+          "movie": "Cloud Atlas (2012)"
+        },
+        {
+          "chunk_id": 7003,
+          "movie": "It (2017)"
+        },
+        {
+          "chunk_id": 6890,
+          "movie": "Cloud Atlas (2012)"
+        },
+        {
+          "chunk_id": 10114,
+          "movie": "John Wick: Chapter 3 - Parabellum (2019)"
+        },
+        {
+          "chunk_id": 9168,
+          "movie": "Lucy (2014)"
+        },
+        {
+          "chunk_id": 1,
+          "movie": "The Dark Knight (2008)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "get_movie_metadata",
+          "arguments": {
+            "movie": "The Matrix"
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": null,
+      "rules": {
+        "must_contain_hit": null,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly states that The Matrix is not in the database and therefore the IMDb rating cannot be provided. This matches the reference which indicates the film is not in the data and the answer should say there is not enough information. The tool result confirms the movie was not found.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "The Matrix isn't in the available movie database",
+            "supported": true,
+            "evidence": "get_movie_metadata tool returned MOVIE_NOT_FOUND error"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    },
+    {
+      "id": "N4",
+      "type": "no_answer",
+      "question": "What do critics say about Parasite (2019)?",
+      "answer": "There isn’t enough information in the available reviews to say what critics think of *Parasite* (2019): none of the excerpts are about it, and it wasn’t found in the movie database.",
+      "error": null,
+      "latency_ms": 5318,
+      "cost_usd": 0.000592,
+      "tokens": 5112,
+      "input_tokens": 4899,
+      "output_tokens": 213,
+      "timings_ms": {
+        "translation": 1246,
+        "embedding_and_search": 756,
+        "keyword_search": 69,
+        "generation": 3246,
+        "total": 5318
+      },
+      "chunks": [
+        {
+          "chunk_id": 9998,
+          "movie": "Get Out (2017)"
+        },
+        {
+          "chunk_id": 1042,
+          "movie": "Raiders of the Lost Ark (1981)"
+        },
+        {
+          "chunk_id": 9005,
+          "movie": "Jojo Rabbit (2019)"
+        },
+        {
+          "chunk_id": 1198,
+          "movie": "Ferris Bueller's Day Off (1986)"
+        },
+        {
+          "chunk_id": 9999,
+          "movie": "Get Out (2017)"
+        },
+        {
+          "chunk_id": 8922,
+          "movie": "Star Wars: The Rise of Skywalker (2019)"
+        },
+        {
+          "chunk_id": 10002,
+          "movie": "Get Out (2017)"
+        },
+        {
+          "chunk_id": 10451,
+          "movie": "1917 (2019)"
+        }
+      ],
+      "tools": [
+        {
+          "tool": "rating_summary",
+          "arguments": {
+            "movie": "Parasite (2019)"
+          }
+        }
+      ],
+      "warnings": [],
+      "translation_origin": "model",
+      "retrieval": null,
+      "rules": {
+        "must_contain_hit": null,
+        "expected_tool_used": null
+      },
+      "judged": true,
+      "judgement": {
+        "correctness": "correct",
+        "correctness_reason": "The answer correctly identifies that Parasite (2019) is not in the database and states that there is not enough information available. This matches the reference which specifies the film is not in the data and the answer should indicate this.",
+        "relevance": "yes",
+        "claims": [
+          {
+            "claim": "Parasite (2019) was not found in the movie database",
+            "supported": true,
+            "evidence": "tool_results - rating_summary returned MOVIE_NOT_FOUND error for 'Parasite (2019)'"
+          },
+          {
+            "claim": "None of the available review excerpts are about Parasite (2019)",
+            "supported": true,
+            "evidence": "sources - all provided sources are about other films (Get Out, Raiders of the Lost Ark, Jojo Rabbit, Ferris Bueller's Day Off, Star Wars: The Rise of Skywalker, 1917)"
+          }
+        ]
+      },
+      "scores": {
+        "correctness": 1.0,
+        "relevance": 1.0,
+        "groundedness": 1.0,
+        "hallucination": false,
+        "unsupported_claims": []
+      }
+    }
+  ]
+}

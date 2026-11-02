@@ -1,5 +1,6 @@
 """Spec 6 (specs/6.md) database tests for vector search, inside a rolled-back transaction."""
 
+import pytest
 from sqlalchemy import text
 
 from app import embeddings, retrieval
@@ -34,6 +35,7 @@ def add_test_chunks(session):
 # --- AC-002: top K by cosine distance --------------------------------------------------------------
 
 
+@pytest.mark.real_data
 def test_ac002_returns_k_chunks_nearest_first(session):
     add_test_chunks(session)
 
@@ -138,6 +140,7 @@ def test_keyword_text_is_a_bound_parameter(session):
 # --- Phase 18: hybrid on the real database -------------------------------------------------------------------
 
 
+@pytest.mark.real_data
 def test_hybrid_brings_in_a_chunk_only_keyword_search_finds(session):
     from app import fusion
 

@@ -415,7 +415,7 @@
       "cost_usd_per_1000_answers": 0.67
     },
     "gpt-6-luna": {
-      "runs": 1,
+      "runs": 2,
       "settings": {
         "strategy": "hybrid",
         "answer_model": "openai/gpt-6-luna",
@@ -424,24 +424,24 @@
         "tool_backend": "mcp"
       },
       "answer_accuracy": {
-        "mean": 0.949,
+        "mean": 0.9643,
         "min": 0.949,
-        "max": 0.949
+        "max": 0.9796
       },
       "groundedness": {
-        "mean": 0.9955,
+        "mean": 0.9978,
         "min": 0.9955,
-        "max": 0.9955
+        "max": 1.0
       },
       "hallucination_rate": {
-        "mean": 0.0204,
-        "min": 0.0204,
+        "mean": 0.0102,
+        "min": 0.0,
         "max": 0.0204
       },
       "relevance": {
-        "mean": 0.9796,
+        "mean": 0.9847,
         "min": 0.9796,
-        "max": 0.9796
+        "max": 0.9898
       },
       "expected_tool_used_rate": {
         "mean": 1.0,
@@ -459,16 +459,16 @@
         "max": 0.9441
       },
       "errors": 0,
-      "latency_ms_median": 4344,
-      "latency_ms_p95": 8763,
-      "generation_ms_median": 2681,
-      "input_tokens_avg": 4340,
-      "output_tokens_avg": 247,
-      "cost_usd_per_answer": 0.000635,
-      "cost_usd_per_1000_answers": 0.63
+      "latency_ms_median": 4928,
+      "latency_ms_p95": 8830,
+      "generation_ms_median": 3279,
+      "input_tokens_avg": 4367,
+      "output_tokens_avg": 249,
+      "cost_usd_per_answer": 0.000638,
+      "cost_usd_per_1000_answers": 0.64
     },
     "gemini-3.1-flash-lite": {
-      "runs": 1,
+      "runs": 2,
       "settings": {
         "strategy": "hybrid",
         "answer_model": "google/gemini-3.1-flash-lite",
@@ -477,8 +477,8 @@
         "tool_backend": "mcp"
       },
       "answer_accuracy": {
-        "mean": 0.9479,
-        "min": 0.9479,
+        "mean": 0.9433,
+        "min": 0.9388,
         "max": 0.9479
       },
       "groundedness": {
@@ -492,9 +492,9 @@
         "max": 0.0
       },
       "relevance": {
-        "mean": 0.9583,
+        "mean": 0.9639,
         "min": 0.9583,
-        "max": 0.9583
+        "max": 0.9694
       },
       "expected_tool_used_rate": {
         "mean": 1.0,
@@ -512,13 +512,66 @@
         "max": 0.9441
       },
       "errors": 0,
-      "latency_ms_median": 3471,
-      "latency_ms_p95": 5366,
-      "generation_ms_median": 1559,
-      "input_tokens_avg": 3995,
-      "output_tokens_avg": 257,
-      "cost_usd_per_answer": 0.00138,
+      "latency_ms_median": 3444,
+      "latency_ms_p95": 5289,
+      "generation_ms_median": 1564,
+      "input_tokens_avg": 3977,
+      "output_tokens_avg": 258,
+      "cost_usd_per_answer": 0.001376,
       "cost_usd_per_1000_answers": 1.38
+    },
+    "gpt-6-astra": {
+      "runs": 1,
+      "settings": {
+        "strategy": "hybrid",
+        "answer_model": "openai/gpt-6-astra",
+        "translation": "google/gemini-3.1-flash-lite",
+        "top_k": 8,
+        "tool_backend": "mcp"
+      },
+      "answer_accuracy": {
+        "mean": 0.9592,
+        "min": 0.9592,
+        "max": 0.9592
+      },
+      "groundedness": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "hallucination_rate": {
+        "mean": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "relevance": {
+        "mean": 0.9694,
+        "min": 0.9694,
+        "max": 0.9694
+      },
+      "expected_tool_used_rate": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "retrieval_hit_rate": {
+        "mean": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "retrieval_recall_at_5": {
+        "mean": 0.9441,
+        "min": 0.9441,
+        "max": 0.9441
+      },
+      "errors": 0,
+      "latency_ms_median": 6119,
+      "latency_ms_p95": 11838,
+      "generation_ms_median": 4082,
+      "input_tokens_avg": 4411,
+      "output_tokens_avg": 244,
+      "cost_usd_per_answer": 0.023156,
+      "cost_usd_per_1000_answers": 23.16
     }
   },
   "cold_start": {

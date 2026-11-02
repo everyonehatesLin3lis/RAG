@@ -1264,3 +1264,23 @@ Checked in the running app:
 - Docker Desktop can hang at start because of a leftover socket file. Renaming `%LOCALAPPDATA%\Docker\run` fixes it.
 - The database container stopped by itself twice during development. `restart: unless-stopped` in
   `docker-compose.yml` now brings it back whenever Docker is running.
+
+### Answer models: four models against good-enough thresholds ([`evaluation/results/analytics.json`](../evaluation/results/analytics.json))
+
+- Thresholds set before comparing: answer accuracy ≥ 0.95, groundedness ≥ 0.99, median time ≤ 6 s, cost ≤ $1 per
+  1,000 answers. `python evaluation/charts.py` draws them into `docs/images/model_scorecard.svg`,
+  `model_tradeoff.svg` and `pipeline_scorecard.svg` from `analytics.json`.
+- Added a top-tier model, `openai/gpt-6-astra` ($10 / $50 per million tokens), as a quality ceiling, and a second run
+  for GPT-6 Luna and Gemini Flash Lite. Astra ran once: a 5-question trial measured $0.029 per question first, and the
+  full run cost about $1.35 including the judge. All runs of this comparison together: $1.98 (OpenRouter's figure).
+- Results: MiMo 0.985 (2 runs), GPT-6 Luna 0.964 (0.949–0.980), Gemini Flash Lite 0.943 (0.939–0.948), GPT-6 Astra
+  0.959. Cost per 1,000 answers $0.67 / $0.64 / $1.38 / $23.16; median time 5.5 / 4.9 / 3.4 / 6.1 s.
+- Astra's 4 half-points are on the questions every model finds hard (C1, C2, M4, M9). In C2 it left out *Vikings*, the
+  TV series the data mislabels as a film, which the judge counted against it. The limit is retrieval and data, not
+  the model, so MiMo stays.
+- The three runs ran in parallel against the same local database; latency is model-side, so this did not change the
+  timings in any way that matters for the comparison.
+- `analytics_report.py` now also reads repeat runs (`hybrid-<tag>-r2.json`) of an experiment.
+- Tests: 31 tests that check retrieval and tools against the real films are marked `real_data`. GitHub Actions
+  (`.github/workflows/tests.yml`) runs the suite against an empty migrated database, where those skip (327 passed,
+  32 skipped locally on an empty database); locally with the data all 359 pass. The workflow also builds the frontend.

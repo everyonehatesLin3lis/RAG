@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pytest
+from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
 
@@ -31,6 +32,8 @@ def pytest_configure(config):
     for group in GROUPS:
         config.addinivalue_line("markers", f"{group}: the plan's {group} tests (Phase 28)")
     config.addinivalue_line("markers", "live: calls real models and costs money; run with `pytest -m live`")
+    config.addinivalue_line("markers", "real_data: needs the ingested and embedded movie data; skipped on an empty "
+                                       "database (GitHub Actions)")
 
 
 @pytest.hookimpl(tryfirst=True)  # before pytest filters by -m, which needs the markers
@@ -151,3 +154,14 @@ def session():
         db.close()
         transaction.rollback()
         connection.close()
+
+
+@pytest.fixture(autouse=True)
+def needs_real_data(request):
+    """Tests marked real_data check retrieval and tools against the real films (Zodiac, Prisoners, ...). The CI
+    database has the schema but not the ~200 MB of data, so there they skip; locally they run."""
+    if not request.node.get_closest_marker("real_data"):
+        return
+    db = request.getfixturevalue("session")
+    if db.execute(text("SELECT NOT EXISTS (SELECT 1 FROM rag_chunks WHERE embedding IS NOT NULL)")).scalar():
+        pytest.skip("needs the ingested movie data (python scripts/ingest.py, scripts/embed_chunks.py)")

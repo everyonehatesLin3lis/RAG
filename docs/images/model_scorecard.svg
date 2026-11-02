@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1018 328" width="1018" height="328" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">
+  <title>Answer models against the good-enough thresholds</title>
+  <style>
+  .ink { fill: #0b0b0b; } .ink2 { fill: #52514e; } .muted { fill: #898781; }
+  .grid { stroke: #e1e0d9; stroke-width: 1; } .track { stroke: #e1e0d9; stroke-width: 6; stroke-linecap: round; }
+  .limit { stroke: #52514e; stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .range { stroke: #898781; stroke-width: 2; } .zone { fill: #0ca30c; fill-opacity: 0.08; }
+  .pass { fill: #0ca30c; } .fail { fill: #d03b3b; } .ring { stroke: #fcfcfb; stroke-width: 2; }
+  .passText { fill: #006300; } .failText { fill: #b02a2a; }
+  .s1 { fill: #2a78d6; } .s2 { fill: #eb6834; } .s3 { fill: #1baf7a; } .s4 { fill: #6250d6; }
+  @media (prefers-color-scheme: dark) {
+    .ink { fill: #f0efec; } .ink2 { fill: #c3c2b7; } .grid, .track { stroke: #2c2c2a; }
+    .limit { stroke: #c3c2b7; } .ring { stroke: #1a1a19; } .zone { fill-opacity: 0.14; }
+    .passText { fill: #0ca30c; } .failText { fill: #e66767; }
+    .s1 { fill: #3987e5; } .s2 { fill: #d95926; } .s3 { fill: #199e70; } .s4 { fill: #9085e9; }
+  }
+</style>
+  <text class="ink" x="250.0" y="30.0" font-size="13" text-anchor="start" font-weight="600">Answer accuracy</text>
+  <text class="muted" x="250.0" y="48.0" font-size="12" text-anchor="start">good enough ≥ 0.95</text>
+  <line class="limit" x1="325.0" y1="58" x2="325.0" y2="298"/>
+  <text class="ink" x="422.0" y="30.0" font-size="13" text-anchor="start" font-weight="600">Groundedness</text>
+  <text class="muted" x="422.0" y="48.0" font-size="12" text-anchor="start">good enough ≥ 0.99</text>
+  <line class="limit" x1="497.0" y1="58" x2="497.0" y2="298"/>
+  <text class="ink" x="594.0" y="30.0" font-size="13" text-anchor="start" font-weight="600">Median time per answer</text>
+  <text class="muted" x="594.0" y="48.0" font-size="12" text-anchor="start">good enough ≤ 6 s</text>
+  <line class="limit" x1="669.0" y1="58" x2="669.0" y2="298"/>
+  <text class="ink" x="766.0" y="30.0" font-size="13" text-anchor="start" font-weight="600">Cost per 1,000 answers</text>
+  <text class="muted" x="766.0" y="48.0" font-size="12" text-anchor="start">good enough ≤ $1</text>
+  <line class="limit" x1="816.0" y1="58" x2="816.0" y2="298"/>
+  <text class="ink" x="1006.0" y="30.0" font-size="13" text-anchor="end" font-weight="600">Meets</text>
+  <text class="muted" x="1006.0" y="48.0" font-size="12" text-anchor="end">all four</text>
+  <line class="grid" x1="0" y1="128" x2="1018" y2="128"/>
+  <text class="ink" x="0.0" y="98.0" font-size="14" text-anchor="start" font-weight="600">MiMo v2.6 Flash (in use)</text>
+  <text class="muted" x="0.0" y="116.0" font-size="12" text-anchor="start">2 runs (range shown)</text>
+  <line class="track" x1="250" y1="94" x2="400" y2="94"/>
+  <line class="range" x1="369.4" y1="94" x2="384.7" y2="94"/>
+  <circle class="pass ring" cx="377.1" cy="94" r="7"/>
+  <text class="passText" x="250.0" y="116.0" font-size="13" text-anchor="start">✓ 0.985</text>
+  <line class="track" x1="422" y1="94" x2="572" y2="94"/>
+  <line class="range" x1="563.8" y1="94" x2="564.5" y2="94"/>
+  <circle class="pass ring" cx="564.5" cy="94" r="7"/>
+  <text class="passText" x="422.0" y="116.0" font-size="13" text-anchor="start">✓ 0.999</text>
+  <line class="track" x1="594" y1="94" x2="744" y2="94"/>
+  <circle class="pass ring" cx="662.4" cy="94" r="7"/>
+  <text class="passText" x="594.0" y="116.0" font-size="13" text-anchor="start">✓ 5.5 s</text>
+  <line class="track" x1="766" y1="94" x2="916" y2="94"/>
+  <circle class="pass ring" cx="807.3" cy="94" r="7"/>
+  <text class="passText" x="766.0" y="116.0" font-size="13" text-anchor="start">✓ $0.67</text>
+  <text class="passText" x="1006.0" y="100.0" font-size="15" text-anchor="end" font-weight="600">4/4</text>
+  <line class="grid" x1="0" y1="180" x2="1018" y2="180"/>
+  <text class="ink" x="0.0" y="150.0" font-size="14" text-anchor="start">GPT-6 Luna</text>
+  <text class="muted" x="0.0" y="168.0" font-size="12" text-anchor="start">2 runs (range shown)</text>
+  <line class="track" x1="250" y1="146" x2="400" y2="146"/>
+  <line class="range" x1="323.5" y1="146" x2="369.4" y2="146"/>
+  <circle class="pass ring" cx="346.5" cy="146" r="7"/>
+  <text class="passText" x="250.0" y="168.0" font-size="13" text-anchor="start">✓ 0.964</text>
+  <line class="track" x1="422" y1="146" x2="572" y2="146"/>
+  <line class="range" x1="538.3" y1="146" x2="572.0" y2="146"/>
+  <circle class="pass ring" cx="555.5" cy="146" r="7"/>
+  <text class="passText" x="422.0" y="168.0" font-size="13" text-anchor="start">✓ 0.998</text>
+  <line class="track" x1="594" y1="146" x2="744" y2="146"/>
+  <circle class="pass ring" cx="655.6" cy="146" r="7"/>
+  <text class="passText" x="594.0" y="168.0" font-size="13" text-anchor="start">✓ 4.9 s</text>
+  <line class="track" x1="766" y1="146" x2="916" y2="146"/>
+  <circle class="pass ring" cx="806.3" cy="146" r="7"/>
+  <text class="passText" x="766.0" y="168.0" font-size="13" text-anchor="start">✓ $0.64</text>
+  <text class="passText" x="1006.0" y="152.0" font-size="15" text-anchor="end" font-weight="600">4/4</text>
+  <line class="grid" x1="0" y1="232" x2="1018" y2="232"/>
+  <text class="ink" x="0.0" y="202.0" font-size="14" text-anchor="start">Gemini 3.1 Flash Lite</text>
+  <text class="muted" x="0.0" y="220.0" font-size="12" text-anchor="start">2 runs (range shown)</text>
+  <line class="track" x1="250" y1="198" x2="400" y2="198"/>
+  <line class="range" x1="308.2" y1="198" x2="321.8" y2="198"/>
+  <circle class="fail ring" cx="315.0" cy="198" r="7"/>
+  <text class="failText" x="250.0" y="220.0" font-size="13" text-anchor="start">✗ 0.943</text>
+  <line class="track" x1="422" y1="198" x2="572" y2="198"/>
+  <circle class="pass ring" cx="572.0" cy="198" r="7"/>
+  <text class="passText" x="422.0" y="220.0" font-size="13" text-anchor="start">✓ 1.000</text>
+  <line class="track" x1="594" y1="198" x2="744" y2="198"/>
+  <circle class="pass ring" cx="637.0" cy="198" r="7"/>
+  <text class="passText" x="594.0" y="220.0" font-size="13" text-anchor="start">✓ 3.4 s</text>
+  <line class="track" x1="766" y1="198" x2="916" y2="198"/>
+  <circle class="fail ring" cx="823.0" cy="198" r="7"/>
+  <text class="failText" x="766.0" y="220.0" font-size="13" text-anchor="start">✗ $1.38</text>
+  <text class="failText" x="1006.0" y="204.0" font-size="15" text-anchor="end" font-weight="600">2/4</text>
+  <line class="grid" x1="0" y1="284" x2="1018" y2="284"/>
+  <text class="ink" x="0.0" y="254.0" font-size="14" text-anchor="start">GPT-6 Astra</text>
+  <text class="muted" x="0.0" y="272.0" font-size="12" text-anchor="start">1 run</text>
+  <line class="track" x1="250" y1="250" x2="400" y2="250"/>
+  <circle class="pass ring" cx="338.8" cy="250" r="7"/>
+  <text class="passText" x="250.0" y="272.0" font-size="13" text-anchor="start">✓ 0.959</text>
+  <line class="track" x1="422" y1="250" x2="572" y2="250"/>
+  <circle class="pass ring" cx="572.0" cy="250" r="7"/>
+  <text class="passText" x="422.0" y="272.0" font-size="13" text-anchor="start">✓ 1.000</text>
+  <line class="track" x1="594" y1="250" x2="744" y2="250"/>
+  <circle class="fail ring" cx="670.5" cy="250" r="7"/>
+  <text class="failText" x="594.0" y="272.0" font-size="13" text-anchor="start">✗ 6.1 s</text>
+  <line class="track" x1="766" y1="250" x2="916" y2="250"/>
+  <circle class="fail ring" cx="884.2" cy="250" r="7"/>
+  <text class="failText" x="766.0" y="272.0" font-size="13" text-anchor="start">✗ $23.16</text>
+  <text class="failText" x="1006.0" y="256.0" font-size="15" text-anchor="end" font-weight="600">2/4</text>
+  <text class="muted" x="0.0" y="320.0" font-size="12" text-anchor="start">Cost axis is logarithmic. Dashed line = the good-enough threshold; green ✓ meets it, red ✗ misses it.</text>
+</svg>

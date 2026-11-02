@@ -62,6 +62,7 @@ def test_unknown_tool_is_a_structured_error():
     assert result.structured_content["error"]["code"] == "UNKNOWN_TOOL"
 
 
+@pytest.mark.real_data
 def test_each_tool_returns_the_same_result_as_the_function(session):
     calls = {
         "filter_movies": {"genre": "war", "year_min": 2010},
@@ -81,6 +82,7 @@ def test_each_tool_returns_the_same_result_as_the_function(session):
     assert results["get_movie_metadata"].structured_content["director"] == "Denis Villeneuve"
 
 
+@pytest.mark.real_data
 def test_title_errors_come_back_through_mcp(session):
     result = over_mcp(lambda c: c.call_tool("rating_summary", {"movie": "Beauty and the Beast"}))
 
@@ -92,6 +94,7 @@ def test_title_errors_come_back_through_mcp(session):
 # --- the real thing: a child process over stdio -------------------------------------------------------------
 
 
+@pytest.mark.real_data
 def test_stdio_subprocess_client_tool_database_result(session):
     client = McpToolClient()  # starts `python -m app.mcp_server`
     try:
@@ -141,6 +144,7 @@ def test_tool_loop_runs_mcp_tools_and_returns_their_errors(in_process_mcp):
     assert result["error"]["code"] == "INVALID_ARGUMENTS"
 
 
+@pytest.mark.real_data
 def test_tool_loop_end_to_end_through_mcp(monkeypatch, in_process_mcp, session):
     replies = iter([
         AIMessage(content="", tool_calls=[{"name": "get_movie_metadata", "args": {"movie": "Prisoners"}, "id": "c1"}]),
@@ -181,6 +185,7 @@ def test_pipeline_uses_the_configured_tool_backend(monkeypatch, backend):
 
 
 # Implements: specs/28.md#AC-010 (every structured error code comes back through MCP marked as an error)
+@pytest.mark.real_data
 def test_movie_not_found_comes_back_through_mcp_with_suggestions(session):
     result = over_mcp(lambda c: c.call_tool("get_movie_metadata", {"movie": "Dark Knight"}))
 

@@ -25,6 +25,7 @@ TITLE_TOOLS = {  # how each title tool takes one title
 
 
 # Implements: specs/28.md#AC-006 (valid parameters)
+@pytest.mark.real_data
 @pytest.mark.parametrize("name", list(VALID))
 def test_valid_parameters_give_a_result(name, session):
     args, key = VALID[name]
@@ -41,6 +42,7 @@ def test_invalid_parameters_are_invalid_arguments(name, args, session):
 
 
 # Implements: specs/28.md#AC-006 (missing movie)
+@pytest.mark.real_data
 @pytest.mark.parametrize("name", list(TITLE_TOOLS))
 def test_a_missing_movie_is_movie_not_found_with_suggestions(name, session):
     result = tools.run_tool(session, name, TITLE_TOOLS[name]("Dark Knight"))
@@ -50,6 +52,7 @@ def test_a_missing_movie_is_movie_not_found_with_suggestions(name, session):
 
 
 # Implements: specs/28.md#AC-006 (duplicate titles)
+@pytest.mark.real_data
 @pytest.mark.parametrize("name", list(TITLE_TOOLS))
 def test_a_duplicate_title_is_ambiguous_until_the_year_is_given(name, session):
     ambiguous = tools.run_tool(session, name, TITLE_TOOLS[name]("Beauty and the Beast"))

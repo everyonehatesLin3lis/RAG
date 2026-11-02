@@ -1,5 +1,7 @@
 # Movie Research Copilot
 
+[![tests](https://github.com/everyonehatesLin3lis/RAG/actions/workflows/tests.yml/badge.svg)](https://github.com/everyonehatesLin3lis/RAG/actions/workflows/tests.yml)
+
 A movie research chatbot that answers from about 10,000 real critic reviews and the films' metadata instead of the
 model's memory. Ask "What did critics say about Black Swan?", "Which is rated higher, Zodiac or Prisoners?" or
 "Recommend a well-rated thriller from the 2010s". Every answer shows the reviews it used, what retrieval did, which
@@ -8,9 +10,14 @@ tools ran and what the answer cost.
 **Live demo:** https://ai-devops-508221.web.app. The first question after a quiet spell can take about 30 s while the
 backend and database wake up; after that, the first words appear in about 5 s.
 
+| The answer, with the critic reviews it used | The tools the model called, and their results |
+|---|---|
+| ![An answer comparing Zodiac and Prisoners, quoting critics, with source cards underneath](docs/images/screenshot_answer.jpg) | ![The Tool calls panel: compare_movies with IMDb ratings, rating_summary with a score distribution](docs/images/screenshot_tools.jpg) |
+
 **Contents:** [What it does](#what-it-does) · [Architecture](#architecture) · [Stack](#stack) ·
 [How a question is answered](#how-a-question-is-answered) · [Tools](#tools) ·
-[Vector-only vs hybrid search](#vector-only-vs-hybrid-search) · [Evaluation](#evaluation) · [Security](#security) ·
+[Vector-only vs hybrid search](#vector-only-vs-hybrid-search) · [Evaluation](#evaluation) ·
+[Choosing the answer model](#choosing-the-answer-model) · [Security](#security) ·
 [Key decisions](#key-decisions) · [Limitations and next steps](#limitations-and-next-steps) ·
 [Installation](#installation) · [Tests](#tests)
 
@@ -165,17 +172,83 @@ Every question type scores 1.0 except comparisons (0.94) and recommendations (0.
 disturbing than *Hereditary*?" (the reviews don't settle it, judged half right) and an animated-family list that
 included *Spider-Man: Into the Spider-Verse*, which the data doesn't tag as a family film.
 
-**What changes quality, speed and cost** (one setting changed per experiment; [`evaluation/results/analytics.json`](evaluation/results/analytics.json)):
+### What counts as good enough
 
-| Experiment | Result |
-|---|---|
-| Where the time goes | Answer generation 81 % of the median 5.5 s, query translation 12 %, embedding + vector search 7 %, keyword search ~0 % |
-| Query translation off | Expected film reached the model 1.000 → 0.933, answer accuracy 0.985 → 0.949; saves ~1 s and $0.30 per 1,000 answers. Worth keeping |
-| 5 / 8 / 10 chunks | Accuracy 0.980 / 0.985 / 0.990, cost per 1,000 answers $0.71 / $0.67 / $0.75: differences within noise, because reviews are short and fixed prompt parts dominate. 8 stays |
-| Answer model | MiMo 0.985 accuracy (median 5.5 s, $0.67 per 1,000); GPT-6 Luna 0.949 (4.3 s, $0.63); Gemini Flash Lite 0.948 (3.5 s, $1.38). MiMo stays: correctness first, streaming hides most of the wait |
-| Deployed site, cold vs warm | First words after 33 s cold (container start and imports 16.7 s, MCP server 5.1 s, then the database waking) vs 5.5 s warm |
+I set four thresholds for a movie research assistant before comparing anything. Every chart below marks them with a
+dashed line:
 
-All evaluation runs together cost $2.45; 87 % of that was the judge.
+| | Good enough | Why |
+|---|---|---|
+| Answer accuracy | ≥ 0.95 | at most about 2 of 49 answers half right |
+| Groundedness | ≥ 0.99 | practically every claim backed by a source or tool result |
+| Median time per answer | ≤ 6 s | streaming shows the first words sooner, but the answer should finish quickly |
+| Cost per 1,000 answers | ≤ $1 | a public demo can run for months on a few dollars |
+
+### Pipeline settings
+
+Each experiment changed one setting from the default (hybrid search, 8 chunks, query translation on, MiMo answers):
+
+![Pipeline settings scorecard: the default, 5 chunks and 10 chunks meet all four thresholds except 10 chunks on time; translation off misses accuracy](docs/images/pipeline_scorecard.svg)
+
+- **Query translation earns its keep.** Without it, the expected film reaches the model less often (1.000 → 0.933)
+  and accuracy falls below the threshold (0.949). It costs about a second and $0.30 per 1,000 answers.
+- **5, 8 or 10 chunks barely matter here.** Reviews are short (at most about 360 characters), so the fixed parts of
+  the prompt dominate the cost. 10 chunks tips the median time over 6 s; 8 stays.
+- **Where the time goes:** answer generation 81 % of the median 5.5 s, query translation 12 %, embedding and vector
+  search 7 %, keyword search about 0 %. The database is not the bottleneck; the answer model is.
+- **Deployed site:** first words after 33 s when the backend has been asleep (container start and imports 16.7 s,
+  MCP server 5.1 s, then the database waking), 5.5 s when it's warm.
+
+## Choosing the answer model
+
+Same questions, sources and tools for every model; only the model that writes the answer changes. I compared the model
+in use with two cheap alternatives and one top-tier model, GPT-6 Astra ($10 / $50 per million tokens, about 70× MiMo's
+input price), to see how much quality the cheap models leave on the table. Each cheap model ran twice; Astra ran once
+because of its price.
+
+![Answer model scorecard: MiMo and GPT-6 Luna meet all four thresholds, Luna with more variation between runs; Gemini Flash Lite misses accuracy and cost; GPT-6 Astra misses cost by a factor of 23 and time](docs/images/model_scorecard.svg)
+
+![Accuracy against cost per 1,000 answers: MiMo and GPT-6 Luna sit in the good-enough zone, Gemini Flash Lite just outside it, GPT-6 Astra far to the right at $23 with no accuracy gain](docs/images/model_tradeoff.svg)
+
+| | MiMo v2.6 Flash (in use) | GPT-6 Luna | Gemini 3.1 Flash Lite | GPT-6 Astra |
+|---|---|---|---|---|
+| Runs | 2 | 2 | 2 | 1 |
+| Answer accuracy | **0.985** (0.980–0.990) | 0.964 (0.949–0.980) | 0.943 (0.939–0.948) | 0.959 |
+| Groundedness | 0.999 | 0.998 | 1.000 | 1.000 |
+| Median / p95 time | 5.5 s / 22.1 s | 4.9 s / 8.8 s | **3.4 s / 5.3 s** | 6.1 s / 11.8 s |
+| Cost per 1,000 answers | $0.67 | **$0.64** | $1.38 | $23.16 |
+
+### What adding a top-tier model showed
+
+I added GPT-6 Astra to answer one question: would a much better, much more expensive model give better answers?
+
+1. **Paying more did not buy accuracy.** Astra costs about 35× more per answer than MiMo ($23.16 vs $0.67 per 1,000
+   answers) and scored 0.959 against 0.985. It ran once, so "no better than the cheap models" is the fair reading,
+   not "worse".
+2. **The model is not the bottleneck; retrieval and data are.** Astra lost its points on the same questions every model
+   finds hard. On open recommendations ("animated family films rated 8 or higher") it listed fewer films than
+   expected. On two-film comparisons ("Is *Black Swan* more disturbing than *Hereditary*?") the retrieved reviews don't
+   settle the question. If the best model can't do better, the limit is what reaches it.
+3. **It exposed a data error.** For "war movies since 2010" Astra left out *Vikings*, which is a TV series the data
+   mislabels as a film. The judge counted that against it, though Astra was arguably right.
+4. **It confirms the current choice.** Without a top model, the claim would only be "MiMo is the best of the cheap
+   ones". With it: a model at 35× the price did not improve the answers, so the cheap model is the right choice, and
+   the next dollar is better spent on retrieval and data than on a bigger model.
+
+### The other models
+
+- **MiMo stays.** It has the highest accuracy, meets all four thresholds and stays above 0.95 accuracy in both runs.
+  Its weakness is the slow tail: 1 in 20 answers takes over 22 s.
+- **GPT-6 Luna is the realistic alternative.** It also meets all four thresholds on average, at the same price, faster
+  and with a much steadier time per answer. But its accuracy moved between 0.949 and 0.980 across two runs, so one run
+  fell below the threshold. With 49 questions, one question is worth 0.02, so the gap to MiMo is within what
+  a third run could change.
+- **Gemini Flash Lite is the fastest but twice the price,** because its output tokens cost about 5× more.
+
+The judge is Claude Haiku 4.5, so no Anthropic model was compared: it would be grading its own family.
+
+All evaluation runs together cost $4.43, of which the four-model comparison was $1.98 and Astra's single run about
+$1.35.
 
 ## Security
 
@@ -212,6 +285,8 @@ The options I compared and the numbers behind each choice are in [`docs/project_
   had the right film in the context for 29 of 30.
 - **A separate, small model for query translation.** Gemini Flash Lite rewrites the question in about a second; the
   slower, more accurate MiMo writes the answer.
+- **MiMo v2.6 Flash for answers.** Of four models, including the top-tier GPT-6 Astra at 35× the cost, it was the most
+  accurate and stayed within all four good-enough thresholds; GPT-6 Luna is the close alternative.
 - **Hybrid search with Reciprocal Rank Fusion.** RRF combines ranks, not scores, so vector distances and full-text
   ranks don't need to be on the same scale.
 - **No router in front of the tools.** Every question gets the sources and the tools, and the model decides. Simpler,
@@ -223,10 +298,14 @@ The options I compared and the numbers behind each choice are in [`docs/project_
 
 ## Limitations and next steps
 
+- **The next gain is in retrieval, not the model.** A top-tier model at 35× the price missed the same recommendation and
+  comparison questions as the cheap ones, so better answers need better context: re-ranking the fused results, and
+  making sure every named film and every matching film reaches the model.
 - **Small dataset:** 500 films and about 10,000 reviews. Scaling to 50k–100k+ reviews is the obvious next step; the
   pipeline is idempotent, but embedding and the free database tier set the limit.
-- **Data quality:** the metadata includes at least one TV series (*Vikings*) listed as a film; filtering by runtime or
-  title type when selecting the subset would remove such rows.
+- **Data quality:** the metadata includes at least one TV series (*Vikings*) listed as a film. It already shows up in
+  answers and scores: the top-tier model left it out of a war-film list and was marked down for it. Filtering by
+  runtime or title type when selecting the subset would remove such rows.
 - **Lower precision with hybrid search:** names like "Toy Story" also match the sequels and crowd out other films.
   Re-ranking the fused results would help.
 - **Filters are extracted but not applied:** query translation produces year and genre filters, but retrieval doesn't

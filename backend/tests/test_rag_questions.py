@@ -43,6 +43,7 @@ def test_the_recording_matches_the_current_embedding_model():
 
 
 # Implements: specs/28.md#AC-003
+@pytest.mark.real_data
 @pytest.mark.parametrize("qid", by_kind("known"))
 def test_known_question_retrieves_the_named_film(qid, session, monkeypatch):
     question = QUESTIONS[qid]
@@ -53,6 +54,7 @@ def test_known_question_retrieves_the_named_film(qid, session, monkeypatch):
 
 
 # Implements: specs/28.md#AC-004
+@pytest.mark.real_data
 @pytest.mark.parametrize("qid", by_kind("vague"))
 def test_vague_description_retrieves_the_intended_film(qid, session, monkeypatch):
     question = QUESTIONS[qid]
@@ -64,6 +66,7 @@ def test_vague_description_retrieves_the_intended_film(qid, session, monkeypatch
 
 
 # Implements: specs/28.md#AC-004
+@pytest.mark.real_data
 @pytest.mark.parametrize("qid", by_kind("mood"))
 def test_vague_mood_request_retrieves_mostly_films_of_that_genre(qid, session, monkeypatch):
     question = QUESTIONS[qid]
@@ -75,6 +78,7 @@ def test_vague_mood_request_retrieves_mostly_films_of_that_genre(qid, session, m
 
 
 # Implements: specs/28.md#AC-005
+@pytest.mark.real_data
 @pytest.mark.parametrize("qid", by_kind("no_answer"))
 def test_film_not_in_the_data_retrieves_nothing_about_it_and_the_model_is_told_to_say_so(qid, session, monkeypatch):
     question = QUESTIONS[qid]
